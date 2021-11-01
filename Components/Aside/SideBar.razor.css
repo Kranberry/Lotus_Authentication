@@ -1,0 +1,21 @@
+﻿.aside-top-layout {
+    display: flex;
+    flex-direction: column;
+    width: 15vw;
+    height: 94vh;
+    margin-left: -2%;
+    z-index: 10;
+}
+
+.aside-noside-layout{
+    display: none;
+}
+
+.aside-side-layout {
+    display: flex;
+    flex-direction: column;
+    width: 15vw;
+    height: 100vh;
+    margin-top: -6vh;
+    z-index: 10;
+}

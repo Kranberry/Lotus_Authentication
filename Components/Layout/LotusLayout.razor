@@ -1,0 +1,12 @@
+﻿<div class="component-base @Class" style="@Style">
+	<CascadingValue Value="@Layout" Name="Layout">
+		@ChildContent
+	</CascadingValue>
+</div>
+
+@code {
+	[Parameter] public RenderFragment ChildContent { get; set; }
+	[Parameter] public string Class { get; set; }
+	[Parameter] public string Style { get; set; }
+	[Parameter] public PageLayout Layout {get; set;}
+}

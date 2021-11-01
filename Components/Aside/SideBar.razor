@@ -1,0 +1,23 @@
+﻿<aside class="@_Layout col-2 shadow @Class" style="@Style">
+	@ChildContent
+</aside>
+
+@code {
+	[Parameter] public RenderFragment ChildContent { get; set; }
+	[CascadingParameter(Name = "Layout")] PageLayout Layout { get; set; }
+	[Parameter] public string Class { get; set; }
+	[Parameter] public string Style { get; set; }
+
+	private string _Layout = string.Empty;
+
+	protected override void OnInitialized()
+	{
+		_Layout = Layout switch
+		{
+			PageLayout.TopLayout => "aside-top-layout",
+			PageLayout.SideLayout => "aside-side-layout",
+			PageLayout.TopNoSideLayout => "aside-noside-layout",
+			_ => "aside-top-layout"
+		};
+	}
+}

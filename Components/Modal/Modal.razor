@@ -1,0 +1,66 @@
+﻿@if (!@IsHidden)
+{
+	<div @onclick="CloseModal" class="component-base" />
+
+	<div class="d-flex flex-column @_ModalSize">
+		<div class="@_ContentFit d-flex flex-column justify-content-center align-items-center">
+			@ChildContent
+
+			
+		@if (IncludeModalFooter)
+		{
+			<div class="@_FooterClass shadow">
+				<button class="btn btn-info justify-self-end m-1" @onclick="CloseModal">Close Modal</button>
+			</div>
+		}
+		</div>
+		
+	</div>
+}
+
+
+@code {
+	[Parameter] public bool IsHidden { get; set; } = false;
+	[Parameter, EditorRequired] public bool IsContentSized { get; set; }
+	[Parameter] public RenderFragment ChildContent { get; set; }
+	[Parameter] public bool IncludeModalFooter { get; set; } = true;
+
+	[Parameter]
+	public EventCallback<bool> IsHiddenChanged { get; set; }
+
+	async Task UpdateIsHiddenChanged()
+	{
+		await IsHiddenChanged.InvokeAsync(IsHidden);
+	}
+
+	private string _ModalSize;
+	private string _ContentFit;
+	private string _FooterClass;
+
+	private async Task CloseModal()
+	{
+		IsHidden = true;
+		await UpdateIsHiddenChanged();
+	}
+
+	protected override void OnInitialized()
+	{
+		_ModalSize = IsContentSized switch
+		{
+			true => "modal-window-content-sized",
+			false => "modal-window"
+		};
+
+		_ContentFit = IsContentSized switch
+		{
+			true => "content-div-fit",
+			false => "content-div"
+		};
+
+		_FooterClass = IsContentSized switch
+		{
+			true => "modal-footer",
+			false => "modal-footer-abs"
+		};
+	}
+}
