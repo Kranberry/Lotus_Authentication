@@ -14,6 +14,6 @@ internal class ApiKeyTests
 
     public void IsValidApiKeyTest(ApiKey apiKey)
     {
-
+        
     }
 }
