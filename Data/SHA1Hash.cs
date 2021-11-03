@@ -24,7 +24,7 @@ namespace Lotus_Authentication.Data
 		public static bool IsValidSHA1(string str)
 		{
 			Regex regex = new(@"^[a-fA-F0-9]{40}$");
-			return regex.Matches(str).Any();
+			return regex.IsMatch(str);
 		}
 	}
 }
