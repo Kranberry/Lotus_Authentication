@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Lotus_Authentication.API.ApiModels;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,36 +9,25 @@ namespace Lotus_Authentication.API.Controllers
 	[ApiController]
 	public class AuthenticationController : ControllerBase
 	{
-		// GET api/<AuthenticationController>/5
-		[HttpGet("{email}")]
-		public string Get(string email, [FromBody] string body)
+		// GET api/<AuthenticationController>/user
+		[HttpGet, Route("user")]
+		public ActionResult<User> Get([FromBody] User body)
 		{
-			/*	Body contents
-			 * email or username
-			 * SHA1 hashed password
-			 * 
-			 * 
-			 * 
+			/* {
+			 *	  "username": "testsson",	// optional, but only if email is not supplied
+			 *	  "email": "testsson@email.com",	// optional, but only if username is not supplied
+			 *	  "password": "C6B77501AF2051430FDCE1659E8A9582CCBA40CA"	// Required SHA1 validated
+			 * }
 			 */
-			return email;
-		}
+			if(string.IsNullOrWhiteSpace(body.UserName) && string.IsNullOrWhiteSpace(body.Email))
+				return BadRequest("The 'email' and 'username' fields can not be empty");
+			if (!SHA1Hash.IsValidSHA1(body.Password))
+                return BadRequest("The 'password' field is not a valid SHA1 checksum");
 
-		// POST api/<AuthenticationController>
-		[HttpPost]
-		public void Post([FromBody] string value)
-		{
-		}
+			if (!EmailValidator.IsValidEmail(body.Email))
+				return BadRequest("Input email is not a valid email address");
 
-		// PUT api/<AuthenticationController>/5
-		[HttpPut("{id}")]
-		public void Put(int id, [FromBody] string value)
-		{
-		}
-
-		// DELETE api/<AuthenticationController>/5
-		[HttpDelete("{id}")]
-		public void Delete(int id)
-		{
+            return body;
 		}
 	}
 }
