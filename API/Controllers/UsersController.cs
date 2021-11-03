@@ -4,44 +4,68 @@ using Lotus_Authentication.API.ApiModels;
 namespace Lotus_Authentication.API.Controllers
 {
     // api/Users
-    [Route("api/[controller]")]
+    //[Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
     {
-        // GET: api/<UsersController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        [HttpPost, Route("api/users/newUser")]
+        public ActionResult<User> AddNewUser([FromBody] User user)
         {
-            return new string[] { "value1", "value2" };
+            /* {
+             *   "email": "example@gmail.com", // required
+             *   "username": "example_user", // required
+             *   "password": "C6B77501AF2051430FDCE1659E8A9582CCBA40CA", // SHA1 encrypted
+             *   "first_name": "test", // optional
+             *   "last_name": "testsson", // optional
+             *   "gender": "1", // required
+             *   "country": "sweden", // required
+             * }
+             */
+            throw new NotImplementedException();
         }
 
-        // GET api/<UsersController>/5
-        [HttpGet("{id}")]
-        public User Get(int id)
+        [HttpPut, Route("api/users/user/updateUser")]
+        public ActionResult<User> UpateUser([FromBody] User user)
         {
-            return new User()
-            {
-                Id = id,
-                Name = "WEEEOOOOOO"
-            };
+            /* {
+             *   "email": "example@gmail.com", // required
+             *   "username": "example_user", // required
+             *   "old_password": "C6B77501AF2051430FDCE1659E8A9582CCBA40CA", // required, SHA1 encrypted
+             *   "new_password": "C6B77501AF2051430FDCE1659E8A9582CCBA40CA", // required, SHA1 encrypted
+             *   "first_name": "test", // optional
+             *   "last_name": "testsson", // optional
+             *   "gender": "1", // required
+             *   "country": "sweden", // required
+             * }
+             */
+            throw new NotImplementedException();
         }
 
-        // POST api/<UsersController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        /// <summary>
+        /// Permanently delete a user from the database
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        [HttpDelete("api/users/user/permanent-delete/{email}")]
+        public ActionResult<User> DeleteUser(string email)
         {
+            // email is required
+            throw new NotImplementedException();
         }
 
-        // PUT api/<UsersController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        /// <summary>
+        /// Delete every reference connecting the user with incoming api key
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        [HttpDelete("api/users/user/remove/{email}")]
+        public ActionResult<User> DeleteUserApiReference(string email)
         {
-        }
-
-        // DELETE api/<UsersController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            // fetch Api key from header
+            // email is required
+            throw new NotImplementedException();
         }
     }
 }
