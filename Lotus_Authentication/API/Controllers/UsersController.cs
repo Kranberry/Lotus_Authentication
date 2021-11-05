@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Lotus_Authentication.API.ApiModels;
+using Lotus_Authentication.Models;
 
 namespace Lotus_Authentication.API.Controllers
 {
