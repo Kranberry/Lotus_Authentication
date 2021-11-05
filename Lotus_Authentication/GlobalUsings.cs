@@ -1,1 +1,0 @@
-﻿global using Lotus_Authentication.Data;
