@@ -1,0 +1,24 @@
+﻿<main class="@_Layout @Class" style="@Style">
+	@ChildContent
+</main>
+
+@code {
+	[CascadingParameter(Name = "Layout")] public PageLayout Layout { get; set; }
+
+	[Parameter] public RenderFragment ChildContent { get; set; }
+	[Parameter] public string Class { get; set; }
+	[Parameter] public string Style { get; set; }
+	
+	private string _Layout = string.Empty;
+
+	protected override void OnInitialized()
+	{
+		_Layout = Layout switch
+		{
+			PageLayout.TopLayout => "main-top-layout",
+			PageLayout.SideLayout => "main-side-layout",
+			PageLayout.TopNoSideLayout => "main-top-noside-layout",
+			_ => "main-top-layout"
+		};
+	}
+}

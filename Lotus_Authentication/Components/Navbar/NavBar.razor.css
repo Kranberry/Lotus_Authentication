@@ -1,0 +1,16 @@
+﻿.nav-top-layout {
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+    height: 6vh;
+    z-index: 10;
+}
+
+.nav-side-layout {
+    display: flex;
+    flex-direction: row;
+    width: 85vw;
+    margin-left: auto;
+    height: 6vh;
+    z-index: 10;
+}
