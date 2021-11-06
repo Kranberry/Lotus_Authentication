@@ -1,5 +1,5 @@
 ﻿using Dapper;
-using Npgsql;
+using System.Data.SqlClient;
 
 namespace Lotus_Authentication.Data;
 
