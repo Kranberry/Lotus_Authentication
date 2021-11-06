@@ -17,7 +17,7 @@ namespace Lotus_Authentication.Data
             return (hashedPassword, salt);
         }
 
-        public static string HashPassword(string psw, byte[] salt) => GenerateHash(psw, salt);
+        public static string HashString(string psw, byte[] salt) => GenerateHash(psw, salt);
 
         private static string GenerateHash(string str, byte[] salt)
             => Convert.ToBase64String(KeyDerivation.Pbkdf2(

@@ -1,7 +1,7 @@
 ﻿using Fare;
 using System.Text.RegularExpressions;
 
-namespace Lotus_Authentication.Models;
+namespace Lotus_Authentication.Data;
 
 public class ApiKey
 {

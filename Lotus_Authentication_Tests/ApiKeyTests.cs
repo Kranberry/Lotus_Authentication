@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using Lotus_Authentication.Models;
+using Lotus_Authentication.Data;
 using System.IO;
 using System.Text;
 

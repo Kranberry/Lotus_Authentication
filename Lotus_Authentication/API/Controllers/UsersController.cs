@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Lotus_Authentication.API.ApiModels;
-using Lotus_Authentication.Models;
 
 namespace Lotus_Authentication.API.Controllers
 {
@@ -52,6 +50,7 @@ namespace Lotus_Authentication.API.Controllers
         public ActionResult<User> DeleteUser(string email)
         {
             // email is required
+            // Fetch api key from header
             throw new NotImplementedException();
         }
 
