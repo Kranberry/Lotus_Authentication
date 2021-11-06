@@ -99,4 +99,21 @@ public class DbHandler
     {
         throw new NotImplementedException();
     }
+
+    /// <summary>
+    /// Add a new system log to the database
+    /// </summary>
+    /// <param name="severity">How severe this is</param>
+    /// <param name="exception">The exception thrown (if any)</param>
+    /// <param name="message">An informational message about the log</param>
+    /// <param name="page">What class and method. Where did this happen</param>
+    public static void AddNewSystemLog(LogSeverity severity, Exception? exception, string message, string page)
+    {
+        /* [exception_type] is taken from the exception parameter
+         * [stacktrace] is taken from the exception parameter
+         * [application] is the name taken from this application
+         * [severity] will be the enum converted to a string
+         */
+        throw new NotImplementedException();
+    }
 }
