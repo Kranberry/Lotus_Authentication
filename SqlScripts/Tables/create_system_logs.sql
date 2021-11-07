@@ -1,11 +1,11 @@
 CREATE TABLE system_logs
 (
-    "system_logs_id" SERIAL PRIMARY KEY NOT NULL,
-    "application" TEXT NOT NULL,
-    "severity" TEXT NOT NULL,
-    "exception_type" TEXT,
-    "message" TEXT,
-    "page" TEXT,
-    "stacktrace" TEXT,
-    "entered_date" TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW()::TIMESTAMP
+    [system_logs_id] INT PRIMARY KEY IDENTITY(1, 1) NOT NULL,
+    [application] NVARCHAR(MAX) NOT NULL,
+    [severity] NVARCHAR(MAX) NOT NULL,
+    [exception_type] NVARCHAR(MAX),
+    [message] NVARCHAR(MAX),
+    [page] NVARCHAR(MAX),
+    [stacktrace] NVARCHAR(MAX),
+    [entered_date] DATETIME DEFAULT GETDATE()
 )
