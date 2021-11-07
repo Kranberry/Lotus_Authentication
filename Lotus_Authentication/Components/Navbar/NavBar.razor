@@ -1,0 +1,23 @@
+﻿<nav class="@_Layout shadow @Class" style="@Style">
+	@ChildContent
+</nav>
+
+@code {
+	[CascadingParameter(Name = "Layout")] public PageLayout Layout { get; set; }
+
+	[Parameter] public RenderFragment ChildContent { get; set; }
+	[Parameter] public string Class { get; set; }
+	[Parameter] public string Style { get; set; }
+
+	private string _Layout = string.Empty;
+
+	protected override void OnInitialized()
+	{
+		_Layout = Layout switch
+		{
+			PageLayout.TopLayout => "nav-top-layout",
+			PageLayout.SideLayout => "nav-side-layout",
+			_ => "nav-top-layout"
+		};
+	}
+}

@@ -1,0 +1,57 @@
+﻿.component-base {
+    background-color: white;
+}
+
+.component-medium {
+    --base-height: 408px;
+    --base-width: 332px;
+    --img-container-height: 212px;
+    --title-height: 32px;
+    --bottom-box-height: calc(var(--base-height) - var(--img-container-height) - var(--title-height) - 8px);
+    height: var(--base-height);
+    width: var(--base-width);
+}
+
+.component-small {
+    --base-height: 312px;
+    --base-width: 286px;
+    --img-container-height: 116px;
+    --title-height: 32px;
+    --bottom-box-height: calc(var(--base-height) - var(--img-container-height) - var(--title-height) - 8px);
+    height: var(--base-height);
+    width: var(--base-width);
+}
+
+h2 {
+    height: var(--title-height);
+    font-size: 28px;
+}
+
+p{
+    word-wrap: anywhere;
+    width: inherit;
+}
+
+a {
+    margin-bottom: 0.5rem;
+}
+
+.img-container {
+    height: var(--img-container-height);
+    width: inherit;
+}
+
+img{
+    width: inherit;
+    height: inherit;
+}
+
+.bottom-box {
+    height: var(--bottom-box-height);
+    max-height: var(--bottom-box-height);
+    width: var(--base-width);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
