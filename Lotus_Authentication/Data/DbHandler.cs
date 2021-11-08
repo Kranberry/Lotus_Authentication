@@ -1,12 +1,14 @@
 ﻿using Dapper;
 using System.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using System.Data;
 
 namespace Lotus_Authentication.Data;
 
 public class DbHandler
 {
     private static IConfiguration _Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+    private static string _ActiveDatabase = "authenticator";
     // _Configuration.GetConnectionString("authenticator");
 
     // GetUser overlaoded methods
@@ -17,7 +19,7 @@ public class DbHandler
     /// <param name="userID">The unique id of the user</param>
     /// <returns>A new User object filled with data</returns>
     /// <exception cref="NotImplementedException"></exception>
-    public static string GetUser()
+    public static User GetUser(int userID)
     {
         throw new NotImplementedException();
     }
@@ -111,13 +113,25 @@ public class DbHandler
     /// <param name="exception">The exception thrown (if any)</param>
     /// <param name="message">An informational message about the log</param>
     /// <param name="page">What class and method. Where did this happen</param>
-    public static void AddNewSystemLog(LogSeverity severity, Exception? exception, string message, string page)
+    /// <returns>An int referencing the amount of rows affected</returns>
+    public static async ValueTask<int> AddNewSystemLog(LogSeverity severity, Exception? exception, string message, string page)
     {
-        /* [exception_type] is taken from the exception parameter
-         * [stacktrace] is taken from the exception parameter
-         * [application] is the name taken from this application
-         * [severity] will be the enum converted to a string
-         */
-        throw new NotImplementedException();
+        string procedure = "[system_logs_add]";
+        DynamicParameters parameters = new();
+        parameters.Add("@application", System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, DbType.String);
+        parameters.Add("@severity", severity.ToString(), DbType.String);
+        parameters.Add("@exception_type", exception?.GetType().Name, DbType.String);
+        parameters.Add("@message", message, DbType.String);
+        parameters.Add("@page", page, DbType.String);
+        parameters.Add("@stacktrace", exception?.StackTrace, DbType.String);
+
+        using IDbConnection db = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+        
+        db.Open();
+        int affectedRowsCount = await db.ExecuteAsync(procedure
+                                               , parameters
+                                               , commandType: CommandType.StoredProcedure);
+        db.Dispose();
+        return affectedRowsCount;
     }
 }
