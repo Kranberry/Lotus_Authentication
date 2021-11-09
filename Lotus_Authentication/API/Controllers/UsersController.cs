@@ -7,6 +7,14 @@ namespace Lotus_Authentication.API.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
+
+        [HttpGet, Route("api/users/getUser/{userId}")]
+        public ActionResult<User> TestMethod(int userId)
+        {
+            User user = DbHandler.GetUser(userId);
+            return new OkObjectResult(user);
+        }
+
         [HttpPost, Route("api/users/newUser")]
         public ActionResult<User> AddNewUser([FromBody] User user)
         {
@@ -47,9 +55,8 @@ namespace Lotus_Authentication.API.Controllers
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         [HttpDelete("api/users/user/permanent-delete/{email}")]
-        public ActionResult<string> DeleteUser(string email)
+        public async Task<ActionResult<string>> DeleteUser(string email)
         {
-            return new OkObjectResult(DbHandler.GetUser());
             // email is required
             // Fetch api key from header
             throw new NotImplementedException();
