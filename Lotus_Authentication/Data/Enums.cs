@@ -7,3 +7,16 @@ public enum LogSeverity
     Error = 3,
     Fatal = 4,
 }
+
+public enum UserType
+{
+    Regular,
+    Api
+}
+
+public enum Gender
+{
+    Other,
+    Male,
+    Female
+}

@@ -2,6 +2,7 @@
 using System.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System.Data;
+using System.Linq;
 
 namespace Lotus_Authentication.Data;
 
@@ -21,7 +22,18 @@ public class DbHandler
     /// <exception cref="NotImplementedException"></exception>
     public static User GetUser(int userID)
     {
-        throw new NotImplementedException();
+        string sql = "SELECT TOP 1 * FROM [user] WHERE user_id = @id";
+        using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+
+        con.Open();
+        dynamic? uD = con.Query<dynamic>(sql, new { id = userID }).FirstOrDefault();
+        con.Close();
+
+        if (uD is null)
+            throw new UserNotFoundException(LogSeverity.Warning, $"User with id {userID} could not be found.", $"Class: {nameof(DbHandler)}, Method: {nameof(GetUser)}(int userID)");
+
+        User user = new(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, "SE", uD.record_insert_date, uD.record_update_date, uD.is_validated);
+        return user;
     }
 
     /// <summary>
@@ -31,7 +43,18 @@ public class DbHandler
     /// <returns>A new User object filled with data</returns>
     public static User GetUser(string email)
     {
-        throw new NotImplementedException();
+        string sql = "SELECT TOP 1 * FROM [user] WHERE email = @email";
+        using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+
+        con.Open();
+        dynamic? uD = con.Query<dynamic>(sql, new { email = email }).FirstOrDefault();
+        con.Close();
+
+        if (uD is null)
+            throw new UserNotFoundException(LogSeverity.Warning, $"User with email: {email} could not be found.", $"Class: {nameof(DbHandler)}, Method: {nameof(GetUser)}(string email)");
+
+        User user = new(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, GetCountryISO2ByID(uD.fk_country_id), uD.record_insert_date, uD.record_update_date, uD.is_validated);
+        return user;
     }
 
     /// <summary>
@@ -104,6 +127,27 @@ public class DbHandler
     public static bool RemoveUserApiConnection(int id, string email)
     {
         throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Get the country ISO2 code
+    /// </summary>
+    /// <param name="countryId">The primary key id of the country table</param>
+    /// <returns></returns>
+    public static string GetCountryISO2ByID(int countryId)
+    {
+        string sql = "SELECT TOP 1 * FROM [country] WHERE country_id = @id";
+        using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+
+        con.Open();
+        dynamic? country = con.Query<dynamic>(sql, new { id = countryId }).FirstOrDefault();
+        con.Close();
+
+        if (country is null)
+            throw new CountryNotFoundException(LogSeverity.Warning, $"Country with primary key {countryId} could not be found.", $"Class: {nameof(DbHandler)}, Method: {nameof(GetCountryISO2ByID)}(int countryId)");
+
+        string iso2 = country.iso;
+        return iso2;
     }
 
     /// <summary>
