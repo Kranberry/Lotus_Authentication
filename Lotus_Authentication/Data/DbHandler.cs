@@ -63,14 +63,39 @@ public class DbHandler
     /// <param name="userName">The username for said user</param>
     /// <param name="email">The email addres of said user</param>
     /// <param name="password">The Sha1 encrypted password of said user</param>
-    /// <returns></returns>
+    /// <returns>The requested user</returns>
     /// <exception cref="NotImplementedException"></exception>
-    public static User GetUser(string? userName, string? email, string password)
+    public static User? GetUser(string? userName, string? email, string password)
     {
         if (string.IsNullOrWhiteSpace(userName) && string.IsNullOrWhiteSpace(email))
-            throw new NotImplementedException();
+            return null;
 
-        throw new NotImplementedException();
+        string sql = (userName, email) switch
+        {
+            (null,               not null or not "") => "SELECT TOP 1 * FROM [user] WHERE email = @email AND password = @password",
+            (not null or not "", null) => "SELECT TOP 1 * FROM [user] WHERE username = @userName AND password = @password",
+            (not null or not "", not null or not "") => "SELECT TOP 1 * FROM [user] WHERE username = @userName AND email = @email AND password = @password"
+        };
+
+        DynamicParameters parameters = new();
+        if (userName is not null)
+            parameters.Add("@userName", userName, DbType.String);
+        if (email is not null)
+            parameters.Add("@email", email, DbType.String);
+
+        parameters.Add("@password", password, DbType.String);
+
+        using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+
+        con.Open();
+        dynamic? uD = con.Query<dynamic>(sql, parameters).FirstOrDefault();
+        con.Close();
+
+        if (uD is null)
+            return null;
+
+        User user = new(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, GetCountryISO2ByID(uD.fk_country_id), uD.record_insert_date, uD.record_update_date, uD.is_validated);
+        return user;
     }
     #endregion
 
