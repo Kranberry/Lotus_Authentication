@@ -8,16 +8,17 @@ namespace Lotus_Authentication.API.Controllers
     public class UsersController : ControllerBase
     {
 
-        [HttpGet, Route("api/users/getUser/{userId}")]
-        public ActionResult<User> TestMethod(int userId)
+        [HttpGet, Route("api/users/getUser/test")]
+        public ActionResult<User> TestMethod([FromBody] Dictionary<string, string> body)
         {
-            User user = DbHandler.GetUser(userId);
+            User user = DbHandler.GetUser(body["email"]);
             return new OkObjectResult(user);
         }
 
         [HttpPost, Route("api/users/newUser")]
         public ActionResult<User> AddNewUser([FromBody] User user)
         {
+            // TODO: Add new user via API
             /* {
              *   "email": "example@gmail.com", // required
              *   "username": "example_user", // required
@@ -32,8 +33,9 @@ namespace Lotus_Authentication.API.Controllers
         }
 
         [HttpPut, Route("api/users/user/updateUser")]
-        public ActionResult<User> UpateUser([FromBody] User user)
+        public ActionResult<User> UpdateUser([FromBody] User user)
         {
+            // TODO: Update existing user via API
             /* {
              *   "email": "example@gmail.com", // required
              *   "username": "example_user", // required
@@ -57,6 +59,7 @@ namespace Lotus_Authentication.API.Controllers
         [HttpDelete("api/users/user/permanent-delete/{email}")]
         public async Task<ActionResult<string>> DeleteUser(string email)
         {
+            // TODO: permanentyly delete user via API
             // email is required
             // Fetch api key from header
             throw new NotImplementedException();
@@ -71,6 +74,7 @@ namespace Lotus_Authentication.API.Controllers
         [HttpDelete("api/users/user/remove/{email}")]
         public ActionResult<User> DeleteUserApiReference(string email)
         {
+            // TODO: Delete api reference from existing user via API
             // fetch Api key from header
             // email is required
             throw new NotImplementedException();

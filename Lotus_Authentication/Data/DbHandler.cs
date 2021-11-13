@@ -32,7 +32,8 @@ public class DbHandler
         if (uD is null)
             throw new UserNotFoundException(LogSeverity.Warning, $"User with id {userID} could not be found.", $"Class: {nameof(DbHandler)}, Method: {nameof(GetUser)}(int userID)");
 
-        User user = new(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, "SE", uD.record_insert_date, uD.record_update_date, uD.is_validated);
+        Country country = GetCountryByID(uD.fk_country_id);
+        User user = new(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.is_validated);
         return user;
     }
 
@@ -53,7 +54,8 @@ public class DbHandler
         if (uD is null)
             throw new UserNotFoundException(LogSeverity.Warning, $"User with email: {email} could not be found.", $"Class: {nameof(DbHandler)}, Method: {nameof(GetUser)}(string email)");
 
-        User user = new(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, GetCountryISO2ByID(uD.fk_country_id), uD.record_insert_date, uD.record_update_date, uD.is_validated);
+        Country country = GetCountryByID(uD.fk_country_id);
+        User user = new(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.is_validated);
         return user;
     }
 
@@ -83,6 +85,8 @@ public class DbHandler
         if (email is not null)
             parameters.Add("@email", email, DbType.String);
 
+        // TODO: SHA256 the password with salt from retrieved user (if any)
+        // Only make one call. Get shit from DB, and then validate encrypted password with salt against stored password. If valid, good job. Else return null
         parameters.Add("@password", password, DbType.String);
 
         using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
@@ -94,7 +98,8 @@ public class DbHandler
         if (uD is null)
             return null;
 
-        User user = new(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, GetCountryISO2ByID(uD.fk_country_id), uD.record_insert_date, uD.record_update_date, uD.is_validated);
+        Country country = GetCountryByID(uD.fk_country_id);
+        User user = new(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.is_validated);
         return user;
     }
     #endregion
@@ -117,6 +122,7 @@ public class DbHandler
     /// <exception cref="NotImplementedException"></exception>
     public static bool InsertUser(User user)
     {
+        // Call procedure user_add
         throw new NotImplementedException();
     }
 
@@ -159,20 +165,20 @@ public class DbHandler
     /// </summary>
     /// <param name="countryId">The primary key id of the country table</param>
     /// <returns></returns>
-    public static string GetCountryISO2ByID(int countryId)
+    public static Country GetCountryByID(int countryId)
     {
         string sql = "SELECT TOP 1 * FROM [country] WHERE country_id = @id";
         using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
 
         con.Open();
-        dynamic? country = con.Query<dynamic>(sql, new { id = countryId }).FirstOrDefault();
+        dynamic? countryDb = con.Query<dynamic>(sql, new { id = countryId }).FirstOrDefault();
         con.Close();
 
-        if (country is null)
-            throw new CountryNotFoundException(LogSeverity.Warning, $"Country with primary key {countryId} could not be found.", $"Class: {nameof(DbHandler)}, Method: {nameof(GetCountryISO2ByID)}(int countryId)");
+        if (countryDb is null)
+            throw new CountryNotFoundException(LogSeverity.Warning, $"Country with primary key {countryId} could not be found.", $"Class: {nameof(DbHandler)}, Method: {nameof(GetCountryByID)}(int countryId)");
 
-        string iso2 = country.iso;
-        return iso2;
+        Country country = new(countryDb.country_id, countryDb.name, countryDb.nicename, countryDb.iso, countryDb.iso3, countryDb.numcode, countryDb.phonecode);
+        return country;
     }
 
     /// <summary>
