@@ -113,6 +113,17 @@ public class DbHandler
     {
         throw new NotImplementedException();
     }
+    
+    /// <summary>
+    /// Get all users in database bound too said api key
+    /// </summary>
+    /// <param name="apiKey">The api key of the holder</param>
+    /// <returns>An IEnumerable containing every user in the database bound to sent in api key</returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public static IEnumerable<User> GetUsers(string apiKey)
+    {
+        throw new NotImplementedException();
+    }
 
     /// <summary>
     /// Insert a new user into the database
