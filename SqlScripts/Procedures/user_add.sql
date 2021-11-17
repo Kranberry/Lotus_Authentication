@@ -27,7 +27,7 @@ BEGIN
                 OR username = @username
                 )
     BEGIN
-        SELECT NULL;
+        THROW 50003, 'This username or email address is already taken', 15;
     END
     
     -- insert into user table
