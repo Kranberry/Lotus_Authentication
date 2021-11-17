@@ -7,6 +7,7 @@ public class User
     public string? LastName { get; private set; }
     public string Email { get; private set; }
     public string? Password { get; private set; }
+    public byte[]? Salt { get; private set; }
     public string UserName { get; init; }
     public UserType UserType { get; init; }
     public Gender Gender { get; init; }

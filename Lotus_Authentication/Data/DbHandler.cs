@@ -126,15 +126,53 @@ public class DbHandler
     }
 
     /// <summary>
-    /// Insert a new user into the database
+    /// Insert a new user into the database. 
     /// </summary>
     /// <param name="user">The user to be inserted</param>
     /// <returns>true if the operation was successful</returns>
     /// <exception cref="NotImplementedException"></exception>
-    public static bool InsertUser(User user)
+    public static async Task<User?> InsertUser(User user, string? ApiKey)
     {
+        // TODO: Add null checking for username, email, password, salt and countryIso2
+        // TODO: Add SHA1 check for password
+        (string sha256Password, byte[] salt) = SHA256Hash.HashAndSaltString(user.Password);
+
         // Call procedure user_add
-        throw new NotImplementedException();
+        string procedure = "[user_add]";
+        DynamicParameters parameters = new();
+        parameters.Add("@username", user.UserName, DbType.String);
+        parameters.Add("@email", user.Email, DbType.String);
+        parameters.Add("@password", sha256Password, DbType.String);
+        parameters.Add("@salt", salt, DbType.Binary);
+        parameters.Add("@country_iso2", user.CountryISO2, DbType.AnsiStringFixedLength, ParameterDirection.Input, 2);
+        parameters.Add("@first_name", user.FirstName, DbType.String);
+        parameters.Add("@last_name", user.LastName, DbType.String);
+        parameters.Add("@gender", user.Gender, DbType.Boolean);
+        parameters.Add("@api_key", ApiKey, DbType.String);
+
+        using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+        con.Open();
+
+        dynamic? uD = default;
+        try
+        {
+            uD = con.Query<dynamic>(procedure, parameters, commandType: CommandType.StoredProcedure).SingleOrDefault();
+        }
+        catch (SqlException ex)
+        {
+            if(ex.Number == 50003)
+                return null;
+
+            throw ex;
+        }
+        con.Close();
+
+        if (uD is null)
+            return null;
+
+        Country country = GetCountryByID(uD.fk_country_id);
+        User returnedUser = new(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.is_validated);
+        return returnedUser;
     }
 
     /// <summary>

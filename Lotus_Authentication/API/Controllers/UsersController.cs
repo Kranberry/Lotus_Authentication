@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Lotus_Authentication.API.ApiModels;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Lotus_Authentication.API.Controllers
 {
@@ -15,21 +16,50 @@ namespace Lotus_Authentication.API.Controllers
             return new OkObjectResult(user);
         }
 
+
+        /* {
+         *   "email": "example@gmail.com", // required
+         *   "username": "example_user", // required
+         *   "password": "C6B77501AF2051430FDCE1659E8A9582CCBA40CA", // SHA1 encrypted
+         *   "first_name": "test", // optional
+         *   "last_name": "testsson", // optional
+         *   "gender": "1", // required
+         *   "country_iso2": "SE", // required
+         * } */
         [HttpPost, Route("api/users/newUser")]
-        public ActionResult<User> AddNewUser([FromBody] User user)
+        public async Task<ActionResult<User>> AddNewUser([FromHeader] HeaderDictionary head, [FromBody] ApiUserModel body) // HttpRequest body
         {
-            // TODO: Add new user via API
-            /* {
-             *   "email": "example@gmail.com", // required
-             *   "username": "example_user", // required
-             *   "password": "C6B77501AF2051430FDCE1659E8A9582CCBA40CA", // SHA1 encrypted
-             *   "first_name": "test", // optional
-             *   "last_name": "testsson", // optional
-             *   "gender": "1", // required
-             *   "country": "sweden", // required
-             * }
-             */
-            throw new NotImplementedException();
+            string[] mandatoryKeys = new string[] { nameof(body.Email), nameof(body.UserName), nameof(body.Password), nameof(body.CountryISO2) };
+            // New method to check for req body requirements
+            if (body.ArePropertiesNull(mandatoryKeys, out string? key))
+                return new BadRequestObjectResult($"Mandatory property not found: '{key}'");
+
+            if (!EmailValidator.IsValidEmail(body.Email))
+                return new BadRequestObjectResult($"The property 'email' does not contain a valid email address");
+
+            string? badRequestMessage = body.UserName switch
+            {
+                string str when ( string.IsNullOrWhiteSpace(str) )  => "The property 'username' cannot be null or whitespace",
+                string str when ( str.Contains(' ') )               => "The property 'username' cannot contain spaces", 
+                string str when ( str.Length < 5 )                  => "The property 'username' cannot be shorter than 5 characters long",
+                _                                                   => null
+            };
+            if(badRequestMessage is not null)
+                return new BadRequestObjectResult(badRequestMessage);
+
+            if (!SHA1Hash.IsValidSHA1(body.Password))
+                return new BadRequestObjectResult($"The property 'password' is not a valid SHA1 checksum");
+
+            body.Gender ??= Gender.Other;
+
+            string? f = 5 < 10 ? "asd" : null;
+            User? user = new(0, body.FirstName, body.LastName, body.Email, body.UserName, UserType.Regular, (Gender)body.Gender, body.CountryISO2, null, null, DateTime.Now, null, false);
+            user.SetPassword(body.Password);
+
+            string? apiKey = head.ContainsKey("api_key") ? head["api_key"].ToString() : null;
+            user = await DbHandler.InsertUser(user, apiKey);
+
+            return user is not null ? user : new BadRequestObjectResult("User with this email or username already exists");
         }
 
         [HttpPut, Route("api/users/user/updateUser")]
@@ -39,12 +69,12 @@ namespace Lotus_Authentication.API.Controllers
             /* {
              *   "email": "example@gmail.com", // required
              *   "username": "example_user", // required
-             *   "old_password": "C6B77501AF2051430FDCE1659E8A9582CCBA40CA", // required, SHA1 encrypted
-             *   "new_password": "C6B77501AF2051430FDCE1659E8A9582CCBA40CA", // required, SHA1 encrypted
+             *   "password": "C6B77501AF2051430FDCE1659E8A9582CCBA40CA", // required, SHA1 encrypted
+             *   "new_password": "C6B77501AF2051430FDCE1659E8A9582CCBA40CA", // optional, SHA1 encrypted
              *   "first_name": "test", // optional
              *   "last_name": "testsson", // optional
-             *   "gender": "1", // required
-             *   "country": "sweden", // required
+             *   "gender": "1", // optional
+             *   "country_iso2": "SE", // optional
              * }
              */
             throw new NotImplementedException();
