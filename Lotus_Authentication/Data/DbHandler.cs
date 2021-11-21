@@ -227,18 +227,6 @@ public class DbHandler
 
         return rowsModified > 0;
     }
-    
-    /// <summary>
-    /// Permanently delete user from database
-    /// </summary>
-    /// <param name="id">The unique id of the user</param>
-    /// <param name="email">The unique email of the user</param>
-    /// <returns>true if the operation was successful</returns>
-    public static bool RemoveUserApiConnection(string email, string apiKey)
-    {
-
-        throw new NotImplementedException();
-    }
 
     /// <summary>
     /// Get the country ISO2 code
