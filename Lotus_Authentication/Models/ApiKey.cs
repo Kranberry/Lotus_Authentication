@@ -1,10 +1,17 @@
 ﻿using Fare;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace Lotus_Authentication.Data;
 
 public class ApiKey
 {
+    public int ApiKeyID { get; init; }
+    public string Key { get; set; }
+    public string? Alias { get; set; }
+    public DateTime InsertDate { get; init; }
+    public DateTime? UpdateDate { get; init; }
+
     private static Regex _ApiRegex = new Regex(@"^[0-9]{4}[A-Fa-f]\-[A-Fa-f0-9]{8}\-[A-Fa-f0-9]{8}\-[A-Fa-f0-9]{8}\-[A-Fa-f0-9]{8}$");
 
     /// <summary>

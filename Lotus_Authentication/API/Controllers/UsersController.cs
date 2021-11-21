@@ -8,15 +8,6 @@ namespace Lotus_Authentication.API.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-
-        [HttpGet, Route("api/users/getUser/test")]
-        public ActionResult<User> TestMethod([FromBody] Dictionary<string, string> body)
-        {
-            User user = DbHandler.GetUser(body["email"]);
-            return new OkObjectResult(user);
-        }
-
-
         /* {
          *   "email": "example@gmail.com", // required
          *   "username": "example_user", // required
@@ -27,7 +18,7 @@ namespace Lotus_Authentication.API.Controllers
          *   "country_iso2": "SE", // required
          * } */
         [HttpPost, Route("api/users/newUser")]
-        public async Task<ActionResult<User>> AddNewUser([FromHeader] HeaderDictionary head, [FromBody] ApiUserModel body) // HttpRequest body
+        public async Task<ActionResult<User>> AddNewUser([FromHeader] string? api_key, [FromBody] ApiUserModel body) // HttpRequest body
         {
             string[] mandatoryKeys = new string[] { nameof(body.Email), nameof(body.UserName), nameof(body.Password), nameof(body.CountryISO2) };
             // New method to check for req body requirements
@@ -56,7 +47,8 @@ namespace Lotus_Authentication.API.Controllers
             User? user = new(0, body.FirstName, body.LastName, body.Email, body.UserName, UserType.Regular, (Gender)body.Gender, body.CountryISO2, null, null, DateTime.Now, null, false);
             user.SetPassword(body.Password);
 
-            string? apiKey = head.ContainsKey("api_key") ? head["api_key"].ToString() : null;
+#warning TODO: Remove placeholder api key
+            string? apiKey = !string.IsNullOrWhiteSpace(api_key) ? api_key : "2527C-ACAd56BA-F08cBbFE-e8cdbFef-EA0c7Ab1" /*null*/;
             user = await DbHandler.InsertUser(user, apiKey);
 
             return user is not null ? user : new BadRequestObjectResult("User with this email or username already exists");
@@ -102,12 +94,31 @@ namespace Lotus_Authentication.API.Controllers
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         [HttpDelete("api/users/user/remove/{email}")]
-        public ActionResult<User> DeleteUserApiReference(string email)
+        public ActionResult<bool> DeleteUserApiReference([FromHeader] string api_key, string email)
         {
-            // TODO: Delete api reference from existing user via API
-            // fetch Api key from header
-            // email is required
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(api_key))
+                return new BadRequestResult();
+            if (!ApiKey.IsValidApiKey(api_key))
+                return new BadRequestObjectResult("Invalid Api key");
+            if (string.IsNullOrWhiteSpace(email))
+                return new BadRequestObjectResult("email cannot be null or empty");
+
+            User user;
+            try
+            {
+                user = DbHandler.GetUser(email);
+            }
+            catch (UserNotFoundException)
+            {
+                return new NotFoundResult();
+            }
+
+            bool success = DbHandler.RemoveUserApiConnection(user.Id, api_key);
+
+            if (!success)
+                return new NotFoundResult();
+
+            return Ok($"User has successfully been removed from your api key");
         }
     }
 }

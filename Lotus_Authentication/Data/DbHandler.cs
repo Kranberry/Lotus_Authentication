@@ -3,6 +3,8 @@ using System.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System.Data;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Lotus_Authentication.Data;
 
@@ -133,11 +135,13 @@ public class DbHandler
     /// <exception cref="NotImplementedException"></exception>
     public static async Task<User?> InsertUser(User user, string? ApiKey)
     {
-        // TODO: Add null checking for username, email, password, salt and countryIso2
-        // TODO: Add SHA1 check for password
+        if(user.Password is null)
+            throw new NullReferenceException("Password cannot be null " + nameof(user.Password));
+        if (!SHA1Hash.IsValidSHA1(user.Password))
+            throw new BadSHA1ReferenceException(LogSeverity.Informational, $"{ApiKey} tried to insert user with invalid SHA1 checksum for password", $"Class: {nameof(DbHandler)}, Method: {nameof(InsertUser)}(User user, string? apiKey)");
+
         (string sha256Password, byte[] salt) = SHA256Hash.HashAndSaltString(user.Password);
 
-        // Call procedure user_add
         string procedure = "[user_add]";
         DynamicParameters parameters = new();
         parameters.Add("@username", user.UserName, DbType.String);
@@ -195,17 +199,44 @@ public class DbHandler
     /// <exception cref="NotImplementedException"></exception>
     public static bool PermanentDeleteUser(int id, string email)
     {
+
         throw new NotImplementedException();
     }
 
+    /// <summary>
+    /// Permanently delete a user to api connection
+    /// </summary>
+    /// <param name="id">The unique id of the user</param>
+    /// <param name="apikey">The unique apiKey of the api user</param>
+    /// <returns>true if the operation was successful</returns>
+    public static bool RemoveUserApiConnection(int id, string apiKey)
+    {
+        string procedure = "[delete_user2api_key]";
+        ApiKey? apiKeyObj = GetApiKeyByApiKey(apiKey);
+        if (apiKeyObj is null)
+            return false;
+
+        DynamicParameters parameters = new();
+        parameters.Add("@user_id", id);
+        parameters.Add("@api_key_id", apiKeyObj.ApiKeyID);
+
+        using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+        con.Open();
+        int rowsModified = con.Execute(procedure, parameters, commandType: CommandType.StoredProcedure);
+        con.Close();
+
+        return rowsModified > 0;
+    }
+    
     /// <summary>
     /// Permanently delete user from database
     /// </summary>
     /// <param name="id">The unique id of the user</param>
     /// <param name="email">The unique email of the user</param>
     /// <returns>true if the operation was successful</returns>
-    public static bool RemoveUserApiConnection(int id, string email)
+    public static bool RemoveUserApiConnection(string email, string apiKey)
     {
+
         throw new NotImplementedException();
     }
 
@@ -228,6 +259,32 @@ public class DbHandler
 
         Country country = new(countryDb.country_id, countryDb.name, countryDb.nicename, countryDb.iso, countryDb.iso3, countryDb.numcode, countryDb.phonecode);
         return country;
+    }
+
+    /// <summary>
+    /// Get the corresponding ApiKey object 
+    /// </summary>
+    /// <param name="apiKey"></param>
+    /// <returns></returns>
+    private static ApiKey? GetApiKeyByApiKey(string apiKey)
+    {
+        string query = "SELECT TOP 1 * FROM [api_key] WHERE [api_key] = @key";
+        DynamicParameters parameters = new();
+        parameters.Add("key", apiKey, DbType.String);
+
+        using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+        con.Open();
+        ApiKey? apiKeyObj = con.Query<dynamic>(query, parameters).Select(item => new ApiKey() 
+                                                                        {
+                                                                            Alias = item.alias,
+                                                                            ApiKeyID = item.api_key_id,
+                                                                            InsertDate = item.record_insert_date,
+                                                                            UpdateDate = item.record_update_date,
+                                                                            Key = item.api_key
+                                                                        }).SingleOrDefault();
+        con.Close();
+
+        return apiKeyObj;
     }
 
     /// <summary>
