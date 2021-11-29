@@ -18,7 +18,7 @@ namespace Lotus_Authentication.API.Controllers
          *   "country_iso2": "SE", // required
          * } */
         [HttpPost, Route("api/users/newUser")]
-        public async Task<ActionResult<User>> AddNewUser([FromHeader] string? api_key, [FromBody] ApiUserModel body) // HttpRequest body
+        public async Task<ActionResult<User>> AddNewUser([FromHeader] string api_key, [FromBody] ApiUserModel body) // HttpRequest body
         {
             string[] mandatoryKeys = new string[] { nameof(body.Email), nameof(body.UserName), nameof(body.Password), nameof(body.CountryISO2) };
             // New method to check for req body requirements
@@ -27,6 +27,9 @@ namespace Lotus_Authentication.API.Controllers
 
             if (!EmailValidator.IsValidEmail(body.Email))
                 return new BadRequestObjectResult($"The property 'email' does not contain a valid email address");
+
+            if (!ApiKey.IsValidApiKey(api_key))
+                return StatusCode(403);
 
             string? badRequestMessage = body.UserName switch
             {
@@ -47,15 +50,13 @@ namespace Lotus_Authentication.API.Controllers
             User? user = new(0, body.FirstName, body.LastName, body.Email, body.UserName, UserType.Regular, (Gender)body.Gender, body.CountryISO2, null, null, DateTime.Now, null, false);
             user.SetPassword(body.Password);
 
-#warning TODO: Remove placeholder api key
-            string? apiKey = !string.IsNullOrWhiteSpace(api_key) ? api_key : "2527C-ACAd56BA-F08cBbFE-e8cdbFef-EA0c7Ab1" /*null*/;
-            user = await DbHandler.InsertUser(user, apiKey);
+            user = await DbHandler.InsertUser(user, api_key);
 
             return user is not null ? user : new BadRequestObjectResult("User with this email or username already exists");
         }
 
         [HttpPut, Route("api/users/user/updateUser")]
-        public ActionResult<User> UpdateUser([FromBody] User user)
+        public ActionResult<User> UpdateUser([FromBody] ApiUserModel user)
         {
             // TODO: Update existing user via API
             /* {
@@ -79,12 +80,34 @@ namespace Lotus_Authentication.API.Controllers
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         [HttpDelete("api/users/user/permanent-delete/{email}")]
-        public async Task<ActionResult<string>> DeleteUser(string email)
+        public async Task<ActionResult<string>> DeleteUser([FromHeader] string api_key, string email)
         {
-            // TODO: permanentyly delete user via API
-            // email is required
-            // Fetch api key from header
-            throw new NotImplementedException();
+            if (!ApiKey.IsValidApiKey(api_key))
+                return new BadRequestResult();
+
+            User user;
+            ApiKey apiKey;
+            try
+            {
+                user = DbHandler.GetUser(email);
+                apiKey = DbHandler.GetApiKeyByApiKey(api_key);
+            }
+            catch (UserNotFoundException)
+            {
+                return new NotFoundResult();
+            }
+            catch (BadApiKeyReferenceException)
+            {
+                return new NotFoundObjectResult("Api key could not be found.");
+            }
+
+            if(await DbHandler.UserHasConnectionToApiKey(user.Id, apiKey.ApiKeyID))
+            {
+                DbHandler.PermanentDeleteUser(user.Id);
+                return new OkResult();
+            }
+
+            return StatusCode(403);
         }
 
         /// <summary>

@@ -68,7 +68,6 @@ public class DbHandler
     /// <param name="email">The email addres of said user</param>
     /// <param name="password">The Sha1 encrypted password of said user</param>
     /// <returns>The requested user</returns>
-    /// <exception cref="NotImplementedException"></exception>
     public static User? GetUser(string? userName, string? email, string password)
     {
         if (string.IsNullOrWhiteSpace(userName) && string.IsNullOrWhiteSpace(email))
@@ -127,13 +126,31 @@ public class DbHandler
         throw new NotImplementedException();
     }
 
+    public static async ValueTask<bool> UserHasConnectionToApiKey(int userId, int apiKeyId)
+    {
+        if (userId <= 0 || apiKeyId <= 0)
+            return false;
+
+        string query = "SELECT TOP 1 user2api_key_id FROM [user2api_key] WHERE fk_user_id = @userId AND fk_api_key_id = @apiKeyId";
+        DynamicParameters parameters = new();
+        parameters.Add("@userId", userId, DbType.Int32);
+        parameters.Add("@apiKeyId", apiKeyId, DbType.Int32);
+
+        using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+        con.Open();
+        object objReturned = await con.ExecuteScalarAsync(query, parameters);
+        con.Close();
+
+        return objReturned is not null;
+    }
+
     /// <summary>
     /// Insert a new user into the database. 
     /// </summary>
     /// <param name="user">The user to be inserted</param>
     /// <returns>true if the operation was successful</returns>
     /// <exception cref="NotImplementedException"></exception>
-    public static async Task<User?> InsertUser(User user, string? ApiKey)
+    public static async Task<User?> InsertUser(User user, string ApiKey)
     {
         if(user.Password is null)
             throw new NullReferenceException("Password cannot be null " + nameof(user.Password));
@@ -196,11 +213,18 @@ public class DbHandler
     /// <param name="id">The unique id of the user</param>
     /// <param name="email">The unique email of the user</param>
     /// <returns>true if the operation was successful</returns>
-    /// <exception cref="NotImplementedException"></exception>
-    public static bool PermanentDeleteUser(int id, string email)
+    public static bool PermanentDeleteUser(int id)
     {
+        string procedure = "[permanently_delete_user]";
+        DynamicParameters parameters = new();
+        parameters.Add("@user_id", id);
 
-        throw new NotImplementedException();
+        using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+        con.Open();
+        int rowsModified = con.Execute(procedure, parameters, commandType: CommandType.StoredProcedure);
+        con.Close();
+
+        return rowsModified > 0;
     }
 
     /// <summary>
@@ -253,8 +277,9 @@ public class DbHandler
     /// Get the corresponding ApiKey object 
     /// </summary>
     /// <param name="apiKey"></param>
-    /// <returns></returns>
-    private static ApiKey? GetApiKeyByApiKey(string apiKey)
+    /// <returns>An object of the api key found</returns>
+    /// <exception cref="BadApiKeyReferenceException">Thrown when the api key could not be found</exception>
+    public static ApiKey GetApiKeyByApiKey(string apiKey)
     {
         string query = "SELECT TOP 1 * FROM [api_key] WHERE [api_key] = @key";
         DynamicParameters parameters = new();
@@ -271,6 +296,8 @@ public class DbHandler
                                                                             Key = item.api_key
                                                                         }).SingleOrDefault();
         con.Close();
+        if (apiKeyObj is null)
+            throw new BadApiKeyReferenceException(LogSeverity.Warning, $"Api key not found {apiKey}", $"Class: {nameof(DbHandler)}, Method: {nameof(GetApiKeyByApiKey)}(string apiKey)");
 
         return apiKeyObj;
     }

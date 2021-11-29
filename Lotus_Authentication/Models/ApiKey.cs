@@ -1,5 +1,4 @@
 ﻿using Fare;
-using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace Lotus_Authentication.Data;
@@ -23,13 +22,32 @@ public class ApiKey
         Xeger xeger = new(_ApiRegex.ToString());
         string apiKey = xeger.Generate();
 
-        // TODO: Check if generated key already exists in the database. If it does, then recreate it until it's unique
-
-        return apiKey;
+        while (true)
+        {
+            try
+            {
+                DbHandler.GetApiKeyByApiKey(apiKey);
+            }
+            catch ( BadApiKeyReferenceException )
+            {
+                return apiKey;
+            }
+        }
     }
 
     public static bool IsValidApiKey(string apiKey)
     {
         return _ApiRegex.IsMatch(apiKey);
+    }
+}
+
+/// <summary>
+/// Thrown when api key is not found in database
+/// </summary>
+public class BadApiKeyReferenceException : BaseException
+{
+    public BadApiKeyReferenceException(LogSeverity severity, string message, string page)
+    {
+        SendSyslog(severity, message, page, this);
     }
 }
