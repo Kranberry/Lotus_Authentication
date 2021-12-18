@@ -150,12 +150,20 @@ public class DbHandler
     /// <param name="user">The user to be inserted</param>
     /// <returns>true if the operation was successful</returns>
     /// <exception cref="UserAlreadyExistsException">This exception is thrown when there already exists a user with this email and/or username</exception>
-    public static async Task<User> InsertUser(User user, string ApiKey)
+    /// <exception cref="NullReferenceException">This exception is thrown when the password in the User object is null</exception>
+    /// <exception cref="BadSHA1ReferenceException">This exception is thrown when the password in the User object is not a valid SHA1 checksum</exception>
+    /// <exception cref="BadApiKeyReferenceException">This exception is thrown when the apiKey is null, empty or invalid</exception>
+    public static async Task<User> InsertUser(User user, string apiKey)
     {
-        if(user.Password is null)
+        if (string.IsNullOrEmpty(apiKey))
+            throw new BadApiKeyReferenceException(LogSeverity.Warning, $"ApiKey is null or empty", $"Class: {nameof(DbHandler)}, Method: {nameof(InsertUser)}(User user, string? apiKey)");
+        if(!ApiKey.IsValidApiKey(apiKey))
+            throw new BadApiKeyReferenceException(LogSeverity.Warning, $"ApiKey is not valid: {apiKey}", $"Class: {nameof(DbHandler)}, Method: {nameof(InsertUser)}(User user, string? apiKey)");
+
+        if (user.Password is null)
             throw new NullReferenceException("Password cannot be null " + nameof(user.Password));
         if (!SHA1Hash.IsValidSHA1(user.Password))
-            throw new BadSHA1ReferenceException(LogSeverity.Informational, $"{ApiKey} tried to insert user with invalid SHA1 checksum for password", $"Class: {nameof(DbHandler)}, Method: {nameof(InsertUser)}(User user, string? apiKey)");
+            throw new BadSHA1ReferenceException(LogSeverity.Informational, $"{apiKey} tried to insert user with invalid SHA1 checksum for password", $"Class: {nameof(DbHandler)}, Method: {nameof(InsertUser)}(User user, string? apiKey)");
 
         (string sha256Password, byte[] salt) = SHA256Hash.HashAndSaltString(user.Password);
 
@@ -169,7 +177,7 @@ public class DbHandler
         parameters.Add("@first_name", user.FirstName, DbType.String);
         parameters.Add("@last_name", user.LastName, DbType.String);
         parameters.Add("@gender", user.Gender, DbType.Boolean);
-        parameters.Add("@api_key", ApiKey, DbType.String);
+        parameters.Add("@api_key", apiKey, DbType.String);
 
         using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
         con.Open();

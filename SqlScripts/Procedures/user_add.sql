@@ -13,6 +13,11 @@ CREATE PROCEDURE user_add
 AS
 BEGIN
 
+    IF @api_key IS NULL
+    BEGIN
+        THROW 50005, '@api_key cannot be null', 15;
+    END
+
     IF @username IS NULL OR @email IS NULL OR @password IS NULL OR @salt IS NULL OR @country_iso2 IS NULL
     BEGIN
         THROW 50002, '@username, @email, @password, @salt and @country_iso2 parameters cannot be null', 15;
