@@ -21,7 +21,6 @@ namespace Lotus_Authentication.API.Controllers
         public async Task<ActionResult<User>> AddNewUser([FromHeader] string api_key, [FromBody] ApiUserModel body) // HttpRequest body
         {
             string[] mandatoryKeys = new string[] { nameof(body.Email), nameof(body.UserName), nameof(body.Password), nameof(body.CountryISO2) };
-            // New method to check for req body requirements
             if (body.ArePropertiesNull(mandatoryKeys, out string? key))
                 return new BadRequestObjectResult($"Mandatory property not found: '{key}'");
 
@@ -31,14 +30,14 @@ namespace Lotus_Authentication.API.Controllers
             if (!ApiKey.IsValidApiKey(api_key))
                 return StatusCode(403);
 
-            string? badRequestMessage = body.UserName switch
+            string badRequestMessage = body.UserName switch
             {
                 string str when ( string.IsNullOrWhiteSpace(str) )  => "The property 'username' cannot be null or whitespace",
                 string str when ( str.Contains(' ') )               => "The property 'username' cannot contain spaces", 
                 string str when ( str.Length < 5 )                  => "The property 'username' cannot be shorter than 5 characters long",
-                _                                                   => null
+                _                                                   => string.Empty
             };
-            if(badRequestMessage is not null)
+            if(badRequestMessage != string.Empty)
                 return new BadRequestObjectResult(badRequestMessage);
 
             if (!SHA1Hash.IsValidSHA1(body.Password))
@@ -46,13 +45,19 @@ namespace Lotus_Authentication.API.Controllers
 
             body.Gender ??= Gender.Other;
 
-            string? f = 5 < 10 ? "asd" : null;
-            User? user = new(0, body.FirstName, body.LastName, body.Email, body.UserName, UserType.Regular, (Gender)body.Gender, body.CountryISO2, null, null, DateTime.Now, null, false);
+            User user = new(0, body.FirstName, body.LastName, body.Email, body.UserName, UserType.Regular, (Gender)body.Gender, body.CountryISO2, null, null, DateTime.Now, null, false);
             user.SetPassword(body.Password);
 
-            user = await DbHandler.InsertUser(user, api_key);
+            try
+            {
+                user = await DbHandler.InsertUser(user, api_key);
+            }
+            catch(UserAlreadyExistsException)
+            {
+                return new BadRequestObjectResult("User with this email or username already exists");
+            }
 
-            return user is not null ? user : new BadRequestObjectResult("User with this email or username already exists");
+            return user;
         }
 
         [HttpPut, Route("api/users/user/updateUser")]

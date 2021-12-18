@@ -149,8 +149,8 @@ public class DbHandler
     /// </summary>
     /// <param name="user">The user to be inserted</param>
     /// <returns>true if the operation was successful</returns>
-    /// <exception cref="NotImplementedException"></exception>
-    public static async Task<User?> InsertUser(User user, string ApiKey)
+    /// <exception cref="UserAlreadyExistsException">This exception is thrown when there already exists a user with this email and/or username</exception>
+    public static async Task<User> InsertUser(User user, string ApiKey)
     {
         if(user.Password is null)
             throw new NullReferenceException("Password cannot be null " + nameof(user.Password));
@@ -174,22 +174,19 @@ public class DbHandler
         using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
         con.Open();
 
-        dynamic? uD = default;
+        dynamic uD;
         try
         {
-            uD = con.Query<dynamic>(procedure, parameters, commandType: CommandType.StoredProcedure).SingleOrDefault();
+            uD = con.Query<dynamic>(procedure, parameters, commandType: CommandType.StoredProcedure).Single();
         }
         catch (SqlException ex)
         {
-            if(ex.Number == 50003)
-                return null;
+            if (ex.Number == 50003)
+                throw new UserAlreadyExistsException(LogSeverity.Informational, $"User with username or email alreadt exists: userName{user.UserName}, email: {user.Email}", $"Class: {nameof(DbHandler)}, Method: {InsertUser}(User user, string ApiKey)");
 
             throw ex;
         }
         con.Close();
-
-        if (uD is null)
-            return null;
 
         Country country = GetCountryByID(uD.fk_country_id);
         User returnedUser = new(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.is_validated);
@@ -204,6 +201,8 @@ public class DbHandler
     /// <exception cref="NotImplementedException"></exception>
     public static User UpdateUser(User user)
     {
+        // TODO: Update user to the database, but only if the api user is allowed to
+        // TODO: Create a procedure in the database to update a user if the apikey is valid. 
         throw new NotImplementedException();
     }
 
