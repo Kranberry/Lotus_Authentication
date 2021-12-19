@@ -152,14 +152,8 @@ public class DbHandler
     /// <exception cref="UserAlreadyExistsException">This exception is thrown when there already exists a user with this email and/or username</exception>
     /// <exception cref="NullReferenceException">This exception is thrown when the password in the User object is null</exception>
     /// <exception cref="BadSHA1ReferenceException">This exception is thrown when the password in the User object is not a valid SHA1 checksum</exception>
-    /// <exception cref="BadApiKeyReferenceException">This exception is thrown when the apiKey is null, empty or invalid</exception>
     public static async Task<User> InsertUser(User user, string apiKey)
     {
-        if (string.IsNullOrEmpty(apiKey))
-            throw new BadApiKeyReferenceException(LogSeverity.Warning, $"ApiKey is null or empty", $"Class: {nameof(DbHandler)}, Method: {nameof(InsertUser)}(User user, string? apiKey)");
-        if(!ApiKey.IsValidApiKey(apiKey))
-            throw new BadApiKeyReferenceException(LogSeverity.Warning, $"ApiKey is not valid: {apiKey}", $"Class: {nameof(DbHandler)}, Method: {nameof(InsertUser)}(User user, string? apiKey)");
-
         if (user.Password is null)
             throw new NullReferenceException("Password cannot be null " + nameof(user.Password));
         if (!SHA1Hash.IsValidSHA1(user.Password))
