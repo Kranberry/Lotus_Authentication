@@ -20,3 +20,10 @@ public enum Gender
     Male,
     Female
 }
+
+public enum DatabaseException
+{
+    ParameterIsNull = 50002,
+    UserAlreadyExists,
+    UserDoesNotExist
+}

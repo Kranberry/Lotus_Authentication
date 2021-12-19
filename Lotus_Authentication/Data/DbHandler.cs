@@ -183,7 +183,7 @@ public class DbHandler
         }
         catch (SqlException ex)
         {
-            if (ex.Number == 50003)
+            if (ex.Number == (int)DatabaseException.UserAlreadyExists)
                 throw new UserAlreadyExistsException(LogSeverity.Informational, $"User with username or email alreadt exists: userName{user.UserName}, email: {user.Email}", $"Class: {nameof(DbHandler)}, Method: {InsertUser}(User user, string ApiKey)");
 
             throw ex;
@@ -203,6 +203,7 @@ public class DbHandler
     /// <exception cref="NotImplementedException"></exception>
     public static User UpdateUser(User user)
     {
+#error Do this next time. Procedure is not done yet. So do that first :)
         // TODO: Update user to the database, but only if the api user is allowed to
         // TODO: Create a procedure in the database to update a user if the apikey is valid. 
         throw new NotImplementedException();
