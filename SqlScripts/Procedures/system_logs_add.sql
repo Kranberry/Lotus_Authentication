@@ -8,7 +8,7 @@ CREATE PROCEDURE [system_logs_add]
 AS
     IF @application IS NULL OR @severity IS NULL
     BEGIN
-        THROW 50001, 'application or severity parameters cannot be null', 15;
+        THROW 50002, 'application or severity parameters cannot be null', 15;
     END;
 
     INSERT INTO system_logs(application, severity, exception_type, [message], page, stacktrace, entered_date) VALUES

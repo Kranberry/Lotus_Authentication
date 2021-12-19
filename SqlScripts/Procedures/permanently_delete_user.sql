@@ -7,7 +7,7 @@ BEGIN
 
     IF @user_id IS NULL
     BEGIN
-        THROW 50004, '@user_id cannot be left null!', 15;
+        THROW 50002, '@user_id cannot be left null!', 15;
     END
 
     DELETE FROM [user2api_key] WHERE
