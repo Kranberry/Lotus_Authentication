@@ -201,12 +201,53 @@ public class DbHandler
     /// <param name="user">The user object of said user</param>
     /// <returns>The updated user Object</returns>
     /// <exception cref="NotImplementedException"></exception>
-    public static User UpdateUser(User user)
+    public static User UpdateUser(User user, bool updatePassword)
     {
-#error Do this next time. Procedure is not done yet. So do that first :)
+        if (updatePassword && SHA1Hash.IsValidSHA1(user.Password))
+            throw new BadSHA1ReferenceException(LogSeverity.Warning, "Password is not a valid SHA1 hashsum", $"Class: {nameof(DbHandler)}, Method: {UpdateUser}(User user, string ApiKey)");
+        if (user.Id <= 0)
+            throw new UserNotFoundException(LogSeverity.Warning, "User must exist for update", $"Class: {nameof(DbHandler)}, Method: {UpdateUser}(User user, string ApiKey)");
+
+//#error Do this next time. Procedure is created [user_update], but yet not tested
+        string procedure = "[user_update]";
+        DynamicParameters parameters = new();
+        parameters.Add("@user_id", user.Id, DbType.Int32);
+        parameters.Add("@username", user.UserName, DbType.String);
+        parameters.Add("@email", user.Email, DbType.String);
+        parameters.Add("@password", user.Password, DbType.String);
+        parameters.Add("@salt", user.Salt, DbType.Binary);
+        parameters.Add("@country_iso2", user.CountryISO2, DbType.AnsiStringFixedLength, ParameterDirection.Input, 2);
+        parameters.Add("@first_name", user.FirstName, DbType.String);
+        parameters.Add("@last_name", user.LastName, DbType.String);
+        parameters.Add("@gender", (int)user.Gender, DbType.Int32);
+
+        using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+        con.Open();
+        dynamic uD;
+        try
+        {
+            uD = con.Query<dynamic>(procedure, parameters, commandType: CommandType.StoredProcedure).Single();
+        }
+        catch (SqlException ex)
+        {
+            BaseException exception = ex.Number switch
+            {
+                (int)DatabaseException.UserAlreadyExists => new UserAlreadyExistsException(LogSeverity.Informational, $"User with username or email already exists: userName - {user.UserName}, email: {user.Email}", $"Class: {nameof(DbHandler)}, Method: {UpdateUser}(User user, bool updatePassword)"),
+                (int)DatabaseException.ParameterIsNull => new ArgumentIsNullException(LogSeverity.Informational, $"User id cannot be null when updating a user", $"Class: {nameof(DbHandler)}, Method: {UpdateUser}(User user, bool updatePassword)"),
+                (int)DatabaseException.UserDoesNotExist => new UserNotFoundException(LogSeverity.Informational, $"User with this id does not exist: id - {user.Id}", $"Class: {nameof(DbHandler)}, Method: {UpdateUser}(User user, bool updatePassword)"),
+                _ => throw ex
+            };
+
+            throw exception;
+        }
+        con.Close();
+#warning Not tested yet yoo
+
         // TODO: Update user to the database, but only if the api user is allowed to
-        // TODO: Create a procedure in the database to update a user if the apikey is valid. 
-        throw new NotImplementedException();
+        // TODO: Create a procedure in the database to update a user if the apikey is valid.
+        Country country = GetCountryByID(uD.fk_country_id);
+        User returnedUser = new(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.is_validated);
+        return returnedUser;
     }
 
     /// <summary>

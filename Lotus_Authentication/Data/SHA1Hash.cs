@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
-using XSystem.Security.Cryptography;
+using System.Security.Cryptography;
 
 namespace Lotus_Authentication.Data;
 
@@ -8,9 +8,10 @@ public class SHA1Hash
 {
     public static string Hash(string input)
     {
-		using SHA1Managed sha1 = new();
+		//using SHA1Managed sha1 = new();
+		//byte[] hash = sha1.ComputeHash(Encoding.UTF8.GetBytes(input));
 
-		byte[] hash = sha1.ComputeHash(Encoding.UTF8.GetBytes(input));
+		byte[] hash = SHA1.Create().ComputeHash(Encoding.UTF8.GetBytes(input));
 		StringBuilder sb = new(hash.Length * 2);
 
 		foreach (byte b in hash)

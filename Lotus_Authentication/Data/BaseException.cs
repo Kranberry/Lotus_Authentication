@@ -28,6 +28,15 @@ public class UserAlreadyExistsException : BaseException
     }
 }
 
+public class ArgumentIsNullException : BaseException
+{
+    // public static async ValueTask<int> AddNewSystemLog(LogSeverity severity, Exception? exception, string message, string page)
+    public ArgumentIsNullException(LogSeverity severity, string message, string page)
+    {
+        SendSyslog(severity, message, page, this);
+    }
+}
+
 public class CountryNotFoundException : BaseException
 {
     public CountryNotFoundException(LogSeverity severity, string message, string page)
