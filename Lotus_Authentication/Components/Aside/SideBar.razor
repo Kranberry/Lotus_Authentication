@@ -2,6 +2,7 @@
 	@ChildContent
 </aside>
 
+@namespace Lotus_Authentication.Components
 @code {
 	[Parameter] public RenderFragment ChildContent { get; set; }
 	[CascadingParameter(Name = "Layout")] PageLayout Layout { get; set; }

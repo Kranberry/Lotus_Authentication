@@ -1,0 +1,12 @@
+﻿<div style="margin: 0px @Spacing 0px @Spacing; min-width: 1px;"></div>
+
+@namespace Lotus_Authentication.Components
+@code {
+    [Parameter] public int SpacingAmount { get; set; }
+    protected string Spacing = "";
+
+    protected override void OnParametersSet()
+    {
+        Spacing = SpacingAmount + "px";
+    }
+}

@@ -1,0 +1,19 @@
+﻿@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+@if (!IsAuthenticated)
+{
+	@ChildContent
+}
+
+@namespace Lotus_Authentication.Components
+@code 
+{
+	[Parameter] public RenderFragment ChildContent { get; set; }
+	protected bool IsAuthenticated { get; set; }
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		await localStorage.SetItemAsync<bool>("test", true);
+		IsAuthenticated = await localStorage.GetItemAsync<bool>("test");
+	}
+}
