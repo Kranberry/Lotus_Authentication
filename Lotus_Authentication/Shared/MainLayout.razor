@@ -4,9 +4,11 @@
 
 <LotusLayout Layout="PageLayout.SideLayout">
 	<NavBar Class="justify-content-center">
+		<NavBarItem Class="px-4" Href="/UserManagement">Log in</NavBarItem>
+		<NavBarItem Class="px-4" OnClickCallback="@OpenModal">Sign Up</NavBarItem>
+		<NavBarItemSpacer SpacingAmount="20"></NavBarItemSpacer>
+		<NavBarItem Class="px-4" Href="#">Sign Up for the API</NavBarItem>
 		<NavBarItem Class="px-4" Href="#">API Documentation</NavBarItem>
-		<NavBarItem Class="px-4" Href="#">Sign Up</NavBarItem>
-		<NavBarItem Class="px-4" Href="#">Sign Up for API</NavBarItem>
 	</NavBar>
 	<SideBar>
 
@@ -15,7 +17,29 @@
 	<LotusMain>
 		@Body
 	</LotusMain>
+
+	<Modal IsContentSized="false" IncludeModalFooter="true" @bind-IsHidden="RegisterModalHidden">
+		<form style="display: flex; flex-direction: column;">
+			<input placeholder="Email" />
+			<input placeholder="Username" />
+			<input type="password" placeholder="Password" />
+			<input type="password" placeholder="Password again" />
+			<div style="width: 100; display: flex; flex-direction: row; justify-content: space-evenly; margin-top: 10px;">
+				<button class="col-5">Clear</button>
+				<button class="col-5">Register</button>
+			</div>
+			@*<input placeholder="" />
+			<input placeholder="" />*@
+		</form>
+	</Modal>
 </LotusLayout>
 
-@code{
+@code
+{
+	private bool RegisterModalHidden = true;
+
+	private void OpenModal()
+	{
+		RegisterModalHidden = false;
+	}
 }

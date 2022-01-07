@@ -1,4 +1,4 @@
-﻿<a href="@Href" class="shadow-sm @Class">
+﻿<a href="@Href" class="shadow-sm @Class" @onclick="OnClick">
 	@ChildContent
 </a>
 
@@ -7,4 +7,11 @@
 	[Parameter] public RenderFragment ChildContent { get; set; }
 	[Parameter] public string Href { get; set; }
 	[Parameter] public string Class { get; set; }
+	[Parameter] public EventCallback<Action> OnClickCallback { get; set; }
+
+	protected async Task OnClick()
+	{
+		if(OnClickCallback.HasDelegate)
+			await OnClickCallback.InvokeAsync();
+	}
 }
