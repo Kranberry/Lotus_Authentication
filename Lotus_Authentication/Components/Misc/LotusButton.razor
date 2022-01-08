@@ -1,0 +1,21 @@
+﻿<button 
+    class="@Class btn-purple b-shadow"
+    @onclick="@OnClick"
+    @onclick:preventDefault="true"
+>
+    @ChildContent
+</button>
+
+@namespace Lotus_Authentication.Components
+@code 
+{
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public string Class { get; set; }
+    [Parameter] public EventCallback<Action> OnClickCallBack { get; set; }
+
+    private async Task OnClick()
+    {
+        if (OnClickCallBack.HasDelegate)
+            await OnClickCallBack.InvokeAsync();
+    }
+}

@@ -2,8 +2,41 @@
 
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+<div style="width: fit-content;">
+    <PictureCard
+        ImgSrc="@RandomJokeImg"
+        Description="@RandomJoke"
+        Title="Chuck Norris"
+        Variant="PictureCardVariant.Medium"
+    >
 
-@code{
+    </PictureCard>
+    <LotusButton
+        OnClickCallBack="@GetRandomJoke"
+        Class="col-12"
+    >
+    Get a random Chuck Norris joke
+    </LotusButton>
+</div>
 
+@code
+{
+    protected string RandomJokeImg { get; set; }
+    protected string RandomJoke { get; set; } = "No joke right naow :(";
+    protected HttpClient Client = new();
+
+    class ChuckJokeModel
+    {
+        public string icon_url { get; set; }
+        public string value { get; set; }
+    }
+
+    protected async Task GetRandomJoke()
+    {
+        string endpoint = "https://api.chucknorris.io/jokes/random";
+        ChuckJokeModel response = await Client.GetFromJsonAsync<ChuckJokeModel>(endpoint);
+
+        RandomJokeImg = response.icon_url;
+        RandomJoke = response.value;
+    }
 }

@@ -1,0 +1,13 @@
+﻿button{
+    border: none;
+}
+
+.btn-purple {
+    color: white;
+    background-color: #8A2BE2;
+}
+
+.btn-pink {
+    color: black;
+    background-color: #DA70D6;
+}
