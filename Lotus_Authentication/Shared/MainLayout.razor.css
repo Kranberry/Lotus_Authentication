@@ -1,3 +1,13 @@
+input{
+    margin-bottom: 5px;
+}
+
+.invalidInput {
+    border-color: red;
+}
+
+
+
 .page {
     position: relative;
     display: flex;

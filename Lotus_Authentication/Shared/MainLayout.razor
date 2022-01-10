@@ -23,14 +23,30 @@
 		IncludeModalFooter="true" 
 		@bind-IsHidden="RegisterModalHidden"
 	>
+		<h1 style="margin-top: -1em;">Sign Up for free</h1>
+		<hr />
 		<form style="display: flex; flex-direction: column;">
-			<input placeholder="Email" @bind-value="@EmailInput" />
-			<input placeholder="Username" @bind-value="@UserNameInput" />
-			<input type="password" placeholder="Password" />
-			<input type="password" placeholder="Password again" />
+			<input class="@(InputFields["FirstName"].IsValid	? "invalidInput" : "")" placeholder="FirstName"							@bind-value="@InputFields["FirstName"].Value" />
+			<input class="@(InputFields["LastName"].IsValid		? "invalidInput" : "")" placeholder="LastName"							@bind-value="@InputFields["LastName"].Value" />
+			<input class="@(InputFields["EmailInput"].IsValid	? "invalidInput" : "")" placeholder="Email"								@bind-value="@InputFields["EmailInput"].Value" />
+			<input class="@(InputFields["UserName"].IsValid		? "invalidInput" : "")" placeholder="Username"							@bind-value="@InputFields["UserName"].Value" />
+			<input class="@(InputFields["Password"].IsValid		? "invalidInput" : "")" type="password" placeholder="Password"			@bind-value="@InputFields["Password"].Value" />
+			<input class="@(InputFields["PasswordAgain"].IsValid ? "invalidInput" : "")" type="password" placeholder="Password again"	@bind-value="@InputFields["PasswordAgain"].Value" />
+			<select @onchange="SetGender">
+				@foreach(string gender in GenderOptions)
+				{
+					<option value="@gender">@gender</option>
+				}
+			</select>
+			<select @onchange="SetCountry">
+				@foreach(Country country in CountryOptions)
+				{
+					<option value="@country.Id">@country.NiceName</option>
+				}
+			</select>
 			<div style="width: 100; display: flex; flex-direction: row; justify-content: space-evenly; margin-top: 10px;">
-				<LotusButton Class="col-5">Clear</LotusButton>
-				<LotusButton Class="col-5" OnClickCallBack="@RegisterNewAccount">Register</LotusButton>
+				<LotusButton Class="btn-pink col-4" OnClickCallBack="@ClearInputs">Clear</LotusButton>
+				<LotusButton Class="col-7" OnClickCallBack="@RegisterNewAccount">Register</LotusButton>
 			</div>
 			@*<input placeholder="" />
 			<input placeholder="" />*@
@@ -38,16 +54,69 @@
 	</Modal>
 </LotusLayout>
 
+@inject IJSRuntime js
 @code
 {
 	private bool RegisterModalHidden = true;
-	private string EmailInput { get; set; }
-	private string UserNameInput { get; set; }
+
+	private Gender SelectedGender = Gender.Other;
+	private string[] GenderOptions = Enum.GetNames(typeof(Gender));
+
+	private Country SelectedCountry { get; set; }
+	private IEnumerable<Country> CountryOptions = DbHandler.GetAllCountries();
+
+	private class InputValidThing
+	{
+		internal string Value { get; set; } = "";
+		internal bool IsValid { get; set; } = false;
+	}
+
+	private Dictionary<string, InputValidThing> InputFields = new()
+	{
+		{"FirstName", new()},
+		{"LastName", new()},
+		{"EmailInput", new()},
+		{"UserName", new()},
+		{"Password", new()},
+		{"PasswordAgain", new()},
+		{"SE2Input", new()},
+		{"GenderInput", new()}
+	};
+
+	private string ValidEmailEntry = "";
+	private string ValidUsernameEntry = "";
+	private string ValidPasswordEntry = "";
+	private string ValidPasswordAgainEntry = "";
+	private string ValidSEEntry = "";
 
 	private void OpenModal() => RegisterModalHidden = false;
 
-	private void RegisterNewAccount()
+	private async Task SetCountry(ChangeEventArgs e)
 	{
-		
+		int id = int.Parse(e.Value.ToString());
+		SelectedCountry = CountryOptions.Single(c => c.Id == id);
+	}
+
+	private void SetGender(ChangeEventArgs e)
+	{
+		string selected = e.Value.ToString();
+		SelectedGender = Enum.Parse<Gender>(selected);
+	}
+
+	private async Task ClearInputs()
+	{
+		foreach(KeyValuePair<string, InputValidThing> kvp in InputFields)
+		{
+			InputFields[kvp.Key].Value = "";
+		}
+	}
+
+	private async Task RegisterNewAccount()
+	{
+		// Check first if fields are all good!
+
+		User user = new(0, InputFields["FirstName"].Value, InputFields["LastName"].Value, InputFields["EmailInput"].Value, InputFields["UserName"].Value, UserType.Regular, SelectedGender, SelectedCountry.Iso2, SelectedCountry.NumCode, SelectedCountry.PhoneCode, DateTime.UtcNow, null, false);
+		await js.InvokeVoidAsync("console.log", user);
+		//DbHandler.InsertUser();
 	}
 }

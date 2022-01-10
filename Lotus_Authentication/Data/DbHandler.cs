@@ -317,6 +317,22 @@ public class DbHandler
     }
 
     /// <summary>
+    /// Get every single country from the database
+    /// </summary>
+    /// <returns></returns>
+    public static IEnumerable<Country> GetAllCountries()
+    {
+        string sql = "SELECT * FROM [country]";
+        using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+
+        con.Open();
+        IEnumerable<Country> countries = con.Query<dynamic>(sql).Select(c => new Country(c.country_id, c.name, c.nicename, c.iso, c.iso3, c.numcode, c.phonecode));
+        con.Close();
+
+        return countries;
+    }
+
+    /// <summary>
     /// Get the corresponding ApiKey object 
     /// </summary>
     /// <param name="apiKey"></param>
