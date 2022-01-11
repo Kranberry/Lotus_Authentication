@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+﻿@using System.Text.RegularExpressions
+@inherits LayoutComponentBase
 
 <PageTitle>Lotus_Authentication</PageTitle>
 
@@ -19,31 +20,43 @@
 	</LotusMain>
 
 	<Modal 
-		IsContentSized="false" 
-		IncludeModalFooter="true" 
+		IsContentSized="true" 
+		IncludeModalFooter="false" 
 		@bind-IsHidden="RegisterModalHidden"
 	>
-		<h1 style="margin-top: -1em;">Sign Up for free</h1>
-		<hr />
-		<form style="display: flex; flex-direction: column;">
-			<input class="@(InputFields["FirstName"].IsValid	? "invalidInput" : "")" placeholder="FirstName"							@bind-value="@InputFields["FirstName"].Value" />
-			<input class="@(InputFields["LastName"].IsValid		? "invalidInput" : "")" placeholder="LastName"							@bind-value="@InputFields["LastName"].Value" />
-			<input class="@(InputFields["EmailInput"].IsValid	? "invalidInput" : "")" placeholder="Email"								@bind-value="@InputFields["EmailInput"].Value" />
-			<input class="@(InputFields["UserName"].IsValid		? "invalidInput" : "")" placeholder="Username"							@bind-value="@InputFields["UserName"].Value" />
-			<input class="@(InputFields["Password"].IsValid		? "invalidInput" : "")" type="password" placeholder="Password"			@bind-value="@InputFields["Password"].Value" />
-			<input class="@(InputFields["PasswordAgain"].IsValid ? "invalidInput" : "")" type="password" placeholder="Password again"	@bind-value="@InputFields["PasswordAgain"].Value" />
-			<select @onchange="SetGender">
+		<form style="display: flex; flex-direction: column; padding: 2em; background-color: white;">
+			<h1 style="flex: 1; align-self: center;">Sign Up for free</h1>
+			<hr />
+
+			<label>All fields marked with * are mandatory</label>
+			<label for="firstName">First name</label>
+			<input class="@(!InputFields["FirstName"].IsValid		? "invalidInput" : "")" placeholder="FirstName"							@bind-value="@InputFields["FirstName"].Value"		id="firstName" />
+			<label for="lastName">Last name</label>
+			<input class="@(!InputFields["LastName"].IsValid		? "invalidInput" : "")" placeholder="LastName"							@bind-value="@InputFields["LastName"].Value"		id="lastName" />
+			<label for="email">* Email address</label>
+			<input class="@(!InputFields["EmailInput"].IsValid		? "invalidInput" : "")" placeholder="Email"								@bind-value="@InputFields["EmailInput"].Value"		id="email" />
+			<label for="userName">* User name</label>
+			<input class="@(!InputFields["UserName"].IsValid		? "invalidInput" : "")" placeholder="Username"							@bind-value="@InputFields["UserName"].Value"		id="userName" />
+			<label for="password">* Password <span class="tinyText">Atleast 8 long, 1 lowercase and uppercase letter, and 1 number.</span></label>
+			<input class="@(!InputFields["Password"].IsValid		? "invalidInput" : "")" type="password" placeholder="Password"			@bind-value="@InputFields["Password"].Value"		id="password" />
+			<label for="passwordAgain">* Password again</label>
+			<input class="@(!InputFields["PasswordAgain"].IsValid	? "invalidInput" : "")" type="password" placeholder="Password again"	@bind-value="@InputFields["PasswordAgain"].Value"	id="passwordAgain" />
+			<label for="password">* Gender</label>
+			<select @onchange="SetGender" id="gender">
 				@foreach(string gender in GenderOptions)
 				{
 					<option value="@gender">@gender</option>
 				}
 			</select>
-			<select @onchange="SetCountry">
+			<label for="password">* Country</label>
+			<select @onchange="SetCountry" id="country">
 				@foreach(Country country in CountryOptions)
 				{
 					<option value="@country.Id">@country.NiceName</option>
 				}
 			</select>
+
+			<label style="color: red; font-size: 1.2em; flex: 1; align-self: center;">[ @SignUpErrorText ]</label>
 			<div style="width: 100; display: flex; flex-direction: row; justify-content: space-evenly; margin-top: 10px;">
 				<LotusButton Class="btn-pink col-4" OnClickCallBack="@ClearInputs">Clear</LotusButton>
 				<LotusButton Class="col-7" OnClickCallBack="@RegisterNewAccount">Register</LotusButton>
@@ -52,18 +65,31 @@
 			<input placeholder="" />*@
 		</form>
 	</Modal>
+
+	<Modal 
+		IsContentSized="true" 
+		IncludeModalFooter="false" 
+		@bind-IsHidden="RegisterSuccessfullModalHidden"
+	>
+		<div style="flex: 1; flex-direction: column; align-items: center; justify-content center; padding: 2em;">
+			<h5>Your account has been successfully created</h5>
+			<p>An email has been sent to you for verification</p>
+		</div>
+
+	</Modal>
 </LotusLayout>
 
-@inject IJSRuntime js
 @code
 {
 	private bool RegisterModalHidden = true;
+	private bool RegisterSuccessfullModalHidden = true;
+	private string SignUpErrorText = "";
 
 	private Gender SelectedGender = Gender.Other;
 	private string[] GenderOptions = Enum.GetNames(typeof(Gender));
 
-	private Country SelectedCountry { get; set; }
 	private IEnumerable<Country> CountryOptions = DbHandler.GetAllCountries();
+	private Country SelectedCountry { get; set; }
 
 	private class InputValidThing
 	{
@@ -73,14 +99,12 @@
 
 	private Dictionary<string, InputValidThing> InputFields = new()
 	{
-		{"FirstName", new()},
-		{"LastName", new()},
+		{"FirstName", new(){ IsValid = true }},
+		{"LastName", new(){ IsValid = true }},
 		{"EmailInput", new()},
 		{"UserName", new()},
 		{"Password", new()},
-		{"PasswordAgain", new()},
-		{"SE2Input", new()},
-		{"GenderInput", new()}
+		{"PasswordAgain", new()}
 	};
 
 	private string ValidEmailEntry = "";
@@ -111,12 +135,44 @@
 		}
 	}
 
+	private bool IsPasswordValid(string password)
+	{
+		Regex atleastOneNumber = new(@"\d");
+		Regex atleastOneLowerCase = new(@"[A-Z]");
+		Regex atleastOneUpperCase = new(@"[a-z]");
+
+		return atleastOneLowerCase.IsMatch(password) && atleastOneUpperCase.IsMatch(password) && atleastOneNumber.IsMatch(password) && password.Length >= 8;
+	}
+
 	private async Task RegisterNewAccount()
 	{
-		// Check first if fields are all good!
+		InputFields["EmailInput"].IsValid = EmailValidator.IsValidEmail(InputFields["EmailInput"].Value);
+		InputFields["UserName"].IsValid = InputFields["UserName"].Value.Length >= 6;
+		InputFields["Password"].IsValid = IsPasswordValid(InputFields["Password"].Value);
+		InputFields["PasswordAgain"].IsValid = InputFields["Password"].Value == InputFields["PasswordAgain"].Value;
 
-		User user = new(0, InputFields["FirstName"].Value, InputFields["LastName"].Value, InputFields["EmailInput"].Value, InputFields["UserName"].Value, UserType.Regular, SelectedGender, SelectedCountry.Iso2, SelectedCountry.NumCode, SelectedCountry.PhoneCode, DateTime.UtcNow, null, false);
-		await js.InvokeVoidAsync("console.log", user);
-		//DbHandler.InsertUser();
+		bool allFieldsValid = InputFields.Where(kvp => !kvp.Value.IsValid).Count() == 0;
+		if (SelectedCountry is null)
+			SelectedCountry = CountryOptions.Single(c => c.Id == 1);
+
+		if (allFieldsValid)
+		{
+			User user = new(0, InputFields["FirstName"].Value, InputFields["LastName"].Value, InputFields["EmailInput"].Value, InputFields["UserName"].Value, UserType.Regular, SelectedGender, SelectedCountry.Iso2, SelectedCountry.NumCode, SelectedCountry.PhoneCode, DateTime.UtcNow, null, false);
+			user.SetPassword(SHA1Hash.Hash(InputFields["Password"].Value));
+			try
+			{
+				IConfiguration _Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+				string skeletonKey = _Configuration["secrets:skeleton-key"];
+				await DbHandler.InsertUser(user, skeletonKey);
+
+				SignUpErrorText = "";
+				RegisterModalHidden = true;
+				RegisterSuccessfullModalHidden = false;
+			}
+			catch (UserAlreadyExistsException)
+			{
+				SignUpErrorText = "A user with this email or username already exists";
+			}
+		}
 	}
 }

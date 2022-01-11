@@ -12,6 +12,8 @@ public class ApiKey
     public DateTime? UpdateDate { get; init; }
 
     private static Regex _ApiRegex = new Regex(@"^[0-9]{4}[A-Fa-f]\-[A-Fa-f0-9]{8}\-[A-Fa-f0-9]{8}\-[A-Fa-f0-9]{8}\-[A-Fa-f0-9]{8}$");
+    private static IConfiguration _Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+    private static int SkeletonKeyID = int.Parse(_Configuration["secrets:skeleton-key-id"]);
 
     /// <summary>
     /// Generate a randomised API key
@@ -37,7 +39,25 @@ public class ApiKey
 
     public static bool IsValidApiKey(string apiKey)
     {
-        return _ApiRegex.IsMatch(apiKey);
+        bool isValid = _ApiRegex.IsMatch(apiKey);
+        if (!isValid)
+        {
+            try
+            {
+                ApiKey key = DbHandler.GetApiKeyByApiKey(apiKey);
+                if (key.Alias == "skeleton-key" && key.Key.Length == 40 && key.ApiKeyID == SkeletonKeyID)
+                {
+                    return true;
+                }
+            }
+            catch (BadApiKeyReferenceException)
+            {
+
+            }
+            return false;
+        }
+
+        return isValid;
     }
 }
 

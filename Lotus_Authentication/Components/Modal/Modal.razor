@@ -2,8 +2,9 @@
 {
 	<div @onclick="CloseModal" class="component-base" />
 
-	<div class="d-flex flex-column @_ModalSize">
+	<div class="d-flex flex-column @_ModalSize" style="background-color: @BackgroundColor;">
 		<div class="@_ContentFit d-flex flex-column justify-content-center align-items-center shadow-lg">
+			<a @onclick="CloseModal" style="flex: 1; align-self: end; padding: 0 15px; max-height: 32px;"><span class="text-danger">[ X ]</span></a>
 			@ChildContent
 
 			
@@ -23,6 +24,7 @@
 @code {
 	[Parameter] public bool IsHidden { get; set; } = false;
 	[Parameter, EditorRequired] public bool IsContentSized { get; set; }
+	[Parameter] public string BackgroundColor { get; set; } = "white";
 	[Parameter] public RenderFragment ChildContent { get; set; }
 	[Parameter] public bool IncludeModalFooter { get; set; } = true;
 
