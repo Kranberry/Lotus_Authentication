@@ -161,9 +161,7 @@
 			user.SetPassword(SHA1Hash.Hash(InputFields["Password"].Value));
 			try
 			{
-				IConfiguration _Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-				string skeletonKey = _Configuration["secrets:skeleton-key"];
-				await DbHandler.InsertUser(user, skeletonKey);
+				await DbHandler.InsertUser(user, AppConfig.SkeletonKey);
 
 				SignUpErrorText = "";
 				RegisterModalHidden = true;

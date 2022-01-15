@@ -10,10 +10,6 @@ namespace Lotus_Authentication.Data;
 
 public class DbHandler
 {
-    private static IConfiguration _Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-    private static string _ActiveDatabase = "authenticator";
-    // _Configuration.GetConnectionString("authenticator");
-
     // GetUser overlaoded methods
     #region GetUser
     /// <summary>
@@ -25,7 +21,7 @@ public class DbHandler
     public static User GetUser(int userID)
     {
         string sql = "SELECT TOP 1 * FROM [user] WHERE user_id = @id";
-        using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+        using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
 
         con.Open();
         dynamic? uD = con.Query<dynamic>(sql, new { id = userID }).FirstOrDefault();
@@ -47,7 +43,7 @@ public class DbHandler
     public static User GetUser(string email)
     {
         string sql = "SELECT TOP 1 * FROM [user] WHERE email = @email";
-        using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+        using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
 
         con.Open();
         dynamic? uD = con.Query<dynamic>(sql, new { email = email }).FirstOrDefault();
@@ -90,7 +86,7 @@ public class DbHandler
         // Only make one call. Get shit from DB, and then validate encrypted password with salt against stored password. If valid, good job. Else return null
         parameters.Add("@password", password, DbType.String);
 
-        using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+        using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
 
         con.Open();
         dynamic? uD = con.Query<dynamic>(sql, parameters).FirstOrDefault();
@@ -136,7 +132,7 @@ public class DbHandler
         parameters.Add("@userId", userId, DbType.Int32);
         parameters.Add("@apiKeyId", apiKeyId, DbType.Int32);
 
-        using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+        using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
         con.Open();
         object objReturned = await con.ExecuteScalarAsync(query, parameters);
         con.Close();
@@ -173,7 +169,7 @@ public class DbHandler
         parameters.Add("@gender", user.Gender, DbType.Boolean);
         parameters.Add("@api_key", apiKey, DbType.String);
 
-        using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+        using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
         con.Open();
 
         dynamic uD;
@@ -221,7 +217,7 @@ public class DbHandler
         parameters.Add("@last_name", user.LastName, DbType.String);
         parameters.Add("@gender", (int)user.Gender, DbType.Int32);
 
-        using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+        using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
         con.Open();
         dynamic uD;
         try
@@ -262,7 +258,7 @@ public class DbHandler
         DynamicParameters parameters = new();
         parameters.Add("@user_id", id);
 
-        using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+        using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
         con.Open();
         int rowsModified = con.Execute(procedure, parameters, commandType: CommandType.StoredProcedure);
         con.Close();
@@ -287,7 +283,7 @@ public class DbHandler
         parameters.Add("@user_id", id);
         parameters.Add("@api_key_id", apiKeyObj.ApiKeyID);
 
-        using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+        using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
         con.Open();
         int rowsModified = con.Execute(procedure, parameters, commandType: CommandType.StoredProcedure);
         con.Close();
@@ -303,7 +299,7 @@ public class DbHandler
     public static Country GetCountryByID(int countryId)
     {
         string sql = "SELECT TOP 1 * FROM [country] WHERE country_id = @id";
-        using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+        using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
 
         con.Open();
         dynamic? countryDb = con.Query<dynamic>(sql, new { id = countryId }).FirstOrDefault();
@@ -323,7 +319,7 @@ public class DbHandler
     public static IEnumerable<Country> GetAllCountries()
     {
         string sql = "SELECT * FROM [country]";
-        using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+        using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
 
         con.Open();
         IEnumerable<Country> countries = con.Query<dynamic>(sql).Select(c => new Country(c.country_id, c.name, c.nicename, c.iso, c.iso3, c.numcode, c.phonecode));
@@ -344,7 +340,7 @@ public class DbHandler
         DynamicParameters parameters = new();
         parameters.Add("key", apiKey, DbType.String);
 
-        using IDbConnection con = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+        using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
         con.Open();
         ApiKey? apiKeyObj = con.Query<dynamic>(query, parameters).Select(item => new ApiKey() 
                                                                         {
@@ -380,7 +376,7 @@ public class DbHandler
         parameters.Add("@page", page, DbType.String);
         parameters.Add("@stacktrace", exception?.StackTrace, DbType.String);
 
-        using IDbConnection db = new SqlConnection(_Configuration.GetConnectionString(_ActiveDatabase));
+        using IDbConnection db = new SqlConnection(AppConfig.ActiveDatabaseCS);
         
         db.Open();
         int affectedRowsCount = await db.ExecuteAsync(procedure
