@@ -1,0 +1,47 @@
+﻿<div style="@Style" class="@(ValidField ? "" : "invalidField")">
+    @if(InputType.ToLower() != "submit")
+    {
+        <input type="@InputType" value="@_Value" @oninput="UpdateValueChanged" class="inputField @Class" placeholder="@PlaceHolder" id="@ID" />
+        <LotusButton OnClickCallBack="@ClearInput" Class="ClearButton" >X</LotusButton>
+    }
+    else
+    {
+        <LotusButton OnClickCallBack="@OnClickCallBack" Style="width: inherit;">@_Value</LotusButton>
+    }
+</div>
+
+@namespace Lotus_Authentication.Components
+@code {
+    [Parameter, EditorRequired] public string InputType { get; set; }
+
+    private string _Value = "";
+    [Parameter] public string Value 
+    { 
+        get => _Value; 
+        set 
+        {
+            _Value = value;
+        }
+    }
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public string Class { get; set; }
+    [Parameter] public string Style { get; set; }
+    [Parameter] public string PlaceHolder { get; set; }
+    [Parameter] public string ID { get; set; }
+    [Parameter] public bool ValidField { get; set; } = true;
+
+    [Parameter] public EventCallback OnClickCallBack { get; set; }
+    private async Task CallBack() => await OnClickCallBack.InvokeAsync();
+
+    async Task UpdateValueChanged(ChangeEventArgs e)
+    {
+        _Value = e.Value.ToString();
+        await ValueChanged.InvokeAsync(_Value);
+    }
+
+    private async Task ClearInput()
+    {
+        _Value = "";
+        await ValueChanged.InvokeAsync(_Value);
+    }
+}

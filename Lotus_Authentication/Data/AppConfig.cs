@@ -8,5 +8,5 @@ internal static class AppConfig
 
     internal static string SkeletonKey => GetValueOfKey("secrets:skeleton-key");
     internal static string SkeletonKeyID => GetValueOfKey("secrets:skeleton-key-id");
-    internal static string ActiveDatabaseCS => GetValueOfKey("authenticator");
+    internal static string ActiveDatabaseCS => GetValueOfKey("ConnectionStrings:authenticator");
 }

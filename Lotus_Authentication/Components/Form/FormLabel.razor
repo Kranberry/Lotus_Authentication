@@ -1,0 +1,9 @@
+﻿<label class="@Class" id="@ID" for="@For">@ChildContent</label>
+
+@namespace Lotus_Authentication.Components
+@code {
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public string Class { get; set; }
+    [Parameter] public string For { get; set; }
+    [Parameter] public string ID { get; set; }
+}

@@ -24,46 +24,35 @@
 		IncludeModalFooter="false" 
 		@bind-IsHidden="RegisterModalHidden"
 	>
-		<form style="display: flex; flex-direction: column; padding: 2em; background-color: white;">
+		<LotusForm>
 			<h1 style="flex: 1; align-self: center;">Sign Up for free</h1>
 			<hr />
 
-			<label>All fields marked with * are mandatory</label>
-			<label for="firstName">First name</label>
-			<input class="@(!InputFields["FirstName"].IsValid		? "invalidInput" : "")" placeholder="FirstName"							@bind-value="@InputFields["FirstName"].Value"		id="firstName" />
-			<label for="lastName">Last name</label>
-			<input class="@(!InputFields["LastName"].IsValid		? "invalidInput" : "")" placeholder="LastName"							@bind-value="@InputFields["LastName"].Value"		id="lastName" />
-			<label for="email">* Email address</label>
-			<input class="@(!InputFields["EmailInput"].IsValid		? "invalidInput" : "")" placeholder="Email"								@bind-value="@InputFields["EmailInput"].Value"		id="email" />
-			<label for="userName">* User name</label>
-			<input class="@(!InputFields["UserName"].IsValid		? "invalidInput" : "")" placeholder="Username"							@bind-value="@InputFields["UserName"].Value"		id="userName" />
-			<label for="password">* Password <span class="tinyText">Atleast 8 long, 1 lowercase and uppercase letter, and 1 number.</span></label>
-			<input class="@(!InputFields["Password"].IsValid		? "invalidInput" : "")" type="password" placeholder="Password"			@bind-value="@InputFields["Password"].Value"		id="password" />
-			<label for="passwordAgain">* Password again</label>
-			<input class="@(!InputFields["PasswordAgain"].IsValid	? "invalidInput" : "")" type="password" placeholder="Password again"	@bind-value="@InputFields["PasswordAgain"].Value"	id="passwordAgain" />
-			<label for="password">* Gender</label>
-			<select @onchange="SetGender" id="gender">
-				@foreach(string gender in GenderOptions)
-				{
-					<option value="@gender">@gender</option>
-				}
-			</select>
-			<label for="password">* Country</label>
-			<select @onchange="SetCountry" id="country">
-				@foreach(Country country in CountryOptions)
-				{
-					<option value="@country.Id">@country.NiceName</option>
-				}
-			</select>
-
+			<FormLabel>All fields marked with * are mandatory</FormLabel>
+			<FormLabel For="firstName">First name</FormLabel>
+			<FormInput Class="@(!InputFields["FirstName"].IsValid ? "invalidInput" : "")" placeholder="FirstName" @bind-Value="@InputFields["FirstName"].Value"	ID="firstName" InputType="text" ValidField="@InputFields["FirstName"].IsValid"/>
+			<FormLabel For="lastName">Last name</FormLabel>
+			<FormInput Class="@(!InputFields["LastName"].IsValid ? "invalidInput" : "")" placeholder="LastName" @bind-Value="@InputFields["LastName"].Value" ID="lastName" InputType="text" ValidField="@InputFields["LastName"].IsValid" />
+			<FormLabel For="email">* Email address</FormLabel>
+			<FormInput Class="@(!InputFields["EmailInput"].IsValid ? "invalidInput" : "")" placeholder="EmailInput" @bind-Value="@InputFields["EmailInput"].Value" ID="email" InputType="text" ValidField="@InputFields["EmailInput"].IsValid"/>
+			<FormLabel For="userName">* User name</FormLabel>
+			<FormInput Class="@(!InputFields["UserName"].IsValid ? "invalidInput" : "")" placeholder="UserName" @bind-Value="@InputFields["UserName"].Value" ID="userName" InputType="text" ValidField="@InputFields["UserName"].IsValid"/>
+			<FormLabel For="password">* Password <span class="tinyText">Atleast 8 long, 1 lowercase and uppercase letter, and 1 number.</span></FormLabel>
+			<FormInput Class="@(!InputFields["Password"].IsValid ? "invalidInput" : "")" placeholder="Password" @bind-Value="@InputFields["Password"].Value" ID="password" InputType="password" ValidField="@InputFields["Password"].IsValid"/>
+			<FormLabel For="passwordAgain">* Password again</FormLabel>
+			<FormInput Class="@(!InputFields["PasswordAgain"].IsValid ? "invalidInput" : "")" placeholder="PasswordAgain" @bind-Value="@InputFields["PasswordAgain"].Value" ID="passwordAgain" InputType="password" ValidField="@InputFields["PasswordAgain"].IsValid"/>
+			<FormLabel for="gender">* Gender</FormLabel>
+			<FormSelect Options="GenderOptions" @bind-SelectedValue="@InputFields["Gender"].Value"></FormSelect>
+			<FormLabel for="country">* Country</FormLabel>
+			<FormSelect Options="CountryOptions" @bind-SelectedValue="@InputFields["Country"].Value"></FormSelect>
+			
+			<hr />
 			<label style="color: red; font-size: 1.2em; flex: 1; align-self: center;">[ @SignUpErrorText ]</label>
-			<div style="width: 100; display: flex; flex-direction: row; justify-content: space-evenly; margin-top: 10px;">
+			<div style="width: 100%; display: flex; flex-direction: row; justify-content: space-evenly; margin-top: 10px;">
 				<LotusButton Class="btn-pink col-4" OnClickCallBack="@ClearInputs">Clear</LotusButton>
 				<LotusButton Class="col-7" OnClickCallBack="@RegisterNewAccount">Register</LotusButton>
 			</div>
-			@*<input placeholder="" />
-			<input placeholder="" />*@
-		</form>
+		</LotusForm>
 	</Modal>
 
 	<Modal 
@@ -88,7 +77,8 @@
 	private Gender SelectedGender = Gender.Other;
 	private string[] GenderOptions = Enum.GetNames(typeof(Gender));
 
-	private IEnumerable<Country> CountryOptions = DbHandler.GetAllCountries();
+	private IEnumerable<Country> AvailableCountries = DbHandler.GetAllCountries();
+	private string[] CountryOptions = new string[0];
 	private Country SelectedCountry { get; set; }
 
 	private class InputValidThing
@@ -104,7 +94,9 @@
 		{"EmailInput", new()},
 		{"UserName", new()},
 		{"Password", new()},
-		{"PasswordAgain", new()}
+		{"PasswordAgain", new()},
+		{"Gender", new()},
+		{"Country", new()}
 	};
 
 	private string ValidEmailEntry = "";
@@ -115,16 +107,15 @@
 
 	private void OpenModal() => RegisterModalHidden = false;
 
-	private async Task SetCountry(ChangeEventArgs e)
+	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		int id = int.Parse(e.Value.ToString());
-		SelectedCountry = CountryOptions.Single(c => c.Id == id);
+		CountryOptions = AvailableCountries.Select(c => c.NiceName).ToArray();
+		await base.OnAfterRenderAsync(firstRender);
 	}
 
-	private void SetGender(ChangeEventArgs e)
+	private async Task SetCountry(string countryName)
 	{
-		string selected = e.Value.ToString();
-		SelectedGender = Enum.Parse<Gender>(selected);
+		SelectedCountry = AvailableCountries.Single(c => c.NiceName == countryName);
 	}
 
 	private async Task ClearInputs()
@@ -150,10 +141,12 @@
 		InputFields["UserName"].IsValid = InputFields["UserName"].Value.Length >= 6;
 		InputFields["Password"].IsValid = IsPasswordValid(InputFields["Password"].Value);
 		InputFields["PasswordAgain"].IsValid = InputFields["Password"].Value == InputFields["PasswordAgain"].Value;
+		InputFields["Gender"].IsValid = InputFields["Gender"] is not null;
+		InputFields["Country"].IsValid = InputFields["Country"] is not null;
 
 		bool allFieldsValid = InputFields.Where(kvp => !kvp.Value.IsValid).Count() == 0;
 		if (SelectedCountry is null)
-			SelectedCountry = CountryOptions.Single(c => c.Id == 1);
+			SelectedCountry = AvailableCountries.Single(c => c.Id == 1);
 
 		if (allFieldsValid)
 		{
@@ -162,6 +155,9 @@
 			try
 			{
 				await DbHandler.InsertUser(user, AppConfig.SkeletonKey);
+
+				foreach (KeyValuePair<string, InputValidThing> kvp in InputFields)
+					kvp.Value.Value = "";
 
 				SignUpErrorText = "";
 				RegisterModalHidden = true;

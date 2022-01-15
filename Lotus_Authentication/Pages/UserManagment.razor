@@ -1,13 +1,30 @@
 ﻿@page "/UserManagement"
+@inject NavigationManager NavManager
 
-<UserAuthenticated>
+<LotusForm>
+    <FormLabel For="textField">FirstName</FormLabel>
+    <FormInput @bind-Value="FirstName" PlaceHolder="First name" ID="textField" InputType="text"></FormInput>
+    <FormLabel For="textField">LastName</FormLabel>
+    <FormInput @bind-Value="LastName" PlaceHolder="Last name" ID="textField" InputType="text"></FormInput>
+    <FormInput @bind-Value="SomeElse" PlaceHolder="Some else" ID="textField" InputType="submit" OnClickCallBack="@Reroute" Style="margin-top: 1em;"></FormInput>
+</LotusForm>
+
+<h1>First name: @FirstName</h1>
+<h1>Last name: @LastName</h1>
+<h1>Some else: @SomeElse</h1>
+
+@*<UserAuthenticated>
     <h3>Logged in yoooo</h3>
 </UserAuthenticated>
 
 <UserNotAuthenticated>
     <h3>Not logged in yoooo</h3>
-</UserNotAuthenticated>
+</UserNotAuthenticated>*@
 
 @code {
+    private string FirstName { get; set; }
+    private string LastName { get; set; }
+    private string SomeElse { get; set; } = "Submit thing";
 
+    private void Reroute() => NavManager.NavigateTo("");
 }

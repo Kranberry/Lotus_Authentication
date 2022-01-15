@@ -1,0 +1,9 @@
+﻿<form @onclick:preventDefault="PreventDefault" class="b-shadow">
+    @ChildContent
+</form>
+
+@namespace Lotus_Authentication.Components
+@code {
+    [Parameter] public bool PreventDefault { get; set; } = true;
+    [Parameter] public RenderFragment ChildContent { get; set; }
+}

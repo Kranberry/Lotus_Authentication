@@ -1,0 +1,21 @@
+﻿<select @onchange="OnSelectedValueChanged" id="option">
+	@foreach(string option in Options)
+	{
+		<option value="@option">@option</option>
+	}
+</select>
+
+@namespace Lotus_Authentication.Components
+@code 
+{
+	private string _SelectedValue = "";
+	[Parameter] public string[] Options { get; set; }
+	[Parameter] public string SelectedValue { get => _SelectedValue; set => _SelectedValue = value; }
+	[Parameter] public EventCallback<string> SelectedValueChanged { get; set; }
+
+	private async Task OnSelectedValueChanged(ChangeEventArgs e)
+	{
+		_SelectedValue = e.Value.ToString();
+		await SelectedValueChanged.InvokeAsync(_SelectedValue);
+	}
+}
