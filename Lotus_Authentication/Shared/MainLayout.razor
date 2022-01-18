@@ -1,12 +1,18 @@
 ﻿@using System.Text.RegularExpressions
 @inherits LayoutComponentBase
+@inject UserSessionManager Session
 
 <PageTitle>Lotus_Authentication</PageTitle>
 
 <LotusLayout Layout="PageLayout.SideLayout">
 	<NavBar Class="justify-content-center">
-		<NavBarItem Class="px-4" Href="/UserManagement">Log in</NavBarItem>
-		<NavBarItem Class="px-4" OnClickCallback="@OpenModal">Sign Up</NavBarItem>
+		<UserAuthenticated>
+			<NavBarItem Class="px-4" OnClickCallback="@Logout">Logout</NavBarItem>
+		</UserAuthenticated>
+		<UserNotAuthenticated>
+			<NavBarItem Class="px-4" Href="/UserManagement">Log in</NavBarItem>
+			<NavBarItem Class="px-4" OnClickCallback="@OpenModal">Sign Up</NavBarItem>
+		</UserNotAuthenticated>
 		<NavBarItemSpacer SpacingAmount="20"></NavBarItemSpacer>
 		<NavBarItem Class="px-4" Href="#">Sign Up for the API</NavBarItem>
 		<NavBarItem Class="px-4" Href="#">API Documentation</NavBarItem>
@@ -47,7 +53,7 @@
 			<FormSelect Options="CountryOptions" @bind-SelectedValue="@InputFields["Country"].Value"></FormSelect>
 			
 			<hr />
-			<label style="color: red; font-size: 1.2em; flex: 1; align-self: center;">[ @SignUpErrorText ]</label>
+			<FormLabel Class="@Wiggle" Style="color: red; font-size: 1.2em; flex: 1; align-self: center;">[ @SignUpErrorText ]</FormLabel>
 			<div style="width: 100%; display: flex; flex-direction: row; justify-content: space-evenly; margin-top: 10px;">
 				<LotusButton Class="btn-pink col-4" OnClickCallBack="@ClearInputs">Clear</LotusButton>
 				<LotusButton Class="col-7" OnClickCallBack="@RegisterNewAccount">Register</LotusButton>
@@ -104,6 +110,8 @@
 	private string ValidPasswordEntry = "";
 	private string ValidPasswordAgainEntry = "";
 	private string ValidSEEntry = "";
+	private string Wiggle = "";
+	private bool errorWiggle = false;
 
 	private void OpenModal() => RegisterModalHidden = false;
 
@@ -134,6 +142,8 @@
 
 		return atleastOneLowerCase.IsMatch(password) && atleastOneUpperCase.IsMatch(password) && atleastOneNumber.IsMatch(password) && password.Length >= 8;
 	}
+
+	private async Task Logout() => await Session.LogOut();
 
 	private async Task RegisterNewAccount()
 	{
@@ -166,7 +176,21 @@
 			catch (UserAlreadyExistsException)
 			{
 				SignUpErrorText = "A user with this email or username already exists";
+				errorWiggle = true;
 			}
+		}
+		else
+		{
+			SignUpErrorText = "All fields marked with * are mandatory";
+			errorWiggle = true;
+		}
+
+		if(errorWiggle)
+		{
+			Wiggle = "wiggle";
+			await Task.Delay(500);
+			Wiggle = "";
+			errorWiggle = false;
 		}
 	}
 }

@@ -39,6 +39,7 @@ public class User
     //public User(int user_id, string? first_name, string? last_name, string email, string username, string password, byte[] salt, Gender gender, int fk_country_id, DateTime creationDate, DateTime? lastUpdatedDate, bool isEmailConfirmed)
 
     public void SetPassword(string password) => Password = password;
+    public void SetSalt(byte[] salt) => Salt = salt;
 
     public void SetCountry(int? countryCode, int? countryPhoneCode) { }
     public void SetCountry(string iso) { }

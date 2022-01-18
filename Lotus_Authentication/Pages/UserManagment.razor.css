@@ -1,0 +1,11 @@
+﻿body{
+    background-color: red;
+}
+
+div {
+    flex: 1;
+    justify-self: center;
+    align-self: center;
+    width: 30%;
+    margin-top: 1em;
+}

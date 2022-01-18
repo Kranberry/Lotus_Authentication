@@ -1,30 +1,59 @@
 ﻿@page "/UserManagement"
 @inject NavigationManager NavManager
-
-<LotusForm>
-    <FormLabel For="textField">FirstName</FormLabel>
-    <FormInput @bind-Value="FirstName" PlaceHolder="First name" ID="textField" InputType="text"></FormInput>
-    <FormLabel For="textField">LastName</FormLabel>
-    <FormInput @bind-Value="LastName" PlaceHolder="Last name" ID="textField" InputType="text"></FormInput>
-    <FormInput @bind-Value="SomeElse" PlaceHolder="Some else" ID="textField" InputType="submit" OnClickCallBack="@Reroute" Style="margin-top: 1em;"></FormInput>
-</LotusForm>
-
-<h1>First name: @FirstName</h1>
-<h1>Last name: @LastName</h1>
-<h1>Some else: @SomeElse</h1>
-
-@*<UserAuthenticated>
-    <h3>Logged in yoooo</h3>
-</UserAuthenticated>
+@inject UserSessionManager Session
 
 <UserNotAuthenticated>
-    <h3>Not logged in yoooo</h3>
-</UserNotAuthenticated>*@
+    <div>
+        <LotusForm>
+            <FormLabel For="emailInput">Email address</FormLabel>
+            <FormInput @bind-Value="Email" PlaceHolder="Support@lotus.se" ID="emailInput" InputType="text"></FormInput>
+            <FormLabel For="userName">Username</FormLabel>
+            <FormInput @bind-Value="UserName" PlaceHolder="Username" ID="userName" InputType="text"></FormInput>
+            <FormLabel For="password">Password</FormLabel>
+            <FormInput @bind-Value="Password" PlaceHolder="*********" ID="password" InputType="password"></FormInput>
+            <FormLabel Class="@Wiggle" Style="flex: 1; align-self: center; color: red;">[ @ErrorMessage ]</FormLabel>
+            <FormInput Value="Login" InputType="submit" OnClickCallBack="@Authenticate" Style="margin-top: 0.5em;"></FormInput>
+        </LotusForm>
+    </div>
+</UserNotAuthenticated>
 
+<UserAuthenticated>
+    <h1>Welcum</h1>
+</UserAuthenticated>
+
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 @code {
-    private string FirstName { get; set; }
-    private string LastName { get; set; }
-    private string SomeElse { get; set; } = "Submit thing";
+    private string Email { get; set; }
+    private string UserName { get; set; }
+    private string Password { get; set; }
+    private string ErrorMessage = "";
+    private string Wiggle = "";
 
     private void Reroute() => NavManager.NavigateTo("");
+
+    private async Task InitiateWiggle()
+    {
+        Wiggle = "wiggle";
+        ErrorMessage = "Invalid email, username or password";
+        await Task.Delay(500);
+        Wiggle = "";
+    }
+
+    private async Task Authenticate()
+    {
+        try
+        {
+            string sha1Pass = SHA1Hash.Hash(Password);
+            User user = DbHandler.GetUser(UserName, Email, sha1Pass);
+            await Session.Login();
+        }
+        catch(UserNotFoundException)
+        {
+            await InitiateWiggle();
+        }
+        catch(ArgumentNullException)
+        {
+            await InitiateWiggle();
+        }
+    }
 }

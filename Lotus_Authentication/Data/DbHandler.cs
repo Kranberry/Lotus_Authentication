@@ -17,7 +17,7 @@ public class DbHandler
     /// </summary>
     /// <param name="userID">The unique id of the user</param>
     /// <returns>A new User object filled with data</returns>
-    /// <exception cref="NotImplementedException"></exception>
+    /// <exception cref="UserNotFoundException">Thrown when user is not found</exception>
     public static User GetUser(int userID)
     {
         string sql = "SELECT TOP 1 * FROM [user] WHERE user_id = @id";
@@ -32,6 +32,7 @@ public class DbHandler
 
         Country country = GetCountryByID(uD.fk_country_id);
         User user = new(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.is_validated);
+        user.SetSalt(uD.salt);
         return user;
     }
 
@@ -40,6 +41,7 @@ public class DbHandler
     /// </summary>
     /// <param name="email">The unique email address of the user</param>
     /// <returns>A new User object filled with data</returns>
+    /// <exception cref="UserNotFoundException">Thrown when user is not found</exception>
     public static User GetUser(string email)
     {
         string sql = "SELECT TOP 1 * FROM [user] WHERE email = @email";
@@ -54,6 +56,7 @@ public class DbHandler
 
         Country country = GetCountryByID(uD.fk_country_id);
         User user = new(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.is_validated);
+        user.SetSalt(uD.salt);
         return user;
     }
 
@@ -64,15 +67,16 @@ public class DbHandler
     /// <param name="email">The email addres of said user</param>
     /// <param name="password">The Sha1 encrypted password of said user</param>
     /// <returns>The requested user</returns>
-    public static User? GetUser(string? userName, string? email, string password)
+    /// <exception cref="UserNotFoundException">Thrown when user is not found</exception>
+    public static User GetUser(string? userName, string? email, string password)
     {
         if (string.IsNullOrWhiteSpace(userName) && string.IsNullOrWhiteSpace(email))
-            return null;
+            throw new UserNotFoundException(LogSeverity.Warning, $"username and email cannot both be null.", $"Class: {nameof(DbHandler)}, Method: {nameof(GetUser)}(string? userName, string? email, string password)");
 
         string sql = (userName, email) switch
         {
-            (null,               not null or not "") => "SELECT TOP 1 * FROM [user] WHERE email = @email AND password = @password",
-            (not null or not "", null) => "SELECT TOP 1 * FROM [user] WHERE username = @userName AND password = @password",
+            (null or "",         not null or not "") => "SELECT TOP 1 * FROM [user] WHERE email = @email AND password = @password",
+            (not null or not "", null or "") => "SELECT TOP 1 * FROM [user] WHERE username = @userName AND password = @password",
             (not null or not "", not null or not "") => "SELECT TOP 1 * FROM [user] WHERE username = @userName AND email = @email AND password = @password"
         };
 
@@ -84,7 +88,14 @@ public class DbHandler
 
         // TODO: SHA256 the password with salt from retrieved user (if any)
         // Only make one call. Get shit from DB, and then validate encrypted password with salt against stored password. If valid, good job. Else return null
-        parameters.Add("@password", password, DbType.String);
+
+        byte[] storedSalt;
+        if (email is null || !EmailValidator.IsValidEmail(email))
+            storedSalt = GetUserByUserName(userName).Salt;
+        else
+            storedSalt = GetUser(email).Salt;
+        string hashedPass = SHA256Hash.HashString(password, storedSalt);
+        parameters.Add("@password", hashedPass, DbType.String);
 
         using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
 
@@ -93,10 +104,34 @@ public class DbHandler
         con.Close();
 
         if (uD is null)
-            return null;
+            throw new UserNotFoundException(LogSeverity.Warning, $"User with email or username could not be found.", $"Class: {nameof(DbHandler)}, Method: {nameof(GetUser)}(string? userName, string? email, string password)");
 
         Country country = GetCountryByID(uD.fk_country_id);
         User user = new(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.is_validated);
+        return user;
+    }
+
+    /// <summary>
+    /// Get user from the databse
+    /// </summary>
+    /// <param name="userID">The unique id of the user</param>
+    /// <returns>A new User object filled with data</returns>
+    /// <exception cref="UserNotFoundException">Thrown when user is not found</exception>
+    private static User GetUserByUserName(string username)
+    {
+        string sql = "SELECT TOP 1 * FROM [user] WHERE username = @username";
+        using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
+
+        con.Open();
+        dynamic? uD = con.Query<dynamic>(sql, new { username = username }).FirstOrDefault();
+        con.Close();
+
+        if (uD is null)
+            throw new UserNotFoundException(LogSeverity.Warning, $"User with username {username} could not be found.", $"Class: {nameof(DbHandler)}, Method: {nameof(GetUserByUserName)}(string username)");
+
+        Country country = GetCountryByID(uD.fk_country_id);
+        User user = new(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.is_validated);
+        user.SetSalt(uD.salt);
         return user;
     }
     #endregion

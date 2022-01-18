@@ -1,4 +1,6 @@
-﻿@inject Blazored.LocalStorage.ILocalStorageService localStorage
+﻿@implements IDisposable
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject UserSessionManager Session
 
 @if (!IsAuthenticated)
 {
@@ -8,12 +10,28 @@
 @namespace Lotus_Authentication.Components
 @code 
 {
-	[Parameter] public RenderFragment ChildContent { get; set; }
-	protected bool IsAuthenticated { get; set; }
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    protected bool IsAuthenticated { get; set; }
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		await localStorage.SetItemAsync<bool>("test", true);
-		IsAuthenticated = await localStorage.GetItemAsync<bool>("test");
-	}
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(!firstRender)
+            return;
+        Session.SessionHasChangedEvent += CheckAuthentication;
+        await CheckAuthentication("loggedIn");
+    }
+
+    private async Task CheckAuthentication(string key)
+    {
+        if(key == "loggedIn")
+        {
+            IsAuthenticated = await Session.IsLoggedIn();
+            StateHasChanged();    
+        }
+    }
+
+    public void Dispose()
+    {
+        Session.SessionHasChangedEvent -= CheckAuthentication;
+    }
 }
