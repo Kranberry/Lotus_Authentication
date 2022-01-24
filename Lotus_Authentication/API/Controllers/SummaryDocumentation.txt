@@ -1,0 +1,15 @@
+﻿/// <summary>
+/// Add a new user to our database
+/// </summary>
+/// <route>api/{controller}/{method}</route>
+/// <header>
+///     <param name="api_key" required="true">{{ your_api_key }}</param>
+/// </header>
+/// <body>
+///     <param name="" required="true"></param>
+///     <param name="" required="true"></param>
+///     <param name="" required="true"></param>
+///     <param name="">1</param>
+///     <param name="" required="true"></param>
+/// </body>
+/// <returns></returns>

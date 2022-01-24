@@ -17,6 +17,22 @@
     >
     Get a random Chuck Norris joke
     </LotusButton>
+    
+    <div style="display: flex; flex-direction: row; width: 100%;">
+    @foreach(string imgSource in ImageGallery)
+    {
+        <div>
+            <PictureCard
+                ImgSrc="@imgSource"
+                Description="Static description"
+                Title="Some picture"
+                Variant="PictureCardVariant.Medium"
+            >
+            </PictureCard>
+        </div>
+    }
+    
+    </div>
 </div>
 
 @code
@@ -25,6 +41,19 @@
     protected string RandomJoke { get; set; } = "No joke right naow :(";
     protected HttpClient Client = new();
 
+    List<string> ImageGallery = new();
+
+    protected override void OnInitialized()
+    {
+        FetchImageGallery();
+    }
+
+    protected void FetchImageGallery()
+    {
+        string rootPath = "wwwroot";
+        ImageGallery = Directory.GetFiles($"{rootPath}/GalleryImages/", "*.jpg").Select(s => s.Substring(rootPath.Length)).ToList();
+    }
+    
     class ChuckJokeModel
     {
         public string icon_url { get; set; }

@@ -4,15 +4,19 @@
     top: 6vh;
     display: flex;
     flex-direction: column;
-    width: 85vw;
+    width: 84%;
     height: 93.5vh;
+    margin-left: 1em;
+    margin-top: 1em;
+    overflow: scroll;
 }
 
 .main-top-noside-layout {
     display: flex;
     flex-direction: column;
-    width: 100%;
+    width: 99%;
     height: 93.5vh;
+    overflow: scroll;
 }
 
 .main-side-layout {
@@ -21,8 +25,9 @@
     top: 6vh;
     display: flex;
     flex-direction: column;
-    width: 85vw;
+    width: 84vw;
     height: 93.5vh;
+    overflow: scroll;
 }
 
 /* Extra small devices (phones, 600px and down) */

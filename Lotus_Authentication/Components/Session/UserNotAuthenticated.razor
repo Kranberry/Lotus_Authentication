@@ -18,16 +18,24 @@
         if(!firstRender)
             return;
         Session.SessionHasChangedEvent += CheckAuthentication;
-        await CheckAuthentication("loggedIn");
+        await CheckAuthentication(SessionState.LoggedIn);
     }
 
-    private async Task CheckAuthentication(string key)
+    private async Task CheckAuthentication(SessionState state)
     {
-        if(key == "loggedIn")
+        switch (state)
         {
-            IsAuthenticated = await Session.IsLoggedIn();
-            StateHasChanged();    
+            case SessionState.LoggedIn:
+                IsAuthenticated = await Session.IsLoggedIn();
+                break;
+            case SessionState.LoggedOut:
+            case SessionState.TokenExpired:
+            case SessionState.TokenInvalid:
+                IsAuthenticated = false;
+                break;
         }
+
+        StateHasChanged();
     }
 
     public void Dispose()

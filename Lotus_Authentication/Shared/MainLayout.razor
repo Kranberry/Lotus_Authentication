@@ -4,9 +4,10 @@
 
 <PageTitle>Lotus_Authentication</PageTitle>
 
-<LotusLayout Layout="PageLayout.SideLayout">
+<LotusLayout Layout="PageLayout.TopLayout">
 	<NavBar Class="justify-content-center">
 		<UserAuthenticated>
+			<NavBarItem Class="px-4" Href="/UserManagement">My Account</NavBarItem>
 			<NavBarItem Class="px-4" OnClickCallback="@Logout">Logout</NavBarItem>
 		</UserAuthenticated>
 		<UserNotAuthenticated>
@@ -15,7 +16,7 @@
 		</UserNotAuthenticated>
 		<NavBarItemSpacer SpacingAmount="20"></NavBarItemSpacer>
 		<NavBarItem Class="px-4" Href="#">Sign Up for the API</NavBarItem>
-		<NavBarItem Class="px-4" Href="#">API Documentation</NavBarItem>
+		<NavBarItem Class="px-4" Href="/api/documentation">API Documentation</NavBarItem>
 	</NavBar>
 	<SideBar>
 

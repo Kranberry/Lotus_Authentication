@@ -1,0 +1,46 @@
+﻿@page "/api/documentation"
+@using System.Xml
+@using Lotus_Authentication.API.ApiDocumentation
+@using System.Xml.Serialization
+
+<h3>ApiDocumentation</h3>
+
+<div style="display: flex; flex-direction: column;">
+    @foreach(Method method in Doc.Methods.Where(m => m.Name.Contains("API.Controllers")))
+    {
+        <div>
+            <h4><u>@method.Route</u></h4>
+
+            <h3>@method.GetControllerName()</h3>
+            <p>Name: @method.GetNiceName()</p>
+            <p>Summary: @method.Summary</p>
+            <p>Returns: @method.Returns</p>
+            <h3>Headers</h3>
+            @foreach(Parameter param in method.HeaderParameters)
+            {
+                <p>@(param.Required ? "*" : "") @param.Name : @param.Value</p>
+            }
+            <h3>Body</h3>
+            @foreach(Parameter param in method.BodyParameters)
+            {
+                <p>@(param.Required ? "*" : "") @param.Name : @param.Value</p>
+            }
+            <hr />
+        </div>
+    }
+</div>
+
+@code 
+{
+    private string XmlDocumentPath = "API/ApiDocumentation/Documentation.xml";
+    private DocumentationModel Doc { get; set; }
+
+    protected override void OnInitialized()
+    {
+        XmlSerializer serializer = new(typeof(DocumentationModel));
+        using(Stream reader = new FileStream(XmlDocumentPath, FileMode.Open))
+        {
+           Doc = (DocumentationModel)serializer.Deserialize(reader);
+        }
+    }
+}

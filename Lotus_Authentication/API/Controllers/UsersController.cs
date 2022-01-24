@@ -17,6 +17,21 @@ namespace Lotus_Authentication.API.Controllers
          *   "gender": "1", // required
          *   "country_iso2": "SE", // required
          * } */
+        /// <summary>
+        /// Add a new user to our database
+        /// </summary>
+        /// <route>api/Users/newUser</route>
+        /// <header>
+        ///     <param name="api_key" required="true">Your api key</param>
+        /// </header>
+        /// <body>
+        ///     <param name="username" required="true">testsson</param>
+        ///     <param name="email" required="true">test@testsson.se</param>
+        ///     <param name="password" required="true">a94a8fe5ccb19ba61c4c0873d391e987982fbbd3</param>
+        ///     <param name="gender">1</param>
+        ///     <param name="country_iso2" required="true">SE</param>
+        /// </body>
+        /// <returns>Returns a user object newly created with the data sent in</returns>
         [HttpPost, Route("api/users/newUser")]
         public async Task<ActionResult<User>> AddNewUser([FromHeader] string api_key, [FromBody] ApiUserModel body) // HttpRequest body
         {

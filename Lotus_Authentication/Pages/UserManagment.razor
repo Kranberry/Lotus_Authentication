@@ -45,7 +45,8 @@
         {
             string sha1Pass = SHA1Hash.Hash(Password);
             User user = DbHandler.GetUser(UserName, Email, sha1Pass);
-            await Session.Login();
+            user.SetPassword(sha1Pass);
+            await Session.Login(user);
         }
         catch(UserNotFoundException)
         {
