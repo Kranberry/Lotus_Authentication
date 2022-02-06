@@ -5,11 +5,17 @@
 /// <header>
 ///     <param name="api_key" required="true">{{ your_api_key }}</param>
 /// </header>
+/// <query>
+///     <param name="email" required="true">The users email address</param>
+/// </query>
 /// <body>
 ///     <param name="" required="true"></param>
 ///     <param name="" required="true"></param>
 ///     <param name="" required="true"></param>
-///     <param name="">1</param>
-///     <param name="" required="true"></param>
+///     <param name=""></param>
+///     <param name=""></param>
 /// </body>
+/// <results>
+///     <result status="200"></result>
+/// </results>
 /// <returns></returns>

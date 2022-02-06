@@ -2,7 +2,7 @@
     @if(InputType.ToLower() != "submit")
     {
         <input type="@InputType" value="@_Value" @oninput="UpdateValueChanged" class="inputField @Class" placeholder="@PlaceHolder" id="@ID" />
-        <LotusButton OnClickCallBack="@ClearInput" Class="ClearButton" >X</LotusButton>
+        <LotusButton OnClickCallBack="@ClearInput">X</LotusButton>
     }
     else
     {

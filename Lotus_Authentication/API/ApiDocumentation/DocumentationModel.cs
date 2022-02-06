@@ -33,9 +33,17 @@ public class Method
     [XmlArrayItem("param")]
     public Parameter[] HeaderParameters { get; init; } = Array.Empty<Parameter>();
 
+    [XmlArray("query")]
+    [XmlArrayItem("param")]
+    public Parameter[] QueryParameters { get; init; } = Array.Empty<Parameter>();
+
     [XmlArray("body")]
     [XmlArrayItem("param")]
     public Parameter[] BodyParameters { get; init; } = Array.Empty<Parameter>();
+
+    [XmlArray("results")]
+    [XmlArrayItem("result")]
+    public Result[] Results { get;init; } = Array.Empty<Result>();
 
     private Regex NiceNameRegex = new(@"(?<=\.)[a-zA-Z]+(?=\()");
     private Regex ControllerNameRegex = new(@"(?<=API.Controllers.)[a-zA-Z]+(?=\.)");
@@ -55,4 +63,12 @@ public class Parameter
 
     [XmlText]
     public string Value { get; set; }
+}
+
+public class Result
+{
+    [XmlAttribute("status")]
+    public int StatusCode { get; set; }
+    [XmlText]
+    public string Summary { get; set; }
 }

@@ -2,10 +2,31 @@
     background-color: red;
 }
 
-div {
+.signIn {
     flex: 1;
     justify-self: center;
     align-self: center;
     width: 30%;
     margin-top: 1em;
+}
+
+.userManager{
+    flex: 1;
+    width: 50%;
+}
+
+.userInfoButtons{
+    display: flex;
+    flex-direction: row;
+    min-width: 100%;
+    margin-top: 2em;
+    justify-content: space-around;
+}
+
+.userInfoButtons ::deep{
+    height: 2em;
+}
+
+.changePassword{
+    flex: 1;
 }

@@ -12,3 +12,10 @@ public enum PageLayout
     SideLayout,
     TopNoSideLayout
 }
+
+public enum SweetAlertIcons
+{
+    None,
+    Success,
+    Danger
+}

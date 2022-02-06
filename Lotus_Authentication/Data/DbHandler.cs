@@ -86,14 +86,11 @@ public class DbHandler
         if (email is not null)
             parameters.Add("@email", email, DbType.String);
 
-        // TODO: SHA256 the password with salt from retrieved user (if any)
-        // Only make one call. Get shit from DB, and then validate encrypted password with salt against stored password. If valid, good job. Else return null
-
         byte[] storedSalt;
         if (email is null || !EmailValidator.IsValidEmail(email))
-            storedSalt = GetUserByUserName(userName).Salt;
+            storedSalt = GetUserByUserName(userName!).Salt!;
         else
-            storedSalt = GetUser(email).Salt;
+            storedSalt = GetUser(email!).Salt!;
         string hashedPass = SHA256Hash.HashString(password, storedSalt);
         parameters.Add("@password", hashedPass, DbType.String);
 
@@ -114,7 +111,7 @@ public class DbHandler
     /// <summary>
     /// Get user from the databse
     /// </summary>
-    /// <param name="userID">The unique id of the user</param>
+    /// <param name="username">The unique username</param>
     /// <returns>A new User object filled with data</returns>
     /// <exception cref="UserNotFoundException">Thrown when user is not found</exception>
     private static User GetUserByUserName(string username)
@@ -157,6 +154,12 @@ public class DbHandler
         throw new NotImplementedException();
     }
 
+    /// <summary>
+    /// Check if user has a connection to the requested API key
+    /// </summary>
+    /// <param name="userId">The unique id of the user</param>
+    /// <param name="apiKeyId">The unique api key id of the api key</param>
+    /// <returns>Returns true if the user is connected to the requested api key</returns>
     public static async ValueTask<bool> UserHasConnectionToApiKey(int userId, int apiKeyId)
     {
         if (userId <= 0 || apiKeyId <= 0)
@@ -179,6 +182,7 @@ public class DbHandler
     /// Insert a new user into the database. 
     /// </summary>
     /// <param name="user">The user to be inserted</param>
+    /// <param name="apiKey">The apiKey to be used</param>
     /// <returns>true if the operation was successful</returns>
     /// <exception cref="UserAlreadyExistsException">This exception is thrown when there already exists a user with this email and/or username</exception>
     /// <exception cref="NullReferenceException">This exception is thrown when the password in the User object is null</exception>
@@ -230,16 +234,29 @@ public class DbHandler
     /// Update user data in database
     /// </summary>
     /// <param name="user">The user object of said user</param>
+    /// <param name="updatePassword">The new password of the user (SHA1 hashed)</param>
     /// <returns>The updated user Object</returns>
-    /// <exception cref="NotImplementedException"></exception>
+    /// <exception cref="ArgumentIsNullException">Thrown when the Password property of the user object is null</exception>
+    /// <exception cref="BadSHA1ReferenceException">Thrown when the Password property of the user object is not a valid SHA1 checksum</exception>
+    /// <exception cref="UserNotFoundException">Thrown when the user objects id is less than or equal to 0</exception>
+    /// <exception cref="UserAlreadyExistsException">Thrown when the email or username already exists</exception>
     public static User UpdateUser(User user, bool updatePassword)
     {
-        if (updatePassword && SHA1Hash.IsValidSHA1(user.Password))
+        if (updatePassword && string.IsNullOrWhiteSpace(user.Password))
+            throw new ArgumentIsNullException(LogSeverity.Warning, $"{nameof(user.Password)} cannot be null or empty", $"Class: {nameof(DbHandler)}, Method: {UpdateUser}(User user, string ApiKey)");
+        if (updatePassword && !SHA1Hash.IsValidSHA1(user.Password!))
             throw new BadSHA1ReferenceException(LogSeverity.Warning, "Password is not a valid SHA1 hashsum", $"Class: {nameof(DbHandler)}, Method: {UpdateUser}(User user, string ApiKey)");
         if (user.Id <= 0)
             throw new UserNotFoundException(LogSeverity.Warning, "User must exist for update", $"Class: {nameof(DbHandler)}, Method: {UpdateUser}(User user, string ApiKey)");
 
-//#error Do this next time. Procedure is created [user_update], but yet not tested
+        if (updatePassword)
+        {
+            (string hash, byte[] salt) = SHA256Hash.HashAndSaltString(user.Password!);
+            user.SetPassword(hash);
+            user.SetSalt(salt);
+        }
+
+        //#error Do this next time. Procedure is created [user_update], but yet not tested
         string procedure = "[user_update]";
         DynamicParameters parameters = new();
         parameters.Add("@user_id", user.Id, DbType.Int32);
@@ -305,7 +322,7 @@ public class DbHandler
     /// Permanently delete a user to api connection
     /// </summary>
     /// <param name="id">The unique id of the user</param>
-    /// <param name="apikey">The unique apiKey of the api user</param>
+    /// <param name="apiKey">The unique apiKey of the api user</param>
     /// <returns>true if the operation was successful</returns>
     public static bool RemoveUserApiConnection(int id, string apiKey)
     {

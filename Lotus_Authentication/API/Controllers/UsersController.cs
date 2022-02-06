@@ -8,15 +8,6 @@ namespace Lotus_Authentication.API.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        /* {
-         *   "email": "example@gmail.com", // required
-         *   "username": "example_user", // required
-         *   "password": "C6B77501AF2051430FDCE1659E8A9582CCBA40CA", // SHA1 encrypted
-         *   "first_name": "test", // optional
-         *   "last_name": "testsson", // optional
-         *   "gender": "1", // required
-         *   "country_iso2": "SE", // required
-         * } */
         /// <summary>
         /// Add a new user to our database
         /// </summary>
@@ -28,10 +19,21 @@ namespace Lotus_Authentication.API.Controllers
         ///     <param name="username" required="true">testsson</param>
         ///     <param name="email" required="true">test@testsson.se</param>
         ///     <param name="password" required="true">a94a8fe5ccb19ba61c4c0873d391e987982fbbd3</param>
-        ///     <param name="gender">1</param>
         ///     <param name="country_iso2" required="true">SE</param>
+        ///     <param name="first_name">Test</param>
+        ///     <param name="last_name">Testsson</param>
+        ///     <param name="gender">1</param>
         /// </body>
         /// <returns>Returns a user object newly created with the data sent in</returns>
+        /// <results>
+        ///     <result status="200">Everything passed</result>
+        ///     <result status="400">Any of the mandatory properties are null or empty</result>
+        ///     <result status="400">The email is invalid</result>
+        ///     <result status="400">The password is not a valid SHA1 checksum</result>
+        ///     <result status="400">The username is invalid</result>
+        ///     <result status="400">The username or email address already exists</result>
+        ///     <result status="403">Returned when the Api Key is invalid</result>
+        /// </results>
         [HttpPost, Route("api/users/newUser")]
         public async Task<ActionResult<User>> AddNewUser([FromHeader] string api_key, [FromBody] ApiUserModel body) // HttpRequest body
         {
@@ -39,7 +41,7 @@ namespace Lotus_Authentication.API.Controllers
             if (body.ArePropertiesNull(mandatoryKeys, out string? key))
                 return new BadRequestObjectResult($"Mandatory property not found: '{key}'");
 
-            if (!EmailValidator.IsValidEmail(body.Email))
+            if (!EmailValidator.IsValidEmail(body.Email!))
                 return new BadRequestObjectResult($"The property 'email' does not contain a valid email address");
 
             if (!ApiKey.IsValidApiKey(api_key))
@@ -55,7 +57,7 @@ namespace Lotus_Authentication.API.Controllers
             if(badRequestMessage != string.Empty)
                 return new BadRequestObjectResult(badRequestMessage);
 
-            if (!SHA1Hash.IsValidSHA1(body.Password))
+            if (!SHA1Hash.IsValidSHA1(body.Password!))
                 return new BadRequestObjectResult($"The property 'password' is not a valid SHA1 checksum");
 
             body.Gender ??= Gender.Other;
@@ -94,13 +96,17 @@ namespace Lotus_Authentication.API.Controllers
         }
 
         /// <summary>
-        /// Permanently delete a user from the database
+        /// Permanently delete a user from our database that your api key have been given rights to delete this user
         /// </summary>
-        /// <param name="email"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
+        /// <route>api/Users/permanent-delete/{email}</route>
+        /// <header>
+        ///     <param name="api_key" required="true">Your api key</param>
+        /// </header>
+        /// <query>
+        ///     <param name="email" required="true">The users email address</param>
+        /// </query>
         [HttpDelete("api/users/user/permanent-delete/{email}")]
-        public async Task<ActionResult<string>> DeleteUser([FromHeader] string api_key, string email)
+        public async Task<ActionResult> DeleteUser([FromHeader] string api_key, string email)
         {
             if (!ApiKey.IsValidApiKey(api_key))
                 return new BadRequestResult();
@@ -131,13 +137,20 @@ namespace Lotus_Authentication.API.Controllers
         }
 
         /// <summary>
-        /// Delete every reference connecting the user with incoming api key
+        /// Delete your connection and remove any rights towards a user originaly created by your api key or been given rights to
         /// </summary>
-        /// <param name="email"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
+        /// <route>api/Users/user/remove/{email}</route>
+        /// <header>
+        ///     <param name="api_key" required="true">Your api key</param>
+        /// </header>
+        /// <query>
+        ///     <param name="email" required="true">The users email address</param>
+        /// </query>
+        /// <results>
+        ///     <result></result>
+        /// </results>
         [HttpDelete("api/users/user/remove/{email}")]
-        public ActionResult<bool> DeleteUserApiReference([FromHeader] string api_key, string email)
+        public ActionResult DeleteUserApiReference([FromHeader] string api_key, string email)
         {
             if (string.IsNullOrWhiteSpace(api_key))
                 return new BadRequestResult();

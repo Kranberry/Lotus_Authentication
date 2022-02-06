@@ -20,10 +20,21 @@
             {
                 <p>@(param.Required ? "*" : "") @param.Name : @param.Value</p>
             }
+            <h3>Route parameters</h3>
+            @foreach(Parameter param in method.QueryParameters)
+            {
+                <p>@(param.Required ? "*" : "") @param.Name : @param.Value</p>
+            }
             <h3>Body</h3>
             @foreach(Parameter param in method.BodyParameters)
             {
                 <p>@(param.Required ? "*" : "") @param.Name : @param.Value</p>
+            }
+
+            <h3>Status Codes</h3>
+            @foreach(Result result in method.Results)
+            {
+                <p>@result.StatusCode ::: @result.Summary</p>
             }
             <hr />
         </div>

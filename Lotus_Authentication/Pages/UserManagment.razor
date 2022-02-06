@@ -1,9 +1,10 @@
 ﻿@page "/UserManagement"
+@implements IDisposable
 @inject NavigationManager NavManager
 @inject UserSessionManager Session
 
 <UserNotAuthenticated>
-    <div>
+    <div class="signIn">
         <LotusForm>
             <FormLabel For="emailInput">Email address</FormLabel>
             <FormInput @bind-Value="Email" PlaceHolder="Support@lotus.se" ID="emailInput" InputType="text"></FormInput>
@@ -18,25 +19,126 @@
 </UserNotAuthenticated>
 
 <UserAuthenticated>
-    <h1>Welcum</h1>
+    @if(CurrentUser is not null)
+    {
+        <div class="userManager">
+            <div class="basicUserInfo">
+                <LotusForm>
+                    <FormLabel>Username: @CurrentUser.UserName</FormLabel>
+                    <FormInput InputType="text" @bind-Value="newUsername" PlaceHolder="Username"></FormInput>
+                    <FormLabel>Email: @CurrentUser.Email</FormLabel>
+                    <FormInput InputType="text" @bind-Value="newEmail" PlaceHolder="Email"></FormInput>
+                    <FormLabel>First name: @CurrentUser.FirstName</FormLabel>
+                    <FormInput InputType="text" @bind-Value="newFirstName" PlaceHolder="First name"></FormInput>
+                    <FormLabel>Last name: @CurrentUser.LastName</FormLabel>
+                    <FormInput InputType="text" @bind-Value="newLastName" PlaceHolder="Last name"></FormInput>
+                    <FormLabel Class="@Wiggle" Style="flex: 1; align-self: center; color: red;">[ @ErrorMessage ]</FormLabel>
+
+                    <div class="userInfoButtons">
+                        <LotusButton Class="btn-pink" Style="width: 40%;" OnClickCallBack="@ResetFields">Reset</LotusButton>
+                        <LotusButton Style="width: 55%;" OnClickCallBack="@SaveUserDataChanges">Save Changes</LotusButton>
+                    </div>
+                </LotusForm>
+            </div>
+
+            <div class="changePassword">
+                <LotusForm>
+                    <FormInput InputType="password" @bind-Value="OldPassword" PlaceHolder="Password" Style="width: 35%;"></FormInput>
+                    <div style="display: flex; flex-direction: row;">
+                        <FormInput Style="width: 35%;" InputType="password" @bind-Value="NewPassword" PlaceHolder="New password"></FormInput>
+                        <FormInput Style="width: 35%;" InputType="password" @bind-Value="NewPasswordAgain" PlaceHolder="Confirm new password"></FormInput>
+                    </div>
+                    <FormLabel Class="@PasswordWiggle" Style="flex: 1; align-self: center; color: red;">[ @ChangePasswordErrorMessage ]</FormLabel>
+                    <LotusButton Style="width: 40%; align-self: center;" OnClickCallBack="@UpdateUserPassword">Change Password</LotusButton>
+                </LotusForm>
+            </div>
+
+            <div class="dangerButtons">
+                <LotusButton Class="btn-red">Delete Account</LotusButton>
+            </div>
+        </div>
+
+        <div class="connectedApiKeys">
+
+        </div>
+
+        <SweetAlert
+            @bind-IsHidden="SweetAlertHidden"
+            Text="@SweetAlertText"
+            Icon="SweetAlertIcons.Success"
+        />
+
+        <SweetAlert
+            Icon="SweetAlertIcons.Danger"
+            @bind-IsHidden="DeleteAccountAlertHidden"
+            Text="Are you sure you want to delete your account?"
+        />
+    }
 </UserAuthenticated>
 
-@inject Blazored.LocalStorage.ILocalStorageService localStorage
 @code {
-    private string Email { get; set; }
-    private string UserName { get; set; }
-    private string Password { get; set; }
+    private string Email { get; set; } = "";
+    private string UserName { get; set; } = "";
+    private string Password { get; set; } = "";
     private string ErrorMessage = "";
+    private string ChangePasswordErrorMessage = "";
     private string Wiggle = "";
+    private string PasswordWiggle = "";
+
+    private string newEmail = "";
+    private string newUsername = "";
+    private string newFirstName = "";
+    private string newLastName = "";
+
+    private string OldPassword { get; set; } = "";
+    private string NewPassword { get; set; } = "";
+    private string NewPasswordAgain { get; set; } = "";
+    private string SweetAlertText = "Password has been changed";
+    private bool SweetAlertHidden = true;
+
+    private bool DeleteAccountAlertHidden = true;
+
+    private User? CurrentUser { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await SetCurrentuser(SessionState.LoggedIn);
+        Session.SessionHasChangedEvent += SetCurrentuser;
+    }
 
     private void Reroute() => NavManager.NavigateTo("");
 
-    private async Task InitiateWiggle()
+    private async Task InitiateWiggle(string message)
     {
         Wiggle = "wiggle";
-        ErrorMessage = "Invalid email, username or password";
+        ErrorMessage = message;
         await Task.Delay(500);
+
         Wiggle = "";
+    }
+
+    private async Task InitiatePasswordWiggle(string message)
+    {
+        PasswordWiggle = "wiggle";
+        ChangePasswordErrorMessage = message;
+        await Task.Delay(500);
+
+        PasswordWiggle = "";
+    }
+
+    private async Task SetCurrentuser(SessionState state)
+    {
+        try
+        {
+            if (state == SessionState.LoggedIn)
+                CurrentUser = await Session.GetCurrentUser();
+            else
+                CurrentUser = null;
+        }
+        catch (UserNotFoundException)
+        {
+            CurrentUser = null;
+        }
     }
 
     private async Task Authenticate()
@@ -44,17 +146,86 @@
         try
         {
             string sha1Pass = SHA1Hash.Hash(Password);
-            User user = DbHandler.GetUser(UserName, Email, sha1Pass);
-            user.SetPassword(sha1Pass);
-            await Session.Login(user);
+            CurrentUser = DbHandler.GetUser(UserName, Email, sha1Pass);
+            CurrentUser.SetPassword(sha1Pass);
+            await Session.Login(CurrentUser);
         }
         catch(UserNotFoundException)
         {
-            await InitiateWiggle();
+            await InitiateWiggle("Invalid email, username or password");
         }
         catch(ArgumentNullException)
         {
-            await InitiateWiggle();
+            await InitiateWiggle("Invalid email, username or password");
         }
+    }
+
+    private void ResetFields()
+    {
+        newUsername = "";
+        newEmail = "";
+        newFirstName = "";
+        newLastName = "";
+    }
+
+    private async Task SaveUserDataChanges()
+    {
+        User backup = CurrentUser!;
+        bool usernameUpdated = backup.SetUserName(newUsername);
+        bool emailUpdated = backup.SetEmail(newEmail);
+        bool firstNameUpdated = backup.SetFirstname(newFirstName);
+        bool lastNameUpdated = backup.SetLastname(newLastName);
+
+        if (usernameUpdated || emailUpdated || firstNameUpdated || lastNameUpdated)
+        {
+            try
+            {
+                DbHandler.UpdateUser(backup, false);
+                CurrentUser = backup;
+            }
+            catch (ArgumentIsNullException)
+            {
+                await InitiateWiggle("Password or ID thing?");
+            }
+            catch (UserNotFoundException)
+            {
+                await InitiateWiggle("A user with this id does not exist");
+            }
+            catch (UserAlreadyExistsException)
+            {
+                await InitiateWiggle("A user with this username or email already exists");
+            }
+
+            newUsername = "";
+            newEmail = "";
+            newFirstName = "";
+            newLastName = "";
+        }
+    }
+
+    private async Task UpdateUserPassword()
+    {
+        if(NewPassword != NewPasswordAgain)
+        {
+            await InitiatePasswordWiggle("New passwords does not match");
+            return;
+        }
+
+        if (CurrentUser!.ValidatePassword(OldPassword))
+        {
+            string sha1Hash = SHA1Hash.Hash(NewPassword);
+            CurrentUser.SetPassword(sha1Hash);
+            DbHandler.UpdateUser(CurrentUser, true);
+            ChangePasswordErrorMessage = "";
+            SweetAlertHidden = false;
+            return;
+        }
+
+        await InitiatePasswordWiggle("Password is incorrect");
+    }
+
+    public void Dispose()
+    {
+        Session.SessionHasChangedEvent -= SetCurrentuser;
     }
 }

@@ -8,7 +8,7 @@ public class User
     public string Email { get; private set; }
     public string? Password { get; private set; }
     public byte[]? Salt { get; private set; }
-    public string UserName { get; init; }
+    public string UserName { get; private set; }
     public UserType UserType { get; init; }
     public Gender Gender { get; init; }
     public string CountryISO2 { get; private set; }
@@ -44,4 +44,58 @@ public class User
     public void SetCountry(int? countryCode, int? countryPhoneCode) { }
     public void SetCountry(string iso) { }
 
+    public bool SetUserName(string username) 
+    {
+        if (string.IsNullOrWhiteSpace(username) || username.Length <= 6)
+        {
+            return false;
+        }
+
+        UserName = username;
+        return true;
+    }
+
+    public bool SetEmail(string email)
+    {
+        if (EmailValidator.IsValidEmail(email))
+        {
+            Email = email;
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool SetFirstname(string firstname)
+    {
+        if (string.IsNullOrWhiteSpace(firstname))
+            return false;
+        
+        FirstName = firstname;
+        return true;
+    }
+
+    public bool SetLastname(string lastname)
+    {
+        if (string.IsNullOrWhiteSpace(lastname))
+            return false;
+
+        FirstName = lastname;
+        return true;
+    }
+
+    public bool ValidatePassword(string password)
+    {
+        string hashed = SHA1Hash.Hash(password);
+        try
+        {
+            DbHandler.GetUser(UserName, Email, hashed);
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+
+        return true;
+    }
 }

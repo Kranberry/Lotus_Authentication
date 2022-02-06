@@ -13,7 +13,7 @@ CREATE PROCEDURE user_update
 AS
 BEGIN
 
-    IF @username IS NULL OR @email IS NULL OR @password IS NULL OR @salt IS NULL OR @country_iso2 IS NULL
+    IF @user_id IS NULL
     BEGIN
         THROW 50002, '@user_id parameter cannot be null', 15;
     END

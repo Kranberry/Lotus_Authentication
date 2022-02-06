@@ -67,12 +67,6 @@ public class UserSessionManager
         InvokeSessionChanged(SessionState.LoggedOut);
     }
 
-    public async ValueTask AutoLogin()
-    {
-        //if (await IsLoggedIn())
-        //    await Login();
-    }
-
     public async ValueTask<bool> IsLoggedIn()
     {
         string jwt;
@@ -84,7 +78,6 @@ public class UserSessionManager
                                                             .WithSecret(AppConfig.JWTSymmetricSecret)
                                                             .MustVerifySignature()
                                                             .Decode<IDictionary<string, object>>(jwt);
-            System.Diagnostics.Debug.Print(JsonSerializer.Serialize(payload));
         }
         catch (TokenExpiredException ex)
         {
@@ -101,5 +94,20 @@ public class UserSessionManager
             return false;
         }
         return true;
+    }
+
+    internal async Task<User> GetCurrentUser()
+    {
+        if (!(await IsLoggedIn()))
+            throw new UserNotFoundException(LogSeverity.Warning, "No user is found logged in", $"Class: {nameof(UserSessionManager)}, Method: {nameof(GetCurrentUser)}()");
+
+        string jwt = await LocalStorage.GetItemAsync<string>("jwt");
+        IDictionary<string, object> payload = JwtBuilder.Create()
+                                                        .WithAlgorithm(new HMACSHA256Algorithm())
+                                                        .WithSecret(AppConfig.JWTSymmetricSecret)
+                                                        .MustVerifySignature()
+                                                        .Decode<IDictionary<string, object>>(jwt);
+
+        return DbHandler.GetUser((string)payload["email"]);
     }
 }

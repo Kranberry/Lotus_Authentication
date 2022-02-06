@@ -7,13 +7,14 @@
     box-shadow: 0px 0px 1px 1px #5d0064ff;
     margin-bottom: 0.3em;
     overflow: hidden;
+    justify-content: space-between;
 }
 
 .inputField {
-    width: inherit;
+    width: 100%;
     padding: 0 0.4em;
     border: none;
-    background-color: #ffffffff;
+    background-color: #ffffff;
 }
 
 .invalidField {
