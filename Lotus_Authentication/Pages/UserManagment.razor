@@ -6,6 +6,7 @@
 <UserNotAuthenticated>
     <div class="signIn">
         <LotusForm>
+            <FormHeader>Sign In</FormHeader>
             <FormLabel For="emailInput">Email address</FormLabel>
             <FormInput @bind-Value="Email" PlaceHolder="Support@lotus.se" ID="emailInput" InputType="text"></FormInput>
             <FormLabel For="userName">Username</FormLabel>
@@ -53,8 +54,8 @@
                 </LotusForm>
             </div>
 
-            <div class="dangerButtons">
-                <LotusButton Class="btn-red">Delete Account</LotusButton>
+            <div class="dangerButtons b-shadow">
+                <LotusButton Class="btn-red" OnClickCallBack="@DeleteAccountVerifyAlert">Delete Account</LotusButton>
             </div>
         </div>
 
@@ -72,6 +73,11 @@
             Icon="SweetAlertIcons.Danger"
             @bind-IsHidden="DeleteAccountAlertHidden"
             Text="Are you sure you want to delete your account?"
+            OkButtonText="YES"
+            CancelButtonText="NO!"
+            OkButtonCallBack="DeleteAccount"
+            OkBtnClass="btn-red"
+            CancelBtnClass="btn-purple"
         />
     }
 </UserAuthenticated>
@@ -222,6 +228,14 @@
         }
 
         await InitiatePasswordWiggle("Password is incorrect");
+    }
+
+    private void DeleteAccountVerifyAlert() => DeleteAccountAlertHidden = false;
+
+    private async Task DeleteAccount()
+    {
+        DbHandler.PermanentDeleteUser(CurrentUser!.Id);
+        Session.LogOut();
     }
 
     public void Dispose()

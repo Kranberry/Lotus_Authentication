@@ -15,8 +15,13 @@
 			<NavBarItem Class="px-4" OnClickCallback="@OpenModal">Sign Up</NavBarItem>
 		</UserNotAuthenticated>
 		<NavBarItemSpacer SpacingAmount="20"></NavBarItemSpacer>
-		<NavBarItem Class="px-4" Href="#">Sign Up for the API</NavBarItem>
-		<NavBarItem Class="px-4" Href="/api/documentation">API Documentation</NavBarItem>
+		<UserNotAuthenticated>
+			<NavBarItem Class="px-4" Href="/ApiUserManagement">Sign Up for the API</NavBarItem>
+			<NavBarItem Class="px-4" Href="/api/documentation">API Documentation</NavBarItem>
+		</UserNotAuthenticated>
+		<UserAuthenticated IsApiUser>
+			<NavBarItem Class="px-4" Href="/api/documentation">API Documentation</NavBarItem>
+		</UserAuthenticated>
 	</NavBar>
 	<SideBar>
 
@@ -62,17 +67,12 @@
 		</LotusForm>
 	</Modal>
 
-	<Modal 
-		IsContentSized="true" 
-		IncludeModalFooter="false" 
+	<SweetAlert 
+		Icon="SweetAlertIcons.Success"
+		Text="An email has been sent to you for verification"
 		@bind-IsHidden="RegisterSuccessfullModalHidden"
 	>
-		<div style="flex: 1; flex-direction: column; align-items: center; justify-content center; padding: 2em;">
-			<h5>Your account has been successfully created</h5>
-			<p>An email has been sent to you for verification</p>
-		</div>
-
-	</Modal>
+	</SweetAlert>
 </LotusLayout>
 
 @code

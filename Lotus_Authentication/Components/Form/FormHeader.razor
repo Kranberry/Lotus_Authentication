@@ -1,0 +1,23 @@
+﻿<h1 class="@Class @SizeClass formHeader" style="@Style" id="@ID">@ChildContent</h1>
+<hr />
+
+@namespace Lotus_Authentication.Components
+@code {
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public string Class { get; set; }
+    [Parameter] public string Style { get; set; }
+    [Parameter] public string ID { get; set; }
+
+    [Parameter] public FormHeaderSize Size { get; set; }
+    private string SizeClass = "largeHeader";
+
+    protected override void OnInitialized()
+    {
+        SizeClass = Size switch
+        {
+            FormHeaderSize.Large => "largeHeader",
+            FormHeaderSize.Medium => "mediumHeader",
+            FormHeaderSize.Small => "smallHeader",
+        };
+    }
+}

@@ -5,10 +5,11 @@ public class User
     public int Id { get; init; }
     public string? FirstName { get; private set; }
     public string? LastName { get; private set; }
+    public string? CompanyName { get; private set; }
     public string Email { get; private set; }
     public string? Password { get; private set; }
     public byte[]? Salt { get; private set; }
-    public string UserName { get; private set; }
+    public string? UserName { get; private set; }
     public UserType UserType { get; init; }
     public Gender Gender { get; init; }
     public string CountryISO2 { get; private set; }
@@ -25,6 +26,23 @@ public class User
         LastName = lastName;
         Email = email;
         UserName = userName;
+        UserType = userType;
+        Gender = gender;
+        CountryISO2 = countryISO2;
+        CreationDate = creationDate;
+        LastUpdatedDate = lastUpdatedDate;
+        IsEmailConfirmed = isEmailConfirmed;
+        CountryCode = countryCode;
+        CountryPhoneCode = countryPhoneCode;
+    }
+
+    public User(int id, string? contactFirstName, string? contactLastName, string email, UserType userType, Gender gender, string countryISO2, int? countryCode, int? countryPhoneCode, DateTime creationDate, DateTime? lastUpdatedDate, string companyName, bool isEmailConfirmed)
+    {
+        Id = id;
+        FirstName = contactFirstName;
+        LastName = contactLastName;
+        Email = email;
+        CompanyName = companyName;
         UserType = userType;
         Gender = gender;
         CountryISO2 = countryISO2;

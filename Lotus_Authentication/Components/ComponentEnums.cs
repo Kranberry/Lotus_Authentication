@@ -19,3 +19,10 @@ public enum SweetAlertIcons
     Success,
     Danger
 }
+
+public enum FormHeaderSize
+{
+    Large,
+    Medium,
+    Small
+}

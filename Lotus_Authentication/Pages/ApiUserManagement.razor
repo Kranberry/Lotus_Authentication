@@ -1,0 +1,173 @@
+﻿@page "/ApiUserManagement"
+@using System.Text.RegularExpressions
+@inject UserSessionManager Session
+
+<UserNotAuthenticated IsApiUser="true">
+    @if (!DoRegister)
+    {
+        <div class="signIn" @onkeydown="OnLoginKeyDown">
+            <LotusForm>
+                <FormHeader>Sign In: API User</FormHeader>
+                <FormLabel>Email address</FormLabel>
+                <FormInput PlaceHolder="Email" InputType="text"></FormInput>
+                <FormLabel>Password</FormLabel>
+                <FormInput PlaceHolder="Password" InputType="password"></FormInput>
+                <div class="loginButtons">
+                    <LotusButton Style="border: 1px solid black; height: 2em; margin-bottom: 0.5em;">Login</LotusButton>
+                    <LotusButton OnClickCallBack="ToggleRegister" Class="btn-pink">Register</LotusButton>
+                </div>
+            </LotusForm>
+        </div>
+    }
+    else
+    {
+        <div class="signIn">
+            <LotusForm>
+                <FormHeader>Register: Api User</FormHeader>
+                <FormLabel>Email address</FormLabel>
+                <FormInput PlaceHolder="Email" InputType="text" @bind-Value="@InputFields["EmailInput"].Value" ValidField="@InputFields["EmailInput"].IsValid"></FormInput>
+                <FormLabel>Password</FormLabel>
+                <FormInput PlaceHolder="Password" InputType="password" @bind-Value="@InputFields["Password"].Value" ValidField="@InputFields["Password"].IsValid"></FormInput>
+                <FormLabel>Repeat Password</FormLabel>
+                <FormInput PlaceHolder="Repeat password" InputType="password" @bind-Value="@InputFields["PasswordAgain"].Value" ValidField="@InputFields["PasswordAgain"].IsValid"></FormInput>
+                
+                <FormHeader Size="FormHeaderSize.Small" Style="margin-top: 1em;">Company Info</FormHeader>
+                <FormLabel>Contact Person Firstname</FormLabel>
+                <FormInput PlaceHolder="Firstname" InputType="text" @bind-Value="@InputFields["ContactFirstName"].Value" ValidField="@InputFields["ContactFirstName"].IsValid"></FormInput>
+                <FormLabel>Contact Person Lastname</FormLabel>
+                <FormInput PlaceHolder="Lastname" InputType="text" @bind-Value="@InputFields["ContactLastName"].Value" ValidField="@InputFields["ContactLastName"].IsValid"></FormInput>
+                <FormLabel>Company Name</FormLabel>
+                <FormInput PlaceHolder="Company name" InputType="text" @bind-Value="@InputFields["CompanyName"].Value" ValidField="@InputFields["CompanyName"].IsValid"></FormInput>
+                <FormLabel for="gender">Gender</FormLabel>
+			    <FormSelect Options="GenderOptions" @bind-SelectedValue="@InputFields["Gender"].Value"></FormSelect>
+			    <FormLabel for="country">Country</FormLabel>
+			    <FormSelect Options="CountryOptions" @bind-SelectedValue="@InputFields["Country"].Value"></FormSelect>
+                <div class="loginButtons">
+                    <LotusButton OnClickCallBack="ToggleRegister" Class="btn-pink" Style="margin-bottom: 0.5em;">Login</LotusButton>
+                    <LotusButton OnClickCallBack="TryRegisterApiUser" Style="border: 1px solid black; height: 2em;">Register</LotusButton>
+                </div>
+            </LotusForm>
+        </div>
+    }
+</UserNotAuthenticated>
+
+<UserAuthenticated IsApiUser="true">
+
+</UserAuthenticated>
+
+<SweetAlert
+    Icon="SweetAlertIcon"
+    Text="@SweetAlertText"
+    @bind-IsHidden="SweetAlertHidden"
+></SweetAlert>
+
+@code {
+    private bool DoRegister = false;
+
+    private bool SweetAlertHidden { get; set; } = true;
+    private string SweetAlertText { get; set; } = "We have sent you an email";
+    private SweetAlertIcons SweetAlertIcon { get; set; } = SweetAlertIcons.Success;
+
+    private Gender SelectedGender = Gender.Other;
+    private string[] GenderOptions = Enum.GetNames(typeof(Gender));
+
+    private IEnumerable<Country> AvailableCountries = DbHandler.GetAllCountries();
+    private string[] CountryOptions = Array.Empty<string>();
+    private Country SelectedCountry { get; set; }
+
+    private class InputValidThing
+    {
+        internal string Value { get; set; } = "";
+        internal bool IsValid { get; set; } = false;
+    }
+
+    private Dictionary<string, InputValidThing> InputFields = new()
+	{
+		{"ContactFirstName", new()},
+		{"ContactLastName", new()},
+		{"EmailInput", new()},
+		{"CompanyName", new()},
+		{"Password", new()},
+		{"PasswordAgain", new()},
+		{"Gender", new()},
+		{"Country", new()}
+	};
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        CountryOptions = AvailableCountries.Select(c => c.NiceName).ToArray();
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task SetCountry(string countryName)
+    {
+        SelectedCountry = AvailableCountries.Single(c => c.NiceName == countryName);
+    }
+
+    private bool IsPasswordValid(string password)
+    {
+        Regex atleastOneNumber = new(@"\d");
+        Regex atleastOneLowerCase = new(@"[A-Z]");
+        Regex atleastOneUpperCase = new(@"[a-z]");
+
+        return atleastOneLowerCase.IsMatch(password) && atleastOneUpperCase.IsMatch(password) && atleastOneNumber.IsMatch(password) && password.Length >= 8;
+    }
+
+    private async Task Logout() => await Session.LogOut();
+
+    private void ToggleRegister() => DoRegister = !DoRegister;
+
+    private void ShowSweetAlert(string text, SweetAlertIcons icon)
+    {
+        SweetAlertIcon = icon;
+        SweetAlertText = text;
+        SweetAlertHidden = false;
+    }
+
+    private async Task TryRegisterApiUser()
+    {
+        InputFields["EmailInput"].IsValid = EmailValidator.IsValidEmail(InputFields["EmailInput"].Value);
+        InputFields["ContactFirstName"].IsValid = InputFields["ContactFirstName"].Value.Length >= 1;
+        InputFields["ContactLastName"].IsValid = InputFields["ContactLastName"].Value.Length >= 1;
+        InputFields["CompanyName"].IsValid = InputFields["CompanyName"].Value.Length >= 1;
+        InputFields["Password"].IsValid = IsPasswordValid(InputFields["Password"].Value);
+        InputFields["PasswordAgain"].IsValid = InputFields["Password"].Value == InputFields["PasswordAgain"].Value;
+        InputFields["Gender"].IsValid = InputFields["Gender"] is not null;
+        InputFields["Country"].IsValid = InputFields["Country"] is not null;
+
+        bool allFieldsValid = InputFields.Where(kvp => !kvp.Value.IsValid).Count() == 0;
+        if (SelectedCountry is null)
+            SelectedCountry = AvailableCountries.Single(c => c.Id == 1);
+
+        if (allFieldsValid)
+        {
+            User user = new(0, InputFields["ContactFirstName"].Value, InputFields["ContactLastName"].Value, InputFields["EmailInput"].Value, UserType.Api, SelectedGender, SelectedCountry.Iso2, SelectedCountry.NumCode, SelectedCountry.PhoneCode, DateTime.UtcNow, null, InputFields["CompanyName"].Value, false);
+            user.SetPassword(SHA1Hash.Hash(InputFields["Password"].Value));
+            try
+            {
+                await DbHandler.InsertUser(user, AppConfig.SkeletonKey);
+
+                foreach (KeyValuePair<string, InputValidThing> kvp in InputFields)
+                    kvp.Value.Value = "";
+
+                ShowSweetAlert("We have sent you and email", SweetAlertIcons.Success);
+			}
+			catch (UserAlreadyExistsException)
+			{
+                ShowSweetAlert("This email is already taken", SweetAlertIcons.Danger);
+			}
+		}
+		else
+		{
+            ShowSweetAlert("All fields are mandatory", SweetAlertIcons.Danger);
+		}
+    }
+
+    private void OnLoginKeyDown(KeyboardEventArgs e)
+    {
+        if(e.Key == "Enter" || e.Key == "NumpadEnter")
+        {
+            ShowSweetAlert("We have sent you an email", SweetAlertIcons.Success);
+        }
+    }
+}

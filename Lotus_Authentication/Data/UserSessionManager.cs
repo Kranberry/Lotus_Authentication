@@ -55,6 +55,7 @@ public class UserSessionManager
                                  .AddClaim("username", user.UserName)
                                  .AddClaim("email", user.Email)
                                  .AddClaim("password", user.Password)
+                                 .AddClaim("userType", user.UserType.ToString())
                                  .Encode();
         await LocalStorage.SetItemAsStringAsync("jwt", token);
 
@@ -67,7 +68,7 @@ public class UserSessionManager
         InvokeSessionChanged(SessionState.LoggedOut);
     }
 
-    public async ValueTask<bool> IsLoggedIn()
+    public async ValueTask<bool> IsLoggedIn(bool isApiUser = false)
     {
         string jwt;
         try
@@ -78,18 +79,23 @@ public class UserSessionManager
                                                             .WithSecret(AppConfig.JWTSymmetricSecret)
                                                             .MustVerifySignature()
                                                             .Decode<IDictionary<string, object>>(jwt);
+
+            System.Diagnostics.Debug.Print(JsonSerializer.Serialize(payload));
+            UserType userType = (UserType)Enum.Parse(typeof(UserType), (string)payload["userType"]);
+            if(isApiUser && userType is not UserType.Api)
+                return false;
         }
-        catch (TokenExpiredException ex)
+        catch (TokenExpiredException)
         {
             InvokeSessionChanged(SessionState.TokenExpired);
             return false;
         }
-        catch (SignatureVerificationException ex)
+        catch (SignatureVerificationException)
         {
             InvokeSessionChanged(SessionState.TokenInvalid);
             return false;
         }
-        catch(Exception ex)
+        catch(Exception)
         {
             return false;
         }

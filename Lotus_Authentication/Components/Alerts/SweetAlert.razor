@@ -12,7 +12,13 @@
             }
             <h4>@Text</h4>
         </div>
-        <LotusButton OnClickCallBack="@CloseAlert" Style="width: 100%; height: 15%;">@ButtonText</LotusButton>
+        <div class="buttons">
+            @if (!string.IsNullOrWhiteSpace(CancelButtonText))
+            {
+                <LotusButton OnClickCallBack="@CancelClick" Class="@CancelBtnClass" Style="width: 100%;">@CancelButtonText</LotusButton>
+            }
+            <LotusButton OnClickCallBack="@OkClick" Class="@OkBtnClass" Style="width: 100%;">@OkButtonText</LotusButton>
+        </div>
     </div>
 }
 
@@ -21,7 +27,13 @@
     [Parameter] public SweetAlertIcons Icon {get; set;} = SweetAlertIcons.None;
     [Parameter] public bool IsHidden { get; set; }
     [Parameter] public string Text { get; set; } = "";
-    [Parameter] public string ButtonText { get; set; } = "OK";
+    [Parameter] public string OkButtonText { get; set; } = "OK";
+    [Parameter] public string CancelButtonText { get; set; } = "";
+    [Parameter] public string OkBtnClass { get; set; } = "btn-purple";
+    [Parameter] public string CancelBtnClass { get; set; } = "btn-pink";
+
+    [Parameter] public EventCallback<Action> OkButtonCallBack { get; set; }
+    [Parameter] public EventCallback<Action> CancelButtonCallBack { get; set; }
 
     [Parameter]
     public EventCallback<bool> IsHiddenChanged { get; set; }
@@ -50,4 +62,20 @@
         SweetAlertIcons.Danger => "M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z",
         _ => ""
     };
+
+    private async Task OkClick()
+    {
+        if (OkButtonCallBack.HasDelegate)
+            await OkButtonCallBack.InvokeAsync();
+
+        await CloseAlert();
+    }
+
+    private async Task CancelClick()
+    {
+        if (CancelButtonCallBack.HasDelegate)
+            await CancelButtonCallBack.InvokeAsync();
+            
+        await CloseAlert();
+    }
 }

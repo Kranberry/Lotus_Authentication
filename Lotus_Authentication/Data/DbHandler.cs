@@ -196,17 +196,26 @@ public class DbHandler
 
         (string sha256Password, byte[] salt) = SHA256Hash.HashAndSaltString(user.Password);
 
-        string procedure = "[user_add]";
+        string procedure = user.UserType is UserType.Regular ? "[user_add]" : "[api_user_add]";
         DynamicParameters parameters = new();
-        parameters.Add("@username", user.UserName, DbType.String);
+        if(user.UserType is UserType.Regular)
+        {
+            parameters.Add("@username", user.UserName, DbType.String);
+            parameters.Add("@api_key", apiKey, DbType.String);
+        }
+        else
+        {
+            parameters.Add("@customer", user.CompanyName, DbType.String);
+        }
+
+        parameters.Add(user.UserType is UserType.Regular ? "@first_name" : "@contact_first_name", user.FirstName, DbType.String);
+        parameters.Add(user.UserType is UserType.Regular ? "@last_name" : "@contact_last_name", user.LastName, DbType.String);
+
         parameters.Add("@email", user.Email, DbType.String);
         parameters.Add("@password", sha256Password, DbType.String);
         parameters.Add("@salt", salt, DbType.Binary);
         parameters.Add("@country_iso2", user.CountryISO2, DbType.AnsiStringFixedLength, ParameterDirection.Input, 2);
-        parameters.Add("@first_name", user.FirstName, DbType.String);
-        parameters.Add("@last_name", user.LastName, DbType.String);
         parameters.Add("@gender", user.Gender, DbType.Boolean);
-        parameters.Add("@api_key", apiKey, DbType.String);
 
         using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
         con.Open();
@@ -226,7 +235,12 @@ public class DbHandler
         con.Close();
 
         Country country = GetCountryByID(uD.fk_country_id);
-        User returnedUser = new(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.is_validated);
+        User returnedUser = default;
+        if(user.UserType is UserType.Regular)
+            returnedUser = new(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.is_validated);
+        else
+            returnedUser = new(uD.api_user_id, uD.contact_first_name, uD.contact_last_name, uD.email, UserType.Api, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.customer, uD.is_validated);
+
         return returnedUser;
     }
 

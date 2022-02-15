@@ -11,6 +11,7 @@
 @code 
 {
     [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public bool IsApiUser { get; set; }
     protected bool IsAuthenticated { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -26,7 +27,7 @@
         switch (state)
         {
             case SessionState.LoggedIn:
-                IsAuthenticated = await Session.IsLoggedIn();
+                IsAuthenticated = await Session.IsLoggedIn(IsApiUser);
                 break;
             case SessionState.LoggedOut:
             case SessionState.TokenExpired:

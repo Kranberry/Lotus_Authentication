@@ -3,3 +3,8 @@
     display: flex;
     flex-direction: column;
 }
+
+::deep .formHeader {
+    text-align: center;
+    font-weight: 600;
+}
