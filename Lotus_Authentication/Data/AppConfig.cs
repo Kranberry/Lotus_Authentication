@@ -2,7 +2,7 @@
 
 internal static class AppConfig
 {
-    private static IConfiguration _Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json", true).Build();
+    private static IConfiguration _Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json", true).AddEnvironmentVariables().Build();
 
     private static string GetValueOfKey(string key) => _Configuration[key];
 
