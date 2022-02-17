@@ -49,9 +49,9 @@ public class ApiKey
                     return true;
                 }
             }
-            catch (BadApiKeyReferenceException)
+            catch (BadApiKeyReferenceException ex)
             {
-
+                DbHandler.AddNewSystemLog(LogSeverity.Error, ex, ex.Message, "gnfh").GetAwaiter();
             }
             return false;
         }

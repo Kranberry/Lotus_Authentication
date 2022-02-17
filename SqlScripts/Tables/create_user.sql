@@ -6,7 +6,7 @@ CREATE TABLE [user]
     [username] NVARCHAR(MAX) NOT NULL,
     [email] NVARCHAR(MAX) NOT NULL,
     [password] NVARCHAR(MAX) NOT NULL,
-    [salt] VARBINARY NOT NULL,
+    [salt] VARBINARY(MAX) NOT NULL,
     [gender] INT NOT NULL,
     [fk_country_id] INT NOT NULL FOREIGN KEY REFERENCES country(country_id),
     [record_insert_date] DATETIME DEFAULT GETDATE(),

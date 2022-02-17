@@ -6,7 +6,7 @@ CREATE TABLE api_user
     [contact_first_name] NVARCHAR(MAX) NOT NULL,
     [contact_last_name] NVARCHAR(MAX),
     [password] NVARCHAR(MAX) NOT NULL,
-    [salt] VARBINARY NOT NULL,
+    [salt] VARBINARY(MAX) NOT NULL,
     [gender] INT NOT NULL,
     [fk_country_id] INT NOT NULL FOREIGN KEY REFERENCES country(country_id),
     [record_insert_date] DATETIME DEFAULT GETDATE(),
