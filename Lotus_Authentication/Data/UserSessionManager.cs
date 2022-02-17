@@ -80,7 +80,7 @@ public class UserSessionManager
                                                             .MustVerifySignature()
                                                             .Decode<IDictionary<string, object>>(jwt);
 
-            System.Diagnostics.Debug.Print(JsonSerializer.Serialize(payload));
+            await DbHandler.AddNewSystemLog(LogSeverity.Informational, null, JsonSerializer.Serialize(payload), "");
             UserType userType = (UserType)Enum.Parse(typeof(UserType), (string)payload["userType"]);
             if(isApiUser && userType is not UserType.Api)
                 return false;
