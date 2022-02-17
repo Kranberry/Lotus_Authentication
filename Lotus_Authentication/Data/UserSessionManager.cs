@@ -95,8 +95,9 @@ public class UserSessionManager
             InvokeSessionChanged(SessionState.TokenInvalid);
             return false;
         }
-        catch(Exception)
+        catch(Exception e)
         {
+            await DbHandler.AddNewSystemLog(LogSeverity.Informational, e, e.Message, "");
             return false;
         }
         return true;
