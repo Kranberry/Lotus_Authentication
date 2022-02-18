@@ -11,12 +11,12 @@
 			<NavBarItem Class="px-4" OnClickCallback="@Logout">Logout</NavBarItem>
 		</UserAuthenticated>
 		<UserNotAuthenticated>
-			<NavBarItem Class="px-4" Href="/UserManagement">Log in</NavBarItem>
-			<NavBarItem Class="px-4" OnClickCallback="@OpenModal">Sign Up</NavBarItem>
+			<NavBarItem Class="px-4" Href="/UserManagement">Login</NavBarItem>
+			<NavBarItem Class="px-4" OnClickCallback="@OpenModal">Register</NavBarItem>
 		</UserNotAuthenticated>
 		<NavBarItemSpacer SpacingAmount="20"></NavBarItemSpacer>
 		<UserNotAuthenticated>
-			<NavBarItem Class="px-4" Href="/ApiUserManagement">Sign Up for the API</NavBarItem>
+			<NavBarItem Class="px-4" Href="/ApiUserManagement">Login for the API</NavBarItem>
 			<NavBarItem Class="px-4" Href="/api/documentation">API Documentation</NavBarItem>
 		</UserNotAuthenticated>
 		<UserAuthenticated IsApiUser>
