@@ -10,4 +10,5 @@ public class Enviourment
     }
 
     public string GetContentPath => Environment.ContentRootPath;
+    public string GetWebRootPath => Environment.WebRootPath;
 }
