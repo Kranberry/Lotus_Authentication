@@ -68,7 +68,7 @@ public class UserSessionManager
         InvokeSessionChanged(SessionState.LoggedOut);
     }
 
-    public async ValueTask<bool> IsLoggedIn(bool isApiUser = false)
+    public async ValueTask<bool> IsLoggedIn(bool isApiUser = false, bool anyUser = true)
     {
         string jwt;
         try
@@ -81,7 +81,9 @@ public class UserSessionManager
                                                             .Decode<IDictionary<string, object>>(jwt);
 
             UserType userType = (UserType)Enum.Parse(typeof(UserType), (string)payload["userType"]);
-            if(isApiUser && userType is not UserType.Api)
+            if (isApiUser && userType is not UserType.Api && !anyUser)
+                return false;
+            if (!isApiUser && userType is UserType.Api && !anyUser)
                 return false;
         }
         catch (TokenExpiredException)

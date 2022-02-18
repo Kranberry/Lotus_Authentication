@@ -74,21 +74,23 @@
             <returns>A new User object filled with data</returns>
             <exception cref="T:Lotus_Authentication.Data.UserNotFoundException">Thrown when user is not found</exception>
         </member>
-        <member name="M:Lotus_Authentication.Data.DbHandler.GetUser(System.String)">
+        <member name="M:Lotus_Authentication.Data.DbHandler.GetUser(System.String,Lotus_Authentication.Data.UserType)">
             <summary>
             Get user from the databse
             </summary>
             <param name="email">The unique email address of the user</param>
+            <param name="userType">The type of user to retrieve</param>
             <returns>A new User object filled with data</returns>
             <exception cref="T:Lotus_Authentication.Data.UserNotFoundException">Thrown when user is not found</exception>
         </member>
-        <member name="M:Lotus_Authentication.Data.DbHandler.GetUser(System.String,System.String,System.String)">
+        <member name="M:Lotus_Authentication.Data.DbHandler.GetUser(System.String,System.String,System.String,Lotus_Authentication.Data.UserType)">
             <summary>
             Get user from database by using either username or email and Sha1 encrypted password
             </summary>
             <param name="userName">The username for said user</param>
             <param name="email">The email addres of said user</param>
             <param name="password">The Sha1 encrypted password of said user</param>
+            <param name="userType">The type of user to retrieve</param>
             <returns>The requested user</returns>
             <exception cref="T:Lotus_Authentication.Data.UserNotFoundException">Thrown when user is not found</exception>
         </member>

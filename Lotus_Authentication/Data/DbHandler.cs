@@ -40,22 +40,33 @@ public class DbHandler
     /// Get user from the databse
     /// </summary>
     /// <param name="email">The unique email address of the user</param>
+    /// <param name="userType">The type of user to retrieve</param>
     /// <returns>A new User object filled with data</returns>
     /// <exception cref="UserNotFoundException">Thrown when user is not found</exception>
-    public static User GetUser(string email)
+    public static User GetUser(string email, UserType userType = UserType.Regular)
     {
-        string sql = "SELECT TOP 1 * FROM [user] WHERE email = @email";
+        string table = userType is UserType.Regular ? "user" : "api_user";
+        string sql = $"SELECT TOP 1 * FROM [{table}] WHERE email = @email";
+        DynamicParameters parameters = new DynamicParameters();
+        parameters.Add("@email", email);
+
         using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
 
         con.Open();
-        dynamic? uD = con.Query<dynamic>(sql, new { email = email }).FirstOrDefault();
+        dynamic? uD = con.Query<dynamic>(sql, parameters).FirstOrDefault();
         con.Close();
 
         if (uD is null)
             throw new UserNotFoundException(LogSeverity.Warning, $"User with email: {email} could not be found.", $"Class: {nameof(DbHandler)}, Method: {nameof(GetUser)}(string email)");
 
         Country country = GetCountryByID(uD.fk_country_id);
-        User user = new(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.is_validated);
+        User user;
+
+        if (userType is UserType.Regular)
+            user = new User(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.is_validated);
+        else
+            user = new User(uD.api_user_id, uD.contact_first_name, uD.contact_last_name, uD.email, UserType.Api, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.customer, uD.is_validated);
+        
         user.SetSalt(uD.salt);
         return user;
     }
@@ -66,18 +77,20 @@ public class DbHandler
     /// <param name="userName">The username for said user</param>
     /// <param name="email">The email addres of said user</param>
     /// <param name="password">The Sha1 encrypted password of said user</param>
+    /// <param name="userType">The type of user to retrieve</param>
     /// <returns>The requested user</returns>
     /// <exception cref="UserNotFoundException">Thrown when user is not found</exception>
-    public static User GetUser(string? userName, string? email, string password)
+    public static User GetUser(string? userName, string? email, string password, UserType userType = UserType.Regular)
     {
         if (string.IsNullOrWhiteSpace(userName) && string.IsNullOrWhiteSpace(email))
             throw new UserNotFoundException(LogSeverity.Warning, $"username and email cannot both be null.", $"Class: {nameof(DbHandler)}, Method: {nameof(GetUser)}(string? userName, string? email, string password)");
 
+        string table = userType is UserType.Regular ? "user" : "api_user";
         string sql = (userName, email) switch
         {
-            (null or "",         not null or not "") => "SELECT TOP 1 * FROM [user] WHERE email = @email AND password = @password",
-            (not null or not "", null or "") => "SELECT TOP 1 * FROM [user] WHERE username = @userName AND password = @password",
-            (not null or not "", not null or not "") => "SELECT TOP 1 * FROM [user] WHERE username = @userName AND email = @email AND password = @password"
+            (null or "",         not null or not "") => $"SELECT TOP 1 * FROM [{table}] WHERE email = @email AND password = @password",
+            (not null or not "", null or "") => $"SELECT TOP 1 * FROM [{table}] WHERE username = @userName AND password = @password",
+            (not null or not "", not null or not "") => $"SELECT TOP 1 * FROM [{table}] WHERE username = @userName AND email = @email AND password = @password"
         };
 
         DynamicParameters parameters = new();
@@ -90,7 +103,7 @@ public class DbHandler
         if (email is null || !EmailValidator.IsValidEmail(email))
             storedSalt = GetUserByUserName(userName!).Salt!;
         else
-            storedSalt = GetUser(email!).Salt!;
+            storedSalt = GetUser(email!, userType).Salt!;
         string hashedPass = SHA256Hash.HashString(password, storedSalt);
         parameters.Add("@password", hashedPass, DbType.String);
 
@@ -104,8 +117,11 @@ public class DbHandler
             throw new UserNotFoundException(LogSeverity.Warning, $"User with email or username could not be found.", $"Class: {nameof(DbHandler)}, Method: {nameof(GetUser)}(string? userName, string? email, string password)");
 
         Country country = GetCountryByID(uD.fk_country_id);
-        User user = new(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.is_validated);
-        return user;
+
+        if(userType is UserType.Regular)
+            return new User(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.is_validated);
+
+        return new User(uD.api_user_id, uD.contact_first_name, uD.contact_last_name, uD.email, UserType.Api, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.customer, uD.is_validated);
     }
 
     /// <summary>
@@ -256,6 +272,7 @@ public class DbHandler
     /// <exception cref="UserAlreadyExistsException">Thrown when the email or username already exists</exception>
     public static User UpdateUser(User user, bool updatePassword)
     {
+        //TODO: Also make sure to be able to update api users with this. User user.UserType property
         if (updatePassword && string.IsNullOrWhiteSpace(user.Password))
             throw new ArgumentIsNullException(LogSeverity.Warning, $"{nameof(user.Password)} cannot be null or empty", $"Class: {nameof(DbHandler)}, Method: {UpdateUser}(User user, string ApiKey)");
         if (updatePassword && !SHA1Hash.IsValidSHA1(user.Password!))
@@ -303,10 +320,7 @@ public class DbHandler
             throw exception;
         }
         con.Close();
-#warning Not tested yet yoo
 
-        // TODO: Update user to the database, but only if the api user is allowed to
-        // TODO: Create a procedure in the database to update a user if the apikey is valid.
         Country country = GetCountryByID(uD.fk_country_id);
         User returnedUser = new(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.is_validated);
         return returnedUser;
