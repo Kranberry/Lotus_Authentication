@@ -50,6 +50,7 @@
     protected override void OnInitialized()
     {
         XmlSerializer serializer = new(typeof(DocumentationModel));
+        DbHandler.AddNewSystemLog(LogSeverity.Error, null, Env.GetContentPath, "");
         using(Stream reader = new FileStream(Env.GetContentPath + XmlDocumentPath, FileMode.Open))
         {
            Doc = (DocumentationModel)serializer.Deserialize(reader);
