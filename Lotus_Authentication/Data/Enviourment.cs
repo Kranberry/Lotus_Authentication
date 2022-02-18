@@ -22,6 +22,6 @@ public class Enviourment
         string[] files = Directory.GetFiles(Environment.ContentRootPath + "/wwwroot");
         DbHandler.AddNewSystemLog(LogSeverity.Error, null, JsonSerializer.Serialize(files), "").GetAwaiter();
 
-        return Environment.ContentRootPath + "/wwwroot"/;
+        return Environment.ContentRootPath + "/wwwroot/";
     }
 }
