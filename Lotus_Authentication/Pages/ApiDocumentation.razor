@@ -44,13 +44,13 @@
 
 @code 
 {
-    private string XmlDocumentPath = "API/ApiDocumentation/Documentation.xml";
+    private string XmlDocumentPath = "Documentation.xml";
     private DocumentationModel Doc { get; set; }
 
     protected override void OnInitialized()
     {
         XmlSerializer serializer = new(typeof(DocumentationModel));
-        using(Stream reader = new FileStream(Env.GetContentPath() + XmlDocumentPath, FileMode.Open))
+        using(Stream reader = new FileStream(Env.GetWWWRootPath() + XmlDocumentPath, FileMode.Open))
         {
            Doc = (DocumentationModel)serializer.Deserialize(reader);
         }

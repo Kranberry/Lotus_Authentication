@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <DocumentationFile>API\ApiDocumentation\Documentation.xml</DocumentationFile>
+    <DocumentationFile>D:\Lotus_Authentication_API\Lotus_Authentication\wwwroot\Documentation.xml</DocumentationFile>
     <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
   </PropertyGroup>
 

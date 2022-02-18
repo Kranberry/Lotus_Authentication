@@ -1,0 +1,225 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Lotus_Authentication</name>
+    </assembly>
+    <members>
+        <member name="M:Lotus_Authentication.API.Controllers.ReportController.GetUserReport(System.String)">
+            <summary>
+            An API endpoint to generate an array of users currently connected to the api key
+            </summary>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:Lotus_Authentication.API.Controllers.UsersController.AddNewUser(System.String,Lotus_Authentication.API.ApiModels.ApiUserModel)">
+            <summary>
+            Add a new user to our database
+            </summary>
+            <route>api/Users/newUser</route>
+            <header>
+                <param name="api_key" required="true">Your api key</param>
+            </header>
+            <body>
+                <param name="username" required="true">testsson</param>
+                <param name="email" required="true">test@testsson.se</param>
+                <param name="password" required="true">a94a8fe5ccb19ba61c4c0873d391e987982fbbd3</param>
+                <param name="country_iso2" required="true">SE</param>
+                <param name="first_name">Test</param>
+                <param name="last_name">Testsson</param>
+                <param name="gender">1</param>
+            </body>
+            <returns>Returns a user object newly created with the data sent in</returns>
+            <results>
+                <result status="200">Everything passed</result>
+                <result status="400">Any of the mandatory properties are null or empty</result>
+                <result status="400">The email is invalid</result>
+                <result status="400">The password is not a valid SHA1 checksum</result>
+                <result status="400">The username is invalid</result>
+                <result status="400">The username or email address already exists</result>
+                <result status="403">Returned when the Api Key is invalid</result>
+            </results>
+        </member>
+        <member name="M:Lotus_Authentication.API.Controllers.UsersController.DeleteUser(System.String,System.String)">
+            <summary>
+            Permanently delete a user from our database that your api key have been given rights to delete this user
+            </summary>
+            <route>api/Users/permanent-delete/{email}</route>
+            <header>
+                <param name="api_key" required="true">Your api key</param>
+            </header>
+            <query>
+                <param name="email" required="true">The users email address</param>
+            </query>
+        </member>
+        <member name="M:Lotus_Authentication.API.Controllers.UsersController.DeleteUserApiReference(System.String,System.String)">
+            <summary>
+            Delete your connection and remove any rights towards a user originaly created by your api key or been given rights to
+            </summary>
+            <route>api/Users/user/remove/{email}</route>
+            <header>
+                <param name="api_key" required="true">Your api key</param>
+            </header>
+            <query>
+                <param name="email" required="true">The users email address</param>
+            </query>
+            <results>
+                <result></result>
+            </results>
+        </member>
+        <member name="M:Lotus_Authentication.Data.DbHandler.GetUser(System.Int32)">
+            <summary>
+            Get user from the databse
+            </summary>
+            <param name="userID">The unique id of the user</param>
+            <returns>A new User object filled with data</returns>
+            <exception cref="T:Lotus_Authentication.Data.UserNotFoundException">Thrown when user is not found</exception>
+        </member>
+        <member name="M:Lotus_Authentication.Data.DbHandler.GetUser(System.String)">
+            <summary>
+            Get user from the databse
+            </summary>
+            <param name="email">The unique email address of the user</param>
+            <returns>A new User object filled with data</returns>
+            <exception cref="T:Lotus_Authentication.Data.UserNotFoundException">Thrown when user is not found</exception>
+        </member>
+        <member name="M:Lotus_Authentication.Data.DbHandler.GetUser(System.String,System.String,System.String)">
+            <summary>
+            Get user from database by using either username or email and Sha1 encrypted password
+            </summary>
+            <param name="userName">The username for said user</param>
+            <param name="email">The email addres of said user</param>
+            <param name="password">The Sha1 encrypted password of said user</param>
+            <returns>The requested user</returns>
+            <exception cref="T:Lotus_Authentication.Data.UserNotFoundException">Thrown when user is not found</exception>
+        </member>
+        <member name="M:Lotus_Authentication.Data.DbHandler.GetUserByUserName(System.String)">
+            <summary>
+            Get user from the databse
+            </summary>
+            <param name="username">The unique username</param>
+            <returns>A new User object filled with data</returns>
+            <exception cref="T:Lotus_Authentication.Data.UserNotFoundException">Thrown when user is not found</exception>
+        </member>
+        <member name="M:Lotus_Authentication.Data.DbHandler.GetUsers">
+            <summary>
+            Get all users in database
+            </summary>
+            <returns>An IEnumerable containing every user in the database</returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:Lotus_Authentication.Data.DbHandler.GetUsers(System.String)">
+            <summary>
+            Get all users in database bound too said api key
+            </summary>
+            <param name="apiKey">The api key of the holder</param>
+            <returns>An IEnumerable containing every user in the database bound to sent in api key</returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:Lotus_Authentication.Data.DbHandler.UserHasConnectionToApiKey(System.Int32,System.Int32)">
+            <summary>
+            Check if user has a connection to the requested API key
+            </summary>
+            <param name="userId">The unique id of the user</param>
+            <param name="apiKeyId">The unique api key id of the api key</param>
+            <returns>Returns true if the user is connected to the requested api key</returns>
+        </member>
+        <member name="M:Lotus_Authentication.Data.DbHandler.InsertUser(Lotus_Authentication.Models.User,System.String)">
+            <summary>
+            Insert a new user into the database. 
+            </summary>
+            <param name="user">The user to be inserted</param>
+            <param name="apiKey">The apiKey to be used</param>
+            <returns>true if the operation was successful</returns>
+            <exception cref="T:Lotus_Authentication.Data.UserAlreadyExistsException">This exception is thrown when there already exists a user with this email and/or username</exception>
+            <exception cref="T:System.NullReferenceException">This exception is thrown when the password in the User object is null</exception>
+            <exception cref="T:Lotus_Authentication.Data.BadSHA1ReferenceException">This exception is thrown when the password in the User object is not a valid SHA1 checksum</exception>
+        </member>
+        <member name="M:Lotus_Authentication.Data.DbHandler.UpdateUser(Lotus_Authentication.Models.User,System.Boolean)">
+            <summary>
+            Update user data in database
+            </summary>
+            <param name="user">The user object of said user</param>
+            <param name="updatePassword">The new password of the user (SHA1 hashed)</param>
+            <returns>The updated user Object</returns>
+            <exception cref="T:Lotus_Authentication.Data.ArgumentIsNullException">Thrown when the Password property of the user object is null</exception>
+            <exception cref="T:Lotus_Authentication.Data.BadSHA1ReferenceException">Thrown when the Password property of the user object is not a valid SHA1 checksum</exception>
+            <exception cref="T:Lotus_Authentication.Data.UserNotFoundException">Thrown when the user objects id is less than or equal to 0</exception>
+            <exception cref="T:Lotus_Authentication.Data.UserAlreadyExistsException">Thrown when the email or username already exists</exception>
+        </member>
+        <member name="M:Lotus_Authentication.Data.DbHandler.PermanentDeleteUser(System.Int32)">
+            <summary>
+            Permanently delete user from database
+            </summary>
+            <param name="id">The unique id of the user</param>
+            <param name="email">The unique email of the user</param>
+            <returns>true if the operation was successful</returns>
+        </member>
+        <member name="M:Lotus_Authentication.Data.DbHandler.RemoveUserApiConnection(System.Int32,System.String)">
+            <summary>
+            Permanently delete a user to api connection
+            </summary>
+            <param name="id">The unique id of the user</param>
+            <param name="apiKey">The unique apiKey of the api user</param>
+            <returns>true if the operation was successful</returns>
+        </member>
+        <member name="M:Lotus_Authentication.Data.DbHandler.GetCountryByID(System.Int32)">
+            <summary>
+            Get the country ISO2 code
+            </summary>
+            <param name="countryId">The primary key id of the country table</param>
+            <returns></returns>
+        </member>
+        <member name="M:Lotus_Authentication.Data.DbHandler.GetAllCountries">
+            <summary>
+            Get every single country from the database
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Lotus_Authentication.Data.DbHandler.GetApiKeyByApiKey(System.String)">
+            <summary>
+            Get the corresponding ApiKey object 
+            </summary>
+            <param name="apiKey"></param>
+            <returns>An object of the api key found</returns>
+            <exception cref="T:Lotus_Authentication.Data.BadApiKeyReferenceException">Thrown when the api key could not be found</exception>
+        </member>
+        <member name="M:Lotus_Authentication.Data.DbHandler.AddNewSystemLog(Lotus_Authentication.Data.LogSeverity,System.Exception,System.String,System.String)">
+            <summary>
+            Add a new system log to the database
+            </summary>
+            <param name="severity">How severe this is</param>
+            <param name="exception">The exception thrown (if any)</param>
+            <param name="message">An informational message about the log</param>
+            <param name="page">What class and method. Where did this happen</param>
+            <returns>An int referencing the amount of rows affected</returns>
+        </member>
+        <member name="T:Lotus_Authentication.Data.BadSHA1ReferenceException">
+            <summary>
+            Throw whenever a string must be a valid SHA1 checksum but is not
+            </summary>
+        </member>
+        <member name="F:Lotus_Authentication.Data.UserSessionManager.SessionHasChangedEvent">
+            <summary>
+            An Action fired whenever the localstorage is updated. string parameter is the key that's updated.
+            </summary>
+        </member>
+        <member name="M:Lotus_Authentication.Data.UserSessionManager.Login(Lotus_Authentication.Models.User)">
+            <summary>
+            Login the user and add a jwt token to represent it
+            </summary>
+            <param name="user">The user to represent</param>
+            <returns></returns>
+        </member>
+        <member name="M:Lotus_Authentication.Data.ApiKey.GenerateApiKey">
+            <summary>
+            Generate a randomised API key
+            </summary>
+            <returns>A string containing your new api key</returns>
+        </member>
+        <member name="T:Lotus_Authentication.Data.BadApiKeyReferenceException">
+            <summary>
+            Thrown when api key is not found in database
+            </summary>
+        </member>
+    </members>
+</doc>

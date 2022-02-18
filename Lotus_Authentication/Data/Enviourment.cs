@@ -11,16 +11,10 @@ public class Enviourment
         Environment = env;
     }
 
-    public string GetContentPath()
+    public string GetWWWRootPath()
     {
         if (Environment.IsDevelopment())
-            return Environment.ContentRootPath + "/";
-
-        string[] dirs = Directory.GetDirectories(Environment.ContentRootPath + "/wwwroot");
-        DbHandler.AddNewSystemLog(LogSeverity.Error, null, JsonSerializer.Serialize(dirs), "").GetAwaiter();
-
-        string[] files = Directory.GetFiles(Environment.ContentRootPath + "/wwwroot");
-        DbHandler.AddNewSystemLog(LogSeverity.Error, null, JsonSerializer.Serialize(files), "").GetAwaiter();
+            return Environment.WebRootPath + "/";
 
         return Environment.ContentRootPath + "/wwwroot/";
     }
