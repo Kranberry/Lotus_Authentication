@@ -1,6 +1,6 @@
 ﻿namespace Lotus_Authentication.Data;
 
-internal static class AppConfig
+internal class AppConfig
 {
     private static IConfiguration _Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json", true).AddEnvironmentVariables().Build();
 

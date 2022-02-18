@@ -20,6 +20,7 @@ builder.Services.AddBlazoredLocalStorage(config =>
     config.JsonSerializerOptions.WriteIndented = false;
 });
 builder.Services.AddScoped<UserSessionManager>();
+builder.Services.AddScoped<Enviourment>();
 
 var app = builder.Build();
 
