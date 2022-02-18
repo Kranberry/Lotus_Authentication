@@ -16,12 +16,12 @@ public class Enviourment
         if (Environment.IsDevelopment())
             return Environment.ContentRootPath + "/";
 
-        string[] dirs = Directory.GetDirectories(Environment.ContentRootPath);
+        string[] dirs = Directory.GetDirectories(Environment.ContentRootPath + "/wwwroot");
         DbHandler.AddNewSystemLog(LogSeverity.Error, null, JsonSerializer.Serialize(dirs), "").GetAwaiter();
 
-        string[] files = Directory.GetFiles(Environment.ContentRootPath);
+        string[] files = Directory.GetFiles(Environment.ContentRootPath + "/wwwroot");
         DbHandler.AddNewSystemLog(LogSeverity.Error, null, JsonSerializer.Serialize(files), "").GetAwaiter();
 
-        return Environment.ContentRootPath + "/";
+        return Environment.ContentRootPath + "/wwwroot"/;
     }
 }
