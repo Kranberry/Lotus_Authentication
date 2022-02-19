@@ -40,6 +40,14 @@ public partial class ApiUserManagement
         { "Country", new() }
     };
 
+    protected override async Task OnParametersSetAsync()
+    {
+        if (await Session.IsLoggedIn(isApiUser: false, anyUser: false))
+        {
+            NavManager.NavigateTo("/");
+        }
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         CountryOptions = AvailableCountries.Select(c => c.NiceName).ToArray();

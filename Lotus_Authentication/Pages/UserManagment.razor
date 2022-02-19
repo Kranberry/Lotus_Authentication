@@ -106,6 +106,14 @@
 
     private User? CurrentUser { get; set; }
 
+    protected override async Task OnParametersSetAsync()
+    {
+        if(await Session.IsLoggedIn(isApiUser:true, anyUser: false))
+        {
+            NavManager.NavigateTo("/");
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
         await SetCurrentuser(SessionState.LoggedIn);
