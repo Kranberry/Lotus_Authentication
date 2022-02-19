@@ -409,6 +409,80 @@ public class DbHandler
     }
 
     /// <summary>
+    /// Create a new api key connected to sent in api user
+    /// </summary>
+    /// <param name="apiUserId">The id of the api user the key belongs to. Must be a valid ID</param>
+    /// <param name="alias">Text representation for the api key</param>
+    /// <returns></returns>
+    public static ApiKey InsertNewApiKey(int apiUserId, string alias = "")
+    {
+        if(alias.Length > 15)
+            alias = alias[..15];
+
+        if(apiUserId <= 0)
+            throw new ArgumentOutOfRangeException(nameof(apiUserId));
+
+        string procedure = "[create_api_key]";
+        string generatedKey = ApiKey.GenerateApiKey();
+
+        DynamicParameters parameters = new();
+        parameters.Add("@api_user_id", apiUserId, DbType.Int32);
+        parameters.Add("@api_key", generatedKey, DbType.String);
+        parameters.Add("@alias", alias, DbType.String);
+
+        using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
+        
+        con.Open();
+        ApiKey apiKey = con.Query<dynamic>(procedure, parameters, commandType: CommandType.StoredProcedure)
+                           .Select(a => new ApiKey() 
+                                            { 
+                                                Alias = a.alias
+                                              , Key = a.api_key
+                                              , ApiKeyID = a.api_key_id
+                                              , InsertDate = a.record_insert_date
+                                              , UpdateDate = a.record_update_date
+                                              , RecordStatus = a.record_status
+                                            }).Single();
+        con.Close();
+
+        return apiKey;
+    }
+
+    /// <summary>
+    /// Get every api key associated with api user
+    /// </summary>
+    /// <param name="apiUserId">The id of the api user</param>
+    /// <returns></returns>
+    public static IEnumerable<ApiKey> GetApiKeysByUserId(int apiUserId)
+    {
+        if (apiUserId <= 0)
+            throw new ArgumentOutOfRangeException(nameof(apiUserId));
+
+        string query = "SELECT * FROM [api_key] AS a " +
+                       "INNER JOIN[api_key2api_user] AS aia " +
+                       "   ON aia.fk_api_key_id = a.api_key_id " +
+                       "WHERE aia.fk_api_user_id = @userId";
+
+        using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
+
+        DynamicParameters parameters = new();
+        parameters.Add("@userId", apiUserId, DbType.Int32);
+        con.Open();
+        IEnumerable<ApiKey> apiKeys = con.Query<dynamic>(query, parameters)
+                           .Select(a => new ApiKey()
+                           {
+                               Alias = a.alias
+                             , Key = a.api_key
+                             , ApiKeyID = a.api_key_id
+                             , InsertDate = a.record_insert_date
+                             , UpdateDate = a.record_update_date
+                             , RecordStatus = a.record_status
+                           });
+
+        return apiKeys;
+    }
+
+    /// <summary>
     /// Get the corresponding ApiKey object 
     /// </summary>
     /// <param name="apiKey"></param>

@@ -17,7 +17,7 @@
             </summary>
             <route>api/Users/newUser</route>
             <header>
-                <param name="api_key" required="true">Your api key</param>
+                <param name="apiKey" required="true">Your api key</param>
             </header>
             <body>
                 <param name="username" required="true">testsson</param>
@@ -175,6 +175,21 @@
             <summary>
             Get every single country from the database
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Lotus_Authentication.Data.DbHandler.InsertNewApiKey(System.Int32,System.String)">
+            <summary>
+            Create a new api key connected to sent in api user
+            </summary>
+            <param name="apiUserId">The id of the api user the key belongs to. Must be a valid ID</param>
+            <param name="alias">Text representation for the api key</param>
+            <returns></returns>
+        </member>
+        <member name="M:Lotus_Authentication.Data.DbHandler.GetApiKeysByUserId(System.Int32)">
+            <summary>
+            Get every api key associated with api user
+            </summary>
+            <param name="apiUserId">The id of the api user</param>
             <returns></returns>
         </member>
         <member name="M:Lotus_Authentication.Data.DbHandler.GetApiKeyByApiKey(System.String)">

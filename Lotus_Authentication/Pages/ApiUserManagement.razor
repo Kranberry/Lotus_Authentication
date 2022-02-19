@@ -53,6 +53,34 @@
 
 <UserAuthenticated IsApiUser="true">
     <h1>Logged in yoooo</h1>
+
+    <LotusButton OnClickCallBack="GenerateNewApiKey">Generate key</LotusButton>
+
+    <div class="apiKeyBox">
+        <table>
+            <thead>
+                <tr>
+                    <th>Alias</th>
+                    <th>Api Key</th>
+                    <th>Creation date</th>
+                    <th>Update date</th>
+                    <th>Active</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(ApiKey key in UserApiKeys)
+                {
+                    <tr>
+                        <td>@key.Alias</td>
+                        <td>@key.Key</td>
+                        <td>@key.InsertDate</td>
+                        <td>@key.UpdateDate</td>
+                        <td>@key.RecordStatus</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </UserAuthenticated>
 
 <SweetAlert

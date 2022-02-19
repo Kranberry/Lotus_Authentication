@@ -13,7 +13,7 @@ namespace Lotus_Authentication.API.Controllers
         /// </summary>
         /// <route>api/Users/newUser</route>
         /// <header>
-        ///     <param name="api_key" required="true">Your api key</param>
+        ///     <param name="apiKey" required="true">Your api key</param>
         /// </header>
         /// <body>
         ///     <param name="username" required="true">testsson</param>
@@ -35,7 +35,7 @@ namespace Lotus_Authentication.API.Controllers
         ///     <result status="403">Returned when the Api Key is invalid</result>
         /// </results>
         [HttpPost, Route("api/users/newUser")]
-        public async Task<ActionResult<User>> AddNewUser([FromHeader] string api_key, [FromBody] ApiUserModel body) // HttpRequest body
+        public async Task<ActionResult<User>> AddNewUser([FromHeader] string apiKey, [FromBody] ApiUserModel body) // HttpRequest body
         {
             string[] mandatoryKeys = new string[] { nameof(body.Email), nameof(body.UserName), nameof(body.Password), nameof(body.CountryISO2) };
             if (body.ArePropertiesNull(mandatoryKeys, out string? key))
@@ -44,7 +44,7 @@ namespace Lotus_Authentication.API.Controllers
             if (!EmailValidator.IsValidEmail(body.Email!))
                 return new BadRequestObjectResult($"The property 'email' does not contain a valid email address");
 
-            if (!ApiKey.IsValidApiKey(api_key))
+            if (!ApiKey.IsValidApiKey(apiKey))
                 return StatusCode(403);
 
             string badRequestMessage = body.UserName switch
@@ -67,7 +67,7 @@ namespace Lotus_Authentication.API.Controllers
 
             try
             {
-                user = await DbHandler.InsertUser(user, api_key);
+                user = await DbHandler.InsertUser(user, apiKey);
             }
             catch(UserAlreadyExistsException)
             {

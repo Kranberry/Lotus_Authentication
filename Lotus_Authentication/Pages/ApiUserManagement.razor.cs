@@ -3,11 +3,12 @@ using System.Text.RegularExpressions;
 
 namespace Lotus_Authentication.Pages;
 
-public partial class ApiUserManagement
+public partial class ApiUserManagement : IDisposable
 {
     private string LoginEmail { get; set; } = "";
     private string LoginPassword { get; set; } = "";
     private User? CurrentUser { get; set; }
+    private List<ApiKey> UserApiKeys { get; set; } = new List<ApiKey>();
 
     private bool DoRegister = false;
 
@@ -46,17 +47,33 @@ public partial class ApiUserManagement
         {
             NavManager.NavigateTo("/");
         }
+
+        await SetCurrentuser(SessionState.LoggedIn);
+        Session.SessionHasChangedEvent += SetCurrentuser;
+    }
+
+    private async Task SetCurrentuser(SessionState state)
+    {
+        try
+        {
+            if (state == SessionState.LoggedIn)
+            {
+                CurrentUser = await Session.GetCurrentUser();
+                FetchApiKeys();
+            }
+            else
+                CurrentUser = null;
+        }
+        catch (UserNotFoundException)
+        {
+            CurrentUser = null;
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         CountryOptions = AvailableCountries.Select(c => c.NiceName).ToArray();
         await base.OnAfterRenderAsync(firstRender);
-    }
-
-    private void SetCountry(string countryName)
-    {
-        SelectedCountry = AvailableCountries.Single(c => c.NiceName == countryName);
     }
 
     private bool IsPasswordValid(string password)
@@ -67,8 +84,6 @@ public partial class ApiUserManagement
 
         return atleastOneLowerCase.IsMatch(password) && atleastOneUpperCase.IsMatch(password) && atleastOneNumber.IsMatch(password) && password.Length >= 8;
     }
-
-    private async Task Logout() => await Session.LogOut();
 
     private void ToggleRegister() => DoRegister = !DoRegister;
 
@@ -137,11 +152,26 @@ public partial class ApiUserManagement
         }
     }
 
+    private void FetchApiKeys()
+    {
+        UserApiKeys = DbHandler.GetApiKeysByUserId(CurrentUser.Id).ToList();
+    }
+
+    private void GenerateNewApiKey()
+    {
+        UserApiKeys.Add(DbHandler.InsertNewApiKey(CurrentUser!.Id, "Test"));
+    }
+
     private void OnLoginKeyDown(KeyboardEventArgs e)
     {
         if (e.Key == "Enter" || e.Key == "NumpadEnter")
         {
             ShowSweetAlert("We have sent you an email", SweetAlertIcons.Success);
         }
+    }
+
+    public void Dispose()
+    {
+        Session.SessionHasChangedEvent -= SetCurrentuser;
     }
 }
