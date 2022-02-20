@@ -1,21 +1,28 @@
 ﻿/// <summary>
 /// Add a new user to our database
 /// </summary>
-/// <route>api/{controller}/{method}</route>
+/// <isActive>true</isActive>
+/// <method>POST</method>
+/// <route>api/Users/newUser</route>
 /// <header>
-///     <param name="api_key" required="true">{{ your_api_key }}</param>
+///     <param name="apiKey" required="true">Your api key</param>
 /// </header>
-/// <query>
-///     <param name="email" required="true">The users email address</param>
-/// </query>
 /// <body>
-///     <param name="" required="true"></param>
-///     <param name="" required="true"></param>
-///     <param name="" required="true"></param>
-///     <param name=""></param>
-///     <param name=""></param>
+///     <param name="username" required="true">testsson</param>
+///     <param name="email" required="true">test@testsson.se</param>
+///     <param name="password" required="true">a94a8fe5ccb19ba61c4c0873d391e987982fbbd3</param>
+///     <param name="country_iso2" required="true">SE</param>
+///     <param name="first_name">Test</param>
+///     <param name="last_name">Testsson</param>
+///     <param name="gender">1</param>
 /// </body>
+/// <returns>Returns a user object newly created with the data sent in</returns>
 /// <results>
-///     <result status="200"></result>
+///     <result status="200">Everything passed</result>
+///     <result status="400">Any of the mandatory properties are null or empty</result>
+///     <result status="400">The email is invalid</result>
+///     <result status="400">The password is not a valid SHA1 checksum</result>
+///     <result status="400">The username is invalid</result>
+///     <result status="400">The username or email address already exists</result>
+///     <result status="403">Returned when the Api Key is invalid</result>
 /// </results>
-/// <returns></returns>

@@ -4,6 +4,31 @@
         <name>Lotus_Authentication</name>
     </assembly>
     <members>
+        <member name="M:Lotus_Authentication.API.Controllers.AuthenticationController.Authentication(Lotus_Authentication.API.ApiModels.ApiUserModel,System.String)">
+            <summary>
+            Authenticate a user by username OR/AND email
+            </summary>
+            <isActive>true</isActive>
+            <method>GET</method>
+            <route>api/authentication/user</route>
+            <header>
+                <param name="apiKey" required="true">Your api key</param>
+            </header>
+            <body>
+                <param name="email">The email address of the user</param>
+                <param name="userName">The username of the user)</param>
+                <param name="password">The SHA1 hashed password of the user</param>
+            </body>
+            <returns>A user object containing the users ID, email, Gender and Country ISO2</returns>
+            <results>
+                <result status="200">Authentication passed</result>
+                <result status="400">username and email cannot be left empty</result>
+                <result status="400">password cannot be left empty</result>
+                <result status="400">password must be a valid SHA1 checksum</result>
+                <result status="404">User could not be authenticated. Invalid username, email or password</result>
+                <result status="403">Unauthorized</result>
+            </results>
+        </member>
         <member name="M:Lotus_Authentication.API.Controllers.ReportController.GetUserReport(System.String)">
             <summary>
             An API endpoint to generate an array of users currently connected to the api key
@@ -15,6 +40,8 @@
             <summary>
             Add a new user to our database
             </summary>
+            <isActive>true</isActive>
+            <method>POST</method>
             <route>api/Users/newUser</route>
             <header>
                 <param name="apiKey" required="true">Your api key</param>
@@ -28,7 +55,7 @@
                 <param name="last_name">Testsson</param>
                 <param name="gender">1</param>
             </body>
-            <returns>Returns a user object newly created with the data sent in</returns>
+            <returns>A user object containing the users ID, email, Gender and Country ISO2</returns>
             <results>
                 <result status="200">Everything passed</result>
                 <result status="400">Any of the mandatory properties are null or empty</result>
@@ -36,34 +63,65 @@
                 <result status="400">The password is not a valid SHA1 checksum</result>
                 <result status="400">The username is invalid</result>
                 <result status="400">The username or email address already exists</result>
-                <result status="403">Returned when the Api Key is invalid</result>
+                <result status="403">Unautorized</result>
             </results>
         </member>
-        <member name="M:Lotus_Authentication.API.Controllers.UsersController.DeleteUser(System.String,System.String)">
+        <member name="M:Lotus_Authentication.API.Controllers.UsersController.UpdateUser(Lotus_Authentication.API.ApiModels.ApiUserModel)">
+            <summary>
+            Update an already existing user to the database
+            </summary>
+            <isActive>false</isActive>
+            <method>PUT</method>
+            <route>api/users/user/updateUser</route>
+            <header>
+                <param name="apiKey" required="true">Your api key</param>
+            </header>
+            <body>
+            
+            </body>
+            <returns>Returns a user object newly created with the data sent in</returns>
+            <results>
+            
+            </results>
+        </member>
+        <member name="M:Lotus_Authentication.API.Controllers.UsersController.DeleteUser(System.String,System.Int32)">
             <summary>
             Permanently delete a user from our database that your api key have been given rights to delete this user
             </summary>
-            <route>api/Users/permanent-delete/{email}</route>
+            <isActive>true</isActive>
+            <method>DELETE</method>
+            <route>api/Users/permanent-delete/{userId}</route>
             <header>
-                <param name="api_key" required="true">Your api key</param>
+                <param name="apiKey" required="true">Your api key</param>
             </header>
             <query>
-                <param name="email" required="true">The users email address</param>
+                <param name="userId" required="true">The users ID</param>
             </query>
+            <returns>OK result if user was deleted successfully</returns>
+            <results>
+                <result status="200">Everything passed</result>
+                <result status="400">User with this id could not be found</result>
+                <result status="403">Unauthorized</result>
+            </results>
         </member>
-        <member name="M:Lotus_Authentication.API.Controllers.UsersController.DeleteUserApiReference(System.String,System.String)">
+        <member name="M:Lotus_Authentication.API.Controllers.UsersController.DeleteUserApiReference(System.String,System.Int32)">
             <summary>
             Delete your connection and remove any rights towards a user originaly created by your api key or been given rights to
             </summary>
+            <isActive>true</isActive>
+            <method>DELETE</method>
             <route>api/Users/user/remove/{email}</route>
             <header>
-                <param name="api_key" required="true">Your api key</param>
+                <param name="apiKey" required="true">Your api key</param>
             </header>
             <query>
-                <param name="email" required="true">The users email address</param>
+                <param name="userId" required="true">The users ID</param>
             </query>
+            <returns>OK result if the connection was successfully removed</returns>
             <results>
-                <result></result>
+                <result status="200">connection was successfully removed</result>
+                <result status="400">User with this id could not be found</result>
+                <result status="403">Unauthorized</result>
             </results>
         </member>
         <member name="M:Lotus_Authentication.Data.DbHandler.GetUser(System.Int32)">

@@ -11,6 +11,8 @@ namespace Lotus_Authentication.API.Controllers
         /// <summary>
         /// Add a new user to our database
         /// </summary>
+        /// <isActive>true</isActive>
+		/// <method>POST</method>
         /// <route>api/Users/newUser</route>
         /// <header>
         ///     <param name="apiKey" required="true">Your api key</param>
@@ -24,7 +26,7 @@ namespace Lotus_Authentication.API.Controllers
         ///     <param name="last_name">Testsson</param>
         ///     <param name="gender">1</param>
         /// </body>
-        /// <returns>Returns a user object newly created with the data sent in</returns>
+		/// <returns>A user object containing the users ID, email, Gender and Country ISO2</returns>
         /// <results>
         ///     <result status="200">Everything passed</result>
         ///     <result status="400">Any of the mandatory properties are null or empty</result>
@@ -32,10 +34,10 @@ namespace Lotus_Authentication.API.Controllers
         ///     <result status="400">The password is not a valid SHA1 checksum</result>
         ///     <result status="400">The username is invalid</result>
         ///     <result status="400">The username or email address already exists</result>
-        ///     <result status="403">Returned when the Api Key is invalid</result>
+        ///     <result status="403">Unautorized</result>
         /// </results>
         [HttpPost, Route("api/users/newUser")]
-        public async Task<ActionResult<User>> AddNewUser([FromHeader] string apiKey, [FromBody] ApiUserModel body) // HttpRequest body
+        public async Task<ActionResult<dynamic>> AddNewUser([FromHeader] string apiKey, [FromBody] ApiUserModel body) // HttpRequest body
         {
             string[] mandatoryKeys = new string[] { nameof(body.Email), nameof(body.UserName), nameof(body.Password), nameof(body.CountryISO2) };
             if (body.ArePropertiesNull(mandatoryKeys, out string? key))
@@ -74,9 +76,33 @@ namespace Lotus_Authentication.API.Controllers
                 return new BadRequestObjectResult("User with this email or username already exists");
             }
 
-            return user;
+            var returnedResult = new
+            {
+                ID = user.Id,
+                Email = user.Email,
+                Gender = user.Gender.ToString(),
+                Country = user.CountryISO2
+            };
+
+            return returnedResult;
         }
 
+        /// <summary>
+        /// Update an already existing user to the database
+        /// </summary>
+        /// <isActive>false</isActive>
+		/// <method>PUT</method>
+        /// <route>api/users/user/updateUser</route>
+        /// <header>
+        ///     <param name="apiKey" required="true">Your api key</param>
+        /// </header>
+        /// <body>
+        /// 
+        /// </body>
+        /// <returns>Returns a user object newly created with the data sent in</returns>
+        /// <results>
+        /// 
+        /// </results>
         [HttpPut, Route("api/users/user/updateUser")]
         public ActionResult<User> UpdateUser([FromBody] ApiUserModel user)
         {
@@ -98,25 +124,33 @@ namespace Lotus_Authentication.API.Controllers
         /// <summary>
         /// Permanently delete a user from our database that your api key have been given rights to delete this user
         /// </summary>
-        /// <route>api/Users/permanent-delete/{email}</route>
+        /// <isActive>true</isActive>
+		/// <method>DELETE</method>
+        /// <route>api/Users/permanent-delete/{userId}</route>
         /// <header>
-        ///     <param name="api_key" required="true">Your api key</param>
+        ///     <param name="apiKey" required="true">Your api key</param>
         /// </header>
         /// <query>
-        ///     <param name="email" required="true">The users email address</param>
+        ///     <param name="userId" required="true">The users ID</param>
         /// </query>
-        [HttpDelete("api/users/user/permanent-delete/{email}")]
-        public async Task<ActionResult> DeleteUser([FromHeader] string api_key, string email)
+        /// <returns>OK result if user was deleted successfully</returns>
+        /// <results>
+        ///     <result status="200">Everything passed</result>
+        ///     <result status="400">User with this id could not be found</result>
+        ///     <result status="403">Unauthorized</result>
+        /// </results>
+        [HttpDelete("api/users/user/permanent-delete/{userId}")]
+        public async Task<ActionResult> DeleteUser([FromHeader] string apiKey, int userId)
         {
-            if (!ApiKey.IsValidApiKey(api_key))
-                return new BadRequestResult();
+            if (!ApiKey.IsValidApiKey(apiKey))
+                return StatusCode(403);
 
             User user;
-            ApiKey apiKey;
+            ApiKey key;
             try
             {
-                user = DbHandler.GetUser(email);
-                apiKey = DbHandler.GetApiKeyByApiKey(api_key);
+                user = DbHandler.GetUser(userId);
+                key = DbHandler.GetApiKeyByApiKey(apiKey);
             }
             catch (UserNotFoundException)
             {
@@ -124,10 +158,10 @@ namespace Lotus_Authentication.API.Controllers
             }
             catch (BadApiKeyReferenceException)
             {
-                return new NotFoundObjectResult("Api key could not be found.");
+                return StatusCode(403);
             }
 
-            if(await DbHandler.UserHasConnectionToApiKey(user.Id, apiKey.ApiKeyID))
+            if(await DbHandler.UserHasConnectionToApiKey(user.Id, key.ApiKeyID))
             {
                 DbHandler.PermanentDeleteUser(user.Id);
                 return new OkResult();
@@ -139,42 +173,45 @@ namespace Lotus_Authentication.API.Controllers
         /// <summary>
         /// Delete your connection and remove any rights towards a user originaly created by your api key or been given rights to
         /// </summary>
+        /// <isActive>true</isActive>
+		/// <method>DELETE</method>
         /// <route>api/Users/user/remove/{email}</route>
         /// <header>
-        ///     <param name="api_key" required="true">Your api key</param>
+        ///     <param name="apiKey" required="true">Your api key</param>
         /// </header>
         /// <query>
-        ///     <param name="email" required="true">The users email address</param>
+        ///     <param name="userId" required="true">The users ID</param>
         /// </query>
+        /// <returns>OK result if the connection was successfully removed</returns>
         /// <results>
-        ///     <result></result>
+        ///     <result status="200">connection was successfully removed</result>
+        ///     <result status="400">User with this id could not be found</result>
+        ///     <result status="403">Unauthorized</result>
         /// </results>
-        [HttpDelete("api/users/user/remove/{email}")]
-        public ActionResult DeleteUserApiReference([FromHeader] string api_key, string email)
+        [HttpDelete("api/users/user/remove/{userId}")]
+        public ActionResult DeleteUserApiReference([FromHeader] string apiKey, int userId)
         {
-            if (string.IsNullOrWhiteSpace(api_key))
-                return new BadRequestResult();
-            if (!ApiKey.IsValidApiKey(api_key))
-                return new BadRequestObjectResult("Invalid Api key");
-            if (string.IsNullOrWhiteSpace(email))
-                return new BadRequestObjectResult("email cannot be null or empty");
+            if (string.IsNullOrWhiteSpace(apiKey) || !ApiKey.IsValidApiKey(apiKey))
+                return StatusCode(403);
+            if (userId > 0)
+                return new BadRequestObjectResult("Ivalid userId");
 
             User user;
             try
             {
-                user = DbHandler.GetUser(email);
+                user = DbHandler.GetUser(userId);
             }
             catch (UserNotFoundException)
             {
                 return new NotFoundResult();
             }
 
-            bool success = DbHandler.RemoveUserApiConnection(user.Id, api_key);
+            bool success = DbHandler.RemoveUserApiConnection(user.Id, apiKey);
 
             if (!success)
                 return new NotFoundResult();
 
-            return Ok($"User has successfully been removed from your api key");
+            return new OkResult();
         }
     }
 }

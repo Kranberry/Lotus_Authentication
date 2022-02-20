@@ -20,8 +20,14 @@ public class Method
     [XmlAttribute("name")]
     public string Name { get; set; }
 
+    [XmlElement("method")]
+    public string RestMethod { get; set; }
+
     [XmlElement("summary")]
     public string Summary { get; init; }
+
+    [XmlElement("isActive")]
+    public bool IsActive { get; init; }
 
     [XmlElement("returns")]
     public string Returns { get; init; }
