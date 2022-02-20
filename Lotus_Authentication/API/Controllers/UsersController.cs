@@ -175,7 +175,7 @@ namespace Lotus_Authentication.API.Controllers
         /// </summary>
         /// <isActive>true</isActive>
 		/// <method>DELETE</method>
-        /// <route>api/Users/user/remove/{email}</route>
+        /// <route>api/Users/user/remove/{userId}</route>
         /// <header>
         ///     <param name="apiKey" required="true">Your api key</param>
         /// </header>
