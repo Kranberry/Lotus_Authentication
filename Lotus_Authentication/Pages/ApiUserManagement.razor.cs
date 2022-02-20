@@ -9,6 +9,7 @@ public partial class ApiUserManagement : IDisposable
     private string LoginPassword { get; set; } = "";
     private User? CurrentUser { get; set; }
     private List<ApiKey> UserApiKeys { get; set; } = new List<ApiKey>();
+    private string NewApeKeyAlias = "";
 
     private bool DoRegister = false;
 
@@ -159,7 +160,7 @@ public partial class ApiUserManagement : IDisposable
 
     private void GenerateNewApiKey()
     {
-        UserApiKeys.Add(DbHandler.InsertNewApiKey(CurrentUser!.Id, "Test"));
+        UserApiKeys.Add(DbHandler.InsertNewApiKey(CurrentUser!.Id, NewApeKeyAlias));
     }
 
     private void OnLoginKeyDown(KeyboardEventArgs e)

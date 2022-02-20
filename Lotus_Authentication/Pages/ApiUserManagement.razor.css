@@ -13,3 +13,12 @@
     margin-top: 2em;
     justify-content: space-around;
 }
+
+.apiKeyBox{
+    width: 70%;
+}
+
+.newApiKeyBox {
+    width: fit-content;
+    margin-left: 0.1em;
+}
