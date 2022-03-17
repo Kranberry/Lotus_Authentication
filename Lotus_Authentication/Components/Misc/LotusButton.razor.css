@@ -14,6 +14,7 @@
 .btn-pink {
     color: white;
     background-color: #C57CE4;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 }
 
 .btn-red {
