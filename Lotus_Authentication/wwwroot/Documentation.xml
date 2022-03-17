@@ -275,7 +275,7 @@
         </member>
         <member name="F:Lotus_Authentication.Data.UserSessionManager.SessionHasChangedEvent">
             <summary>
-            An Action fired whenever the localstorage is updated. string parameter is the key that's updated.
+            An Func fired whenever the localstorage is updated. string parameter is the key that's updated.
             </summary>
         </member>
         <member name="M:Lotus_Authentication.Data.UserSessionManager.Login(Lotus_Authentication.Models.User)">

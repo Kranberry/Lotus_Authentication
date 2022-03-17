@@ -18,7 +18,7 @@ public class UserSessionManager
 {
 
     /// <summary>
-    /// An Action fired whenever the localstorage is updated. string parameter is the key that's updated.
+    /// An Func fired whenever the localstorage is updated. string parameter is the key that's updated.
     /// </summary>
     internal Func<SessionState, Task> SessionHasChangedEvent;
 
