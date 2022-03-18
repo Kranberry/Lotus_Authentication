@@ -4,77 +4,79 @@
 @using System.Xml.Serialization
 @inject Enviourment Env
 
-<h1>Api Documentation</h1>
-<div class="alert alert-primary">
-    <h2>base url: @Env.WebUrl</h2>
-</div>
-<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-  <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
-    <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
-  </symbol>
-</svg>
+<div>
+    <h1>Api Documentation</h1>
+    <div class="alert alert-primary">
+        <h2>base url: @Env.WebUrl</h2>
+    </div>
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+      <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+      </symbol>
+    </svg>
 
-<div class="alert alert-primary d-flex align-items-center" role="alert">
-  <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
-  <div>
-    Each request must be done in application/json
-    <br />
-    Your response must also be able to accept application/json
-  </div>
-</div>
+    <div class="alert alert-primary d-flex align-items-center" role="alert">
+      <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
+      <div>
+        Each request must be done in application/json
+        <br />
+        Your response must also be able to accept application/json
+      </div>
+    </div>
 
-<div style="display: flex; flex-direction: column;">
-    @foreach(Method method in Doc.Methods.Where(m => m.Name.Contains("API.Controllers")))
-    {
-        <div class="">
-            <h4><u>@method.Route</u></h4>
+    <div style="display: flex; flex-direction: column;">
+        @foreach(Method method in Doc.Methods.Where(m => m.Name.Contains("API.Controllers")))
+        {
+            <div class="">
+                <h4><u>@method.Route</u></h4>
 
-            @if (method.IsActive)
-            {
-                <h3>@method.GetControllerName()</h3>
-            }
-            else
-            {
-                <h3>@method.GetControllerName() : <span class="badge bg-danger">Inactive</span></h3>
-            }
-            <h6>Method: <span class="@GetMethodClass(method.RestMethod)">@method.RestMethod</span></h6>
-            <p>Name: @method.GetNiceName()</p>
-            <p>Summary: @method.Summary</p>
-            <p>Returns: @method.Returns</p>
-            <h3>Headers</h3>
-            @foreach(Parameter param in method.HeaderParameters)
-            {
-                <p>@(param.Required ? "*" : "") @param.Name : @param.Value</p>
-            }
-
-            @if(method.QueryParameters.Count() > 0)
-            {
-                <h3>Route parameters</h3>
-                @foreach(Parameter param in method.QueryParameters)
+                @if (method.IsActive)
+                {
+                    <h3>@method.GetControllerName()</h3>
+                }
+                else
+                {
+                    <h3>@method.GetControllerName() : <span class="badge bg-danger">Inactive</span></h3>
+                }
+                <h6>Method: <span class="@GetMethodClass(method.RestMethod)">@method.RestMethod</span></h6>
+                <p>Name: @method.GetNiceName()</p>
+                <p>Summary: @method.Summary</p>
+                <p>Returns: @method.Returns</p>
+                <h3>Headers</h3>
+                @foreach(Parameter param in method.HeaderParameters)
                 {
                     <p>@(param.Required ? "*" : "") @param.Name : @param.Value</p>
-                }   
-            }
+                }
 
-            @if(method.BodyParameters.Count() > 0)
-            {
-                <h3>Body</h3>
-                @foreach(Parameter param in method.BodyParameters)
+                @if(method.QueryParameters.Count() > 0)
                 {
-                    <p>@(param.Required ? "*" : "") @param.Name : @param.Value</p>
-                }   
-            }
+                    <h3>Route parameters</h3>
+                    @foreach(Parameter param in method.QueryParameters)
+                    {
+                        <p>@(param.Required ? "*" : "") @param.Name : @param.Value</p>
+                    }   
+                }
 
-            <h3>Status Codes</h3>
-            @foreach(Result result in method.Results)
-            {
-                <div class="@GetStatusClass(result.StatusCode)">
-                   <p>@result.StatusCode ::: @result.Summary</p>
-                </div>
-            }
-            <hr />
-        </div>
-    }
+                @if(method.BodyParameters.Count() > 0)
+                {
+                    <h3>Body</h3>
+                    @foreach(Parameter param in method.BodyParameters)
+                    {
+                        <p>@(param.Required ? "*" : "") @param.Name : @param.Value</p>
+                    }   
+                }
+
+                <h3>Status Codes</h3>
+                @foreach(Result result in method.Results)
+                {
+                    <div class="@GetStatusClass(result.StatusCode)">
+                       <p>@result.StatusCode ::: @result.Summary</p>
+                    </div>
+                }
+                <hr />
+            </div>
+        }
+    </div>
 </div>
 
 @code 

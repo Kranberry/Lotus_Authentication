@@ -1,8 +1,4 @@
-﻿body{
-    background-color: red;
-}
-
-.signIn {
+﻿.signIn {
     flex: 1;
     justify-self: center;
     align-self: center;
