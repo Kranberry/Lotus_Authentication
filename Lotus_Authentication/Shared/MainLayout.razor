@@ -46,17 +46,17 @@
 
 			<FormLabel>All fields marked with * are mandatory</FormLabel>
 			<FormLabel For="firstName">First name</FormLabel>
-			<FormInput Class="@(!InputFields["FirstName"].IsValid ? "invalidInput" : "")" placeholder="FirstName" @bind-Value="@InputFields["FirstName"].Value"	ID="firstName" InputType="text" ValidField="@InputFields["FirstName"].IsValid"/>
+			<FormInput Class="@(!InputFields["FirstName"].IsValid ? "invalidInput" : "")" IncludeClearButton="false" @bind-Value="@InputFields["FirstName"].Value"	ID="firstName" InputType="text" ValidField="@InputFields["FirstName"].IsValid"/>
 			<FormLabel For="lastName">Last name</FormLabel>
-			<FormInput Class="@(!InputFields["LastName"].IsValid ? "invalidInput" : "")" placeholder="LastName" @bind-Value="@InputFields["LastName"].Value" ID="lastName" InputType="text" ValidField="@InputFields["LastName"].IsValid" />
+			<FormInput Class="@(!InputFields["LastName"].IsValid ? "invalidInput" : "")" IncludeClearButton="false" @bind-Value="@InputFields["LastName"].Value" ID="lastName" InputType="text" ValidField="@InputFields["LastName"].IsValid" />
 			<FormLabel For="email">* Email address</FormLabel>
-			<FormInput Class="@(!InputFields["EmailInput"].IsValid ? "invalidInput" : "")" placeholder="EmailInput" @bind-Value="@InputFields["EmailInput"].Value" ID="email" InputType="text" ValidField="@InputFields["EmailInput"].IsValid"/>
+			<FormInput Class="@(!InputFields["EmailInput"].IsValid ? "invalidInput" : "")" IncludeClearButton="false" @bind-Value="@InputFields["EmailInput"].Value" ID="email" InputType="text" ValidField="@InputFields["EmailInput"].IsValid"/>
 			<FormLabel For="userName">* User name</FormLabel>
-			<FormInput Class="@(!InputFields["UserName"].IsValid ? "invalidInput" : "")" placeholder="UserName" @bind-Value="@InputFields["UserName"].Value" ID="userName" InputType="text" ValidField="@InputFields["UserName"].IsValid"/>
+			<FormInput Class="@(!InputFields["UserName"].IsValid ? "invalidInput" : "")" IncludeClearButton="false" @bind-Value="@InputFields["UserName"].Value" ID="userName" InputType="text" ValidField="@InputFields["UserName"].IsValid"/>
 			<FormLabel For="password">* Password <span class="tinyText">Atleast 8 long, 1 lowercase and uppercase letter, and 1 number.</span></FormLabel>
-			<FormInput Class="@(!InputFields["Password"].IsValid ? "invalidInput" : "")" placeholder="Password" @bind-Value="@InputFields["Password"].Value" ID="password" InputType="password" ValidField="@InputFields["Password"].IsValid"/>
+			<FormInput Class="@(!InputFields["Password"].IsValid ? "invalidInput" : "")" IncludeClearButton="false" @bind-Value="@InputFields["Password"].Value" ID="password" InputType="password" ValidField="@InputFields["Password"].IsValid"/>
 			<FormLabel For="passwordAgain">* Password again</FormLabel>
-			<FormInput Class="@(!InputFields["PasswordAgain"].IsValid ? "invalidInput" : "")" placeholder="PasswordAgain" @bind-Value="@InputFields["PasswordAgain"].Value" ID="passwordAgain" InputType="password" ValidField="@InputFields["PasswordAgain"].IsValid"/>
+			<FormInput Class="@(!InputFields["PasswordAgain"].IsValid ? "invalidInput" : "")" IncludeClearButton="false" @bind-Value="@InputFields["PasswordAgain"].Value" ID="passwordAgain" InputType="password" ValidField="@InputFields["PasswordAgain"].IsValid"/>
 			<FormLabel for="gender">* Gender</FormLabel>
 			<FormSelect Options="GenderOptions" @bind-SelectedValue="@InputFields["Gender"].Value"></FormSelect>
 			<FormLabel for="country">* Country</FormLabel>
