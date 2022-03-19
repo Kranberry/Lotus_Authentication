@@ -23,35 +23,42 @@
     @if(CurrentUser is not null)
     {
         <div class="userManager">
-            <div class="basicUserInfo">
-                <LotusForm>
-                    <FormLabel>Username: @CurrentUser.UserName</FormLabel>
-                    <FormInput InputType="text" @bind-Value="newUsername" PlaceHolder="Username"></FormInput>
-                    <FormLabel>Email: @CurrentUser.Email</FormLabel>
-                    <FormInput InputType="text" @bind-Value="newEmail" PlaceHolder="Email"></FormInput>
-                    <FormLabel>First name: @CurrentUser.FirstName</FormLabel>
-                    <FormInput InputType="text" @bind-Value="newFirstName" PlaceHolder="First name"></FormInput>
-                    <FormLabel>Last name: @CurrentUser.LastName</FormLabel>
-                    <FormInput InputType="text" @bind-Value="newLastName" PlaceHolder="Last name"></FormInput>
-                    <FormLabel Class="@Wiggle" Style="flex: 1; align-self: center; color: red;">[ @ErrorMessage ]</FormLabel>
+            <div class="userInfoThingy">
+                <div class="userInfo">
+                    <div class="basicUserInfo">
+                        <LotusForm>
+                            <FormLabel>Username: @CurrentUser.UserName</FormLabel>
+                            <FormInput InputType="text" @bind-Value="newUsername" PlaceHolder="Username"></FormInput>
+                            <FormLabel>Email: @CurrentUser.Email</FormLabel>
+                            <FormInput InputType="text" @bind-Value="newEmail" PlaceHolder="Email"></FormInput>
+                            <FormLabel>First name: @CurrentUser.FirstName</FormLabel>
+                            <FormInput InputType="text" @bind-Value="newFirstName" PlaceHolder="First name"></FormInput>
+                            <FormLabel>Last name: @CurrentUser.LastName</FormLabel>
+                            <FormInput InputType="text" @bind-Value="newLastName" PlaceHolder="Last name"></FormInput>
+                            <FormLabel Class="@Wiggle" Style="flex: 1; align-self: center; color: red;">[ @ErrorMessage ]</FormLabel>
 
-                    <div class="userInfoButtons">
-                        <LotusButton Class="btn-pink" Style="width: 40%;" OnClickCallBack="@ResetFields">Reset</LotusButton>
-                        <LotusButton Style="width: 55%;" OnClickCallBack="@SaveUserDataChanges">Save Changes</LotusButton>
+                            <div class="userInfoButtons">
+                                <LotusButton Class="btn-pink" Style="width: 40%;" OnClickCallBack="@ResetFields">Reset</LotusButton>
+                                <LotusButton Style="width: 55%;" OnClickCallBack="@SaveUserDataChanges">Save Changes</LotusButton>
+                            </div>
+                        </LotusForm>
                     </div>
-                </LotusForm>
-            </div>
 
-            <div class="changePassword">
-                <LotusForm>
-                    <FormInput InputType="password" @bind-Value="OldPassword" PlaceHolder="Password" Style="width: 35%;"></FormInput>
-                    <div style="display: flex; flex-direction: row;">
-                        <FormInput Style="width: 35%;" InputType="password" @bind-Value="NewPassword" PlaceHolder="New password"></FormInput>
-                        <FormInput Style="width: 35%;" InputType="password" @bind-Value="NewPasswordAgain" PlaceHolder="Confirm new password"></FormInput>
+                    <div class="changePassword">
+                        <LotusForm>
+                            <FormInput InputType="password" @bind-Value="OldPassword" PlaceHolder="Password" Style="width: 35%;"></FormInput>
+                            <div style="display: flex; flex-direction: row;">
+                                <FormInput Style="width: 35%;" InputType="password" @bind-Value="NewPassword" PlaceHolder="New password"></FormInput>
+                                <FormInput Style="width: 35%;" InputType="password" @bind-Value="NewPasswordAgain" PlaceHolder="Confirm new password"></FormInput>
+                            </div>
+                            <FormLabel Class="@PasswordWiggle" Style="flex: 1; align-self: center; color: red;">[ @ChangePasswordErrorMessage ]</FormLabel>
+                            <LotusButton Style="width: 40%; align-self: center;" OnClickCallBack="@UpdateUserPassword">Change Password</LotusButton>
+                        </LotusForm>
                     </div>
-                    <FormLabel Class="@PasswordWiggle" Style="flex: 1; align-self: center; color: red;">[ @ChangePasswordErrorMessage ]</FormLabel>
-                    <LotusButton Style="width: 40%; align-self: center;" OnClickCallBack="@UpdateUserPassword">Change Password</LotusButton>
-                </LotusForm>
+                </div>
+                <div class="allowedApiKeys b-shadow">
+                    <p>asdasd</p>
+                </div>
             </div>
 
             <div class="dangerButtons b-shadow">
