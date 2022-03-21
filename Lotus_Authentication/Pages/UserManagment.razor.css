@@ -51,7 +51,9 @@
     flex-direction: row;
 }
 
-.allowedApiKeys{
-    padding: 1em 0 2em 1em;
+.allowedApiKeys {
+    padding: 1em 1em 1em 1em;
     width: 50%;
+    height: 80vh;
+    overflow-y: scroll;
 }

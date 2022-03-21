@@ -57,7 +57,21 @@
                     </div>
                 </div>
                 <div class="allowedApiKeys b-shadow">
-                    <p>asdasd</p>
+                    <table class="table table-light">
+                        <thead>
+                            <tr>
+                                <th scope="col">Key owner</th>
+                            </tr>
+                        </thead>
+                        <tbody class="apiKeysTableBody">
+                        @foreach(ApiKey key in ApiKeysToUser)
+                        {
+                            <tr>
+                                <td scope="row">@key.Alias</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -66,9 +80,6 @@
             </div>
         </div>
 
-        <div class="connectedApiKeys">
-
-        </div>
 
         <SweetAlert
             @bind-IsHidden="SweetAlertHidden"
@@ -112,6 +123,7 @@
     private bool DeleteAccountAlertHidden = true;
 
     private User? CurrentUser { get; set; }
+    private List<ApiKey> ApiKeysToUser { get; set; } = new();
 
     protected override async Task OnParametersSetAsync()
     {
@@ -152,7 +164,10 @@
         try
         {
             if (state == SessionState.LoggedIn)
+            {
                 CurrentUser = await Session.GetCurrentUser();
+                ApiKeysToUser = DbHandler.GetApiKeysByUserId(CurrentUser.Id).ToList();
+            }
             else
                 CurrentUser = null;
         }
