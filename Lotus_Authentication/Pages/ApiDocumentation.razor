@@ -28,8 +28,6 @@
         @foreach(Method method in Doc.Methods.Where(m => m.Name.Contains("API.Controllers")))
         {
             <div class="">
-                <h4><u>@method.Route</u></h4>
-
                 @if (method.IsActive)
                 {
                     <h3>@method.GetControllerName()</h3>
@@ -38,6 +36,7 @@
                 {
                     <h3>@method.GetControllerName() : <span class="badge bg-danger">Inactive</span></h3>
                 }
+                <h4>Endpoint: <u>@method.Route</u></h4>
                 <h6>Method: <span class="@GetMethodClass(method.RestMethod)">@method.RestMethod</span></h6>
                 <p>Name: @method.GetNiceName()</p>
                 <p>Summary: @method.Summary</p>
