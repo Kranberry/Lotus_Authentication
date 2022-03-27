@@ -53,9 +53,10 @@
 
 <UserAuthenticated IsApiUser="true">
     <div class="apiKeyBox">
-        <table class="table table-light">
+        <table class="table table-light table-striped table-hover">
             <thead>
                 <tr>
+                    <th scope="col">#</th>
                     <th scope="col">Alias</th>
                     <th scope="col">Api Key</th>
                     <th scope="col">Creation date</th>
@@ -67,19 +68,20 @@
                 @foreach(ApiKey key in UserApiKeys)
                 {
                     <tr>
-                        <td scope="row">@key.Alias</td>
+                        <td scope="row" class="border-start border-end text-center">@(UserApiKeys.IndexOf(key) + 1)</td>
+                        <td>@key.Alias</td>
                         <td>@key.Key</td>
                         <td>@key.InsertDate.ToString("dd/M/yyyy HH:MM")</td>
                         <td>@key.UpdateDate?.ToString("dd/M/yyyy HH:MM")</td>
                         <td>@(key.RecordStatus == 0 ? "Active" : "Inactive")</td>
-                        <td><input type="checkbox" /></td>
+                        <td class="border-start border-end text-center"><input type="checkbox" /></td>
                     </tr>
                 }
             </tbody>
         </table>
 
         <div class="newApiKeyBox">
-            <div class="alert alert-info">Alias can be maximum 15 characters</div>
+            <div class="alert alert-info"><i class="bi bi-info-circle-fill"></i> Alias can be maximum 15 characters</div>
             <FormInput MaxValueLength="15" @bind-Value="NewApeKeyAlias" InputType="text" PlaceHolder="Alias" Style="width: 16em;"/>
             <LotusButton OnClickCallBack="GenerateNewApiKey" Style="width: 10em; height: 2em;">Generate key</LotusButton>
         </div>

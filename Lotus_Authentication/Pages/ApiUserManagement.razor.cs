@@ -156,6 +156,7 @@ public partial class ApiUserManagement : IDisposable
     private void FetchApiKeys()
     {
         UserApiKeys = DbHandler.GetApiKeysByUserId(CurrentUser.Id).ToList();
+        InvokeAsync(StateHasChanged);
     }
 
     private void GenerateNewApiKey()
