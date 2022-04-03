@@ -78,6 +78,7 @@ public class DbHandler
     /// <param name="email">The email addres of said user</param>
     /// <param name="password">The Sha1 encrypted password of said user</param>
     /// <param name="userType">The type of user to retrieve</param>
+    /// <param name="apiKey">The apiKey that tries to retrieve the user. Is used to check the ban status</param>
     /// <returns>The requested user</returns>
     /// <exception cref="UserNotFoundException">Thrown when user is not found</exception>
     public static User GetUser(string? userName, string? email, string password, UserType userType = UserType.Regular)
@@ -119,9 +120,35 @@ public class DbHandler
         Country country = GetCountryByID(uD.fk_country_id);
 
         if(userType is UserType.Regular)
-            return new User(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.is_validated);
+        {
+            User user = new(uD.user_id, uD.first_name, uD.last_name, uD.email, uD.username, UserType.Regular, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.is_validated);
+            return user;
+        }
 
         return new User(uD.api_user_id, uD.contact_first_name, uD.contact_last_name, uD.email, UserType.Api, (Gender)uD.gender, country.Iso2, country.NumCode, country.PhoneCode, uD.record_insert_date, uD.record_update_date, uD.customer, uD.is_validated);
+    }
+
+    /// <summary>
+    /// Get the banstatus of the user of said apiKey
+    /// </summary>
+    /// <param name="user">The user to check</param>
+    /// <param name="apiKey">The apiKey to check for</param>
+    /// <returns>A UserBanStatus object if the user has ever been banned, otherwise null, null means not banned</returns>
+    public static UserBanStatus? GetUserBanStatus(User user, string apiKey)
+    {
+        UserBanStatus? userBanStatus = default;
+        using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
+        if (apiKey is not null)
+        {
+            string sqlQuery = $"SELECT * FROM [api_key_user_ban] akub INNER JOIN [api_key] ak ON ak.api_key_id = akub.fk_api_key_id WHERE akub.fk_user_id = { user.Id } AND ak.api_key = '{apiKey}'";
+            con.Open();
+            userBanStatus = con.Query<dynamic>(sqlQuery).Select(b => new UserBanStatus(user, apiKey, (BanStatus)b.record_status, b.ban_lift_date, b.reason)).FirstOrDefault();
+            con.Close();
+        }
+
+        if(userBanStatus is not null)
+            userBanStatus.BanStatus = (userBanStatus.BanLiftDate > DateTime.UtcNow) ? BanStatus.Banned : BanStatus.UnBanned;
+        return userBanStatus;
     }
 
     /// <summary>
@@ -341,6 +368,45 @@ public class DbHandler
         using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
         con.Open();
         int rowsModified = con.Execute(procedure, parameters, commandType: CommandType.StoredProcedure);
+        con.Close();
+
+        return rowsModified > 0;
+    }
+
+    /// <summary>
+    /// Modify the ban status of a user for your api key
+    /// </summary>
+    /// <param name="apiKey">Your api key</param>
+    /// <param name="userId">The user to be banned</param>
+    /// <param name="email">The users email to be banned (can be used instead of id)</param>
+    /// <param name="banStatus">true/false, true for ban</param>
+    /// <param name="wideBan">true/false, true if ban across all api keys on api users account</param>
+    /// <param name="banLiftDate">Date when the ban will be lifted. Defaults to 1 day from now</param>
+    /// <param name="reason">The reason to why user was banned</param>
+    /// <returns>true if the users banstatus was modified successfully</returns>
+    public static bool BanUser(string apiKey, int? userId, string? email, bool banStatus, bool wideBan, DateTime? banLiftDate, string? reason)
+    {
+        string procedure = "[modify_banstatus_of_user]";
+        DynamicParameters parameters = new();
+        parameters.Add("@api_key", apiKey);
+        parameters.Add("@user_id", userId);
+        parameters.Add("@email", email);
+        parameters.Add("@ban_status", banStatus);
+        parameters.Add("@wide_ban", wideBan);
+        parameters.Add("@ban_lift_date", banLiftDate, DbType.DateTime);
+        parameters.Add("@reason", reason);
+
+        int rowsModified = 0;
+        using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
+        con.Open();
+        try
+        {
+            rowsModified = con.Execute(procedure, parameters, commandType: CommandType.StoredProcedure);
+        }
+        catch(SqlException ex)
+        {
+            return false;
+        }
         con.Close();
 
         return rowsModified > 0;

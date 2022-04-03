@@ -6,7 +6,7 @@
     <members>
         <member name="M:Lotus_Authentication.API.Controllers.AuthenticationController.Authentication(Lotus_Authentication.API.ApiModels.ApiUserModel,System.String)">
             <summary>
-            Authenticate a user by username OR/AND email
+            Authenticate a user by username AND/OR email
             </summary>
             <isActive>true</isActive>
             <method>GET</method>
@@ -19,7 +19,7 @@
                 <param name="userName">The username of the user)</param>
                 <param name="password">The SHA1 hashed password of the user</param>
             </body>
-            <returns>A user object containing the users ID, email, Gender and Country ISO2</returns>
+            <returns>A user object containing the users ID, email, Gender and Country ISO2, and Ban status of the user to your api key</returns>
             <results>
                 <result status="200">Authentication passed</result>
                 <result status="400">username and email cannot be left empty</result>
@@ -27,6 +27,30 @@
                 <result status="400">password must be a valid SHA1 checksum</result>
                 <result status="404">User could not be authenticated. Invalid username, email or password</result>
                 <result status="403">Unauthorized</result>
+            </results>
+        </member>
+        <member name="M:Lotus_Authentication.API.Controllers.AuthenticationController.BanUser(System.String,Lotus_Authentication.API.Controllers.AuthenticationController.BanUserControllerModel)">
+            <summary>
+            Ban or unban a user from your api key or widely for all your api keys
+            </summary>
+            <isActive>true</isActive>
+            <method>POST</method>
+            <route>api/authentication/user/ban</route>
+            <header>
+                <param name="apiKey" required="true">Your api key</param>
+            </header>
+            <body>
+                <param name="userId" required="true">The id of the user. NOTE: Email address can be used instead. If both email and useId are provided, userId will be used</param>
+                <param name="email" required="true">The email address of the user. NOTE: userId can be used instead. If both email and useId are provided, userId will be used</param>
+                <param name="banStatus" required="true">true/false, true if ban, false if unban</param>
+                <param name="wideBan">true/false, true to ban across all your api keys, false to unband across all your api keys</param>
+                <param name="banLiftDate">Date and time for the ban to be lifted. By default 24 hours from ban date.</param>
+            </body>
+            <returns>200 OK or 400 Bad Request</returns>
+            <results>
+                <result status="200">Returned if your request was completed</result>
+                <result status="400">Returned if your request is missing userId and Email</result>
+                <result status="400">Returned if your request contained an invalid email or userId</result>
             </results>
         </member>
         <member name="M:Lotus_Authentication.API.Controllers.ReportController.GetUserReport(System.String)">
@@ -149,8 +173,17 @@
             <param name="email">The email addres of said user</param>
             <param name="password">The Sha1 encrypted password of said user</param>
             <param name="userType">The type of user to retrieve</param>
+            <param name="apiKey">The apiKey that tries to retrieve the user. Is used to check the ban status</param>
             <returns>The requested user</returns>
             <exception cref="T:Lotus_Authentication.Data.UserNotFoundException">Thrown when user is not found</exception>
+        </member>
+        <member name="M:Lotus_Authentication.Data.DbHandler.GetUserBanStatus(Lotus_Authentication.Models.User,System.String)">
+            <summary>
+            Get the banstatus of the user of said apiKey
+            </summary>
+            <param name="user">The user to check</param>
+            <param name="apiKey">The apiKey to check for</param>
+            <returns>A UserBanStatus object if the user has ever been banned, otherwise null, null means not banned</returns>
         </member>
         <member name="M:Lotus_Authentication.Data.DbHandler.GetUserByUserName(System.String)">
             <summary>
@@ -213,6 +246,19 @@
             <param name="id">The unique id of the user</param>
             <param name="email">The unique email of the user</param>
             <returns>true if the operation was successful</returns>
+        </member>
+        <member name="M:Lotus_Authentication.Data.DbHandler.BanUser(System.String,System.Nullable{System.Int32},System.String,System.Boolean,System.Boolean,System.Nullable{System.DateTime},System.String)">
+            <summary>
+            Modify the ban status of a user for your api key
+            </summary>
+            <param name="apiKey">Your api key</param>
+            <param name="userId">The user to be banned</param>
+            <param name="email">The users email to be banned (can be used instead of id)</param>
+            <param name="banStatus">true/false, true for ban</param>
+            <param name="wideBan">true/false, true if ban across all api keys on api users account</param>
+            <param name="banLiftDate">Date when the ban will be lifted. Defaults to 1 day from now</param>
+            <param name="reason">The reason to why user was banned</param>
+            <returns>true if the users banstatus was modified successfully</returns>
         </member>
         <member name="M:Lotus_Authentication.Data.DbHandler.RemoveUserApiConnection(System.Int32,System.String)">
             <summary>

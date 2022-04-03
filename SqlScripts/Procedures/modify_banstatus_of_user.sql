@@ -15,6 +15,11 @@ BEGIN
         THROW 50002, '(@email AND @user_id), OR @api_key parameters cannot be null', 15;
     END
 
+    IF(@ban_status = 0)
+    BEGIN
+        SET @ban_lift_date = GETDATE();
+    END
+
     DECLARE @api_key_id INT = (SELECT TOP(1) api_key_id FROM api_key WHERE api_key = @api_key);
     DECLARE @api_key_user_id INT = (SELECT TOP(1) fk_api_user_id FROM api_key2api_user WHERE fk_api_key_id = @api_key_id);
     SET @user_id = (SELECT TOP(1) user_id FROM [user] WHERE user_id = @user_id OR email = @email);
@@ -40,7 +45,7 @@ BEGIN
     ELSE
     BEGIN
         UPDATE api_key_user_ban SET
-            ban_lift_date = COALESCE(@ban_lift_date, ban_lift_date),
+            ban_lift_date = COALESCE(@ban_lift_date, GETDATE() + 1),
             reason = COALESCE(@reason, reason),
             record_status = @ban_status,
             record_update_date = GETDATE()
