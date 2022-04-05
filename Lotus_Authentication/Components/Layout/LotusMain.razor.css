@@ -19,7 +19,6 @@
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
     border-radius: 3px;
     padding: 1%;
-    height: 80vh;
     overflow-y: scroll;
     overflow-x: hidden;
 }
@@ -38,13 +37,17 @@
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
     .main-top-noside-layout {
+        height: 80vh;
         overflow-y: scroll;
     }
 }
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
 @media only screen and (min-width: 600px) {
-
+    .main-top-noside-layout {
+        height: 80vh;
+        overflow-y: scroll;
+    }
 }
 
 /* Medium devices (landscape tablets, 768px and up) */
@@ -59,5 +62,7 @@
 
 /* Extra large devices (large laptops and desktops, 1200px and up) */
 @media only screen and (min-width: 1200px) {
-
-} 
+    .main-top-noside-layout {
+        height: 93.5vh;
+    }
+}
