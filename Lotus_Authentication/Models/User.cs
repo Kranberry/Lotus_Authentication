@@ -98,7 +98,7 @@ public class User
         if (string.IsNullOrWhiteSpace(lastname))
             return false;
 
-        FirstName = lastname;
+        LastName = lastname;
         return true;
     }
 
