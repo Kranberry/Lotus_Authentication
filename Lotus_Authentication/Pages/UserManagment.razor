@@ -66,6 +66,7 @@
                         <thead>
                             <tr>
                                 <th scope="col">Key owner</th>
+                                <th scope="col"></th>
                             </tr>
                         </thead>
                         <tbody class="apiKeysTableBody">
@@ -73,6 +74,7 @@
                         {
                             <tr>
                                 <td scope="row">@key.Alias</td>
+                                <td align="right"><LotusButton OnClickCallBack="() => RemovePermissions(key)">Remove Access</LotusButton></td>
                             </tr>
                         }
                         </tbody>
@@ -171,7 +173,7 @@
             if (state == SessionState.LoggedIn)
             {
                 CurrentUser = await Session.GetCurrentUser();
-                ApiKeysToUser = DbHandler.GetApiKeysByUserId(CurrentUser.Id).ToList();
+                ApiKeysToUser = DbHandler.GetApiKeysByUserId(CurrentUser.Id).Where(a => a.Key != AppConfig.SkeletonKey).ToList();
             }
             else
                 CurrentUser = null;
@@ -188,7 +190,7 @@
         {
             string sha1Pass = SHA1Hash.Hash(Password);
             CurrentUser = DbHandler.GetUser(UserName, Email, sha1Pass);
-            ApiKeysToUser = DbHandler.GetApiKeysByUserId(CurrentUser.Id).ToList();
+            ApiKeysToUser = DbHandler.GetApiKeysByUserId(CurrentUser.Id).Where(a => a.Key != AppConfig.SkeletonKey).ToList();
             CurrentUser.SetPassword(sha1Pass);
             await Session.Login(CurrentUser);
         }
@@ -267,6 +269,15 @@
     }
 
     private void DeleteAccountVerifyAlert() => DeleteAccountAlertHidden = false;
+
+    private void RemovePermissions(ApiKey apiKey)
+    {
+        bool succeeded = DbHandler.RemoveUserApiConnection(CurrentUser!.Id, apiKey.Key);
+        if (succeeded)
+        {
+            ApiKeysToUser.Remove(apiKey);
+        }
+    }
 
     private async Task DeleteAccount()
     {
