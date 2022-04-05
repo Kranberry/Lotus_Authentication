@@ -59,8 +59,8 @@
                     <th scope="col">#</th>
                     <th scope="col">Alias</th>
                     <th scope="col">Api Key</th>
-                    <th scope="col">Creation date</th>
-                    <th scope="col">Update date</th>
+                    <th class="hideSmallScreen" scope="col">Creation date</th>
+                    <th class="hideSmallScreen" scope="col">Update date</th>
                     <th scope="col">Active</th>
                 </tr>
             </thead>
@@ -71,8 +71,8 @@
                         <td scope="row" class="border-start border-end text-center">@(UserApiKeys.IndexOf(key) + 1)</td>
                         <td>@key.Alias</td>
                         <td>@key.Key</td>
-                        <td>@key.InsertDate.ToString("dd/M/yyyy HH:MM")</td>
-                        <td>@key.UpdateDate?.ToString("dd/M/yyyy HH:MM")</td>
+                        <td class="hideSmallScreen">@key.InsertDate.ToString("dd/M/yyyy HH:MM")</td>
+                        <td class="hideSmallScreen">@key.UpdateDate?.ToString("dd/M/yyyy HH:MM")</td>
                         <td>@(key.RecordStatus == 0 ? "Active" : "Inactive")</td>
                         <td class="border-start border-end text-center"><input type="checkbox" /></td>
                     </tr>
@@ -81,6 +81,7 @@
         </table>
 
         <div class="newApiKeyBox">
+            <LotusButton Style="width: 15em; height: 2em; margin-bottom: 2em;">Disable/Enable selected</LotusButton>
             <div class="alert alert-info"><i class="bi bi-info-circle-fill"></i> Alias can be maximum 15 characters</div>
             <FormInput MaxValueLength="15" @bind-Value="NewApeKeyAlias" InputType="text" PlaceHolder="Alias" Style="width: 16em;"/>
             <LotusButton OnClickCallBack="GenerateNewApiKey" Style="width: 10em; height: 2em;">Generate key</LotusButton>

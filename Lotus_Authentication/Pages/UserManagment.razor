@@ -45,18 +45,23 @@
                     </div>
 
                     <div class="changePassword">
-                        <LotusForm>
-                            <FormInput InputType="password" @bind-Value="OldPassword" PlaceHolder="Password" Style="width: 35%;"></FormInput>
-                            <div style="display: flex; flex-direction: row;">
-                                <FormInput Style="width: 35%;" InputType="password" @bind-Value="NewPassword" PlaceHolder="New password"></FormInput>
-                                <FormInput Style="width: 35%;" InputType="password" @bind-Value="NewPasswordAgain" PlaceHolder="Confirm new password"></FormInput>
+                        <LotusForm class="newPasswordInputFields">
+                            <FormInput InputType="password" @bind-Value="OldPassword" PlaceHolder="Password"></FormInput>
+                            <div class="newPasswordDiv">
+                                <FormInput InputType="password" @bind-Value="NewPassword" PlaceHolder="New password"></FormInput>
+                                <FormInput InputType="password" @bind-Value="NewPasswordAgain" PlaceHolder="Confirm new password"></FormInput>
                             </div>
                             <FormLabel Class="@PasswordWiggle" Style="flex: 1; align-self: center; color: red;">[ @ChangePasswordErrorMessage ]</FormLabel>
-                            <LotusButton Style="width: 40%; align-self: center;" OnClickCallBack="@UpdateUserPassword">Change Password</LotusButton>
+                            <LotusButton Style="width: 70%; align-self: center;" OnClickCallBack="@UpdateUserPassword">Change Password</LotusButton>
                         </LotusForm>
                     </div>
                 </div>
                 <div class="allowedApiKeys b-shadow">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill text-primary" data-bs-toggle="tooltip" title="Atleast 8 characters long, 1 lowercase and uppercase letter, and 1 number."></i>
+                        <p>The following companies or applications have permissions to permanently delete your account and get a user report containing your data, press the "Remove access" button to remove their permissions.</p>
+                        <p class="text text-danger"><u>These permissions are given when you made the account from their service.</u></p>
+                    </div>
                     <table class="table table-light">
                         <thead>
                             <tr>
@@ -183,6 +188,7 @@
         {
             string sha1Pass = SHA1Hash.Hash(Password);
             CurrentUser = DbHandler.GetUser(UserName, Email, sha1Pass);
+            ApiKeysToUser = DbHandler.GetApiKeysByUserId(CurrentUser.Id).ToList();
             CurrentUser.SetPassword(sha1Pass);
             await Session.Login(CurrentUser);
         }

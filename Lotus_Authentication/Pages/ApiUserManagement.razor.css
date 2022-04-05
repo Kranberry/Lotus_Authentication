@@ -2,7 +2,6 @@
     flex: 1;
     justify-self: center;
     align-self: center;
-    width: 30%;
     margin-top: 1em;
 }
 
@@ -15,10 +14,61 @@
 }
 
 .apiKeyBox{
-    width: 70%;
+    width: 100%;
 }
 
 .newApiKeyBox {
     width: fit-content;
     margin-left: 0.1em;
 }
+
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+    .signIn {
+        width: 90%;
+    }
+
+    .hideSmallScreen{
+        display: none;
+    }
+
+    .newApiKeyBox {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+    .signIn {
+        width: 70%;
+    }
+
+    .newApiKeyBox {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 768px) {
+    .signIn {
+        width: 50%;
+    }
+}
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (min-width: 992px) {
+    
+}
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1200px) {
+    .signIn {
+        width: 40%;
+    }
+} 

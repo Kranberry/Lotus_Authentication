@@ -53,7 +53,6 @@
 			<FormInput Class="@(!InputFields["EmailInput"].IsValid ? "invalidInput" : "")" IncludeClearButton="false" @bind-Value="@InputFields["EmailInput"].Value" ID="email" InputType="text" ValidField="@InputFields["EmailInput"].IsValid"/>
 			<FormLabel For="userName">* User name</FormLabel>
 			<FormInput Class="@(!InputFields["UserName"].IsValid ? "invalidInput" : "")" IncludeClearButton="false" @bind-Value="@InputFields["UserName"].Value" ID="userName" InputType="text" ValidField="@InputFields["UserName"].IsValid"/>
-			@*<i class="tinyText bi bi-question-circle-fill" data-bs-toggle="tooltip" title="Atleast 8 long, 1 lowercase and uppercase letter, and 1 number."></i>*@
 			<FormLabel>* Password <i class="bi bi-question-circle-fill text-primary" data-bs-toggle="tooltip" title="Atleast 8 characters long, 1 lowercase and uppercase letter, and 1 number."></i></FormLabel>
 			<FormInput Class="@(!InputFields["Password"].IsValid ? "invalidInput" : "")" IncludeClearButton="false" @bind-Value="@InputFields["Password"].Value" ID="password" InputType="password" ValidField="@InputFields["Password"].IsValid"/>
 			<FormLabel For="passwordAgain">* Password again</FormLabel>

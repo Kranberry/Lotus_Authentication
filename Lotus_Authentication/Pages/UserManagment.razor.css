@@ -2,7 +2,6 @@
     flex: 1;
     justify-self: center;
     align-self: center;
-    width: 30%;
     margin-top: 1em;
 }
 
@@ -41,11 +40,6 @@
     height: 2em;
 }
 
-.userInfo {
-    width: 50%;
-    padding-right: 2em;
-}
-
 .userInfoThingy {
     display: flex;
     flex-direction: row;
@@ -53,7 +47,88 @@
 
 .allowedApiKeys {
     padding: 1em 1em 1em 1em;
-    width: 50%;
-    height: 80vh;
     overflow-y: scroll;
 }
+
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+    .signIn {
+        width: 90%;
+    }
+    .userInfo{
+        padding: 0;
+        width: 100%;
+    }
+    .allowedApiKeys {
+        padding-top: 2em;
+        width: 100%;
+        height: fit-content;
+    }
+    .userInfoThingy {
+        flex-direction: column;
+    }
+    .newPasswordDiv {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+    .signIn {
+        width: 70%;
+    }
+    .userInfo {
+        padding: 0;
+        width: 100%;
+    }
+    .allowedApiKeys {
+        padding-top: 2em;
+        width: 100%;
+        height: fit-content;
+    }
+    .userInfoThingy {
+        flex-direction: column;
+    }
+    .changePassword{
+        display: flex;
+        width: 100%;
+        justify-content: center;
+    }
+    .newPasswordInputFields {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 100%;
+    }
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 768px) {
+    .signIn {
+        width: 50%;
+    }
+    .userInfo {
+        padding: 1em 1em 1em 1em;
+        width: 50%;
+    }
+    .allowedApiKeys {
+        padding: 1em 1em 1em 1em;
+        width: 50%;
+        height: 80vh;
+    }
+    .userInfoThingy {
+        flex-direction: row;
+    }
+}
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (min-width: 992px) {
+}
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1200px) {
+    .signIn {
+        width: 40%;
+    }
+} 
