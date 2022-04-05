@@ -1,4 +1,8 @@
-﻿.component-base{
+﻿div {
+    height: 100%;
+}
+
+.component-base{
     display: flex;
     flex-direction: column;
 }
