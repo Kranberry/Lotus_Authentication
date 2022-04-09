@@ -103,9 +103,9 @@ public class UserSessionManager
         return true;
     }
 
-    internal async Task<User> GetCurrentUser()
+    internal async Task<User> GetCurrentUser(bool isApiUser = false, bool anyUser = true)
     {
-        if (!(await IsLoggedIn()))
+        if (!(await IsLoggedIn(isApiUser, anyUser)))
             throw new UserNotFoundException(LogSeverity.Warning, "No user is found logged in", $"Class: {nameof(UserSessionManager)}, Method: {nameof(GetCurrentUser)}()");
 
         string jwt = await LocalStorage.GetItemAsync<string>("jwt");
@@ -115,6 +115,7 @@ public class UserSessionManager
                                                         .MustVerifySignature()
                                                         .Decode<IDictionary<string, object>>(jwt);
 
-        return DbHandler.GetUser((string)payload["email"]);
+        UserType userType = (UserType)Enum.Parse(typeof(UserType), (string)payload["userType"]);
+        return DbHandler.GetUser((string)payload["email"], userType);
     }
 }

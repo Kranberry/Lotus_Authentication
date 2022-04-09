@@ -59,6 +59,7 @@ namespace Lotus_Authentication.API.Controllers
             if(badRequestMessage != string.Empty)
                 return new BadRequestObjectResult(badRequestMessage);
 
+            body.Password = body!.Password!.ToUpper();
             if (!SHA1Hash.IsValidSHA1(body.Password!))
                 return new BadRequestObjectResult($"The property 'password' is not a valid SHA1 checksum");
 

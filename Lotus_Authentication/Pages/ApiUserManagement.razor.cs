@@ -48,9 +48,18 @@ public partial class ApiUserManagement : IDisposable
         {
             NavManager.NavigateTo("/");
         }
+    }
 
-        await SetCurrentuser(SessionState.LoggedIn);
-        Session.SessionHasChangedEvent += SetCurrentuser;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            CountryOptions = AvailableCountries.Select(c => c.NiceName).ToArray();
+            await SetCurrentuser(SessionState.LoggedIn);
+            Session.SessionHasChangedEvent += SetCurrentuser;
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     private async Task SetCurrentuser(SessionState state)
@@ -59,7 +68,7 @@ public partial class ApiUserManagement : IDisposable
         {
             if (state == SessionState.LoggedIn)
             {
-                CurrentUser = await Session.GetCurrentUser();
+                CurrentUser = await Session.GetCurrentUser(true, false);
                 FetchApiKeys();
             }
             else
@@ -69,12 +78,6 @@ public partial class ApiUserManagement : IDisposable
         {
             CurrentUser = null;
         }
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        CountryOptions = AvailableCountries.Select(c => c.NiceName).ToArray();
-        await base.OnAfterRenderAsync(firstRender);
     }
 
     private bool IsPasswordValid(string password)

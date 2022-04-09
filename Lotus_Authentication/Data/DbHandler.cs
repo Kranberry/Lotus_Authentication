@@ -525,10 +525,10 @@ public class DbHandler
             throw new ArgumentOutOfRangeException(nameof(apiUserId));
 
         string query = "SELECT * FROM [api_key] AS a " +
-                       "INNER JOIN[user2api_key] AS aia " +
+                       "INNER JOIN[api_key2api_user] AS aia " +
                        "   ON aia.fk_api_key_id" +
                        " = a.api_key_id " +
-                       "WHERE aia.fk_user_id = @userId";
+                       "WHERE aia.fk_api_user_id = @userId";
 
         using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
 
