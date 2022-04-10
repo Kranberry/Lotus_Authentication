@@ -29,7 +29,7 @@ BEGIN
     INSERT INTO [api_key](api_key, alias, record_insert_date) VALUES
     (@api_key, @alias, GETDATE());
 
-    DECLARE @apiKeyId INT = ( SELECT TOP 1 api_key_id FROM [api_key] WHERE [api_key] = @api_key );
+    DECLARE @apiKeyId INT = @@IDENTITY;
     INSERT INTO [api_key2api_user](fk_api_key_id, fk_api_user_id, record_insert_date) VALUES
     (@apiKeyId, @api_user_id, GETDATE());
 

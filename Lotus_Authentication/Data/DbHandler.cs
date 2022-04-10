@@ -517,23 +517,25 @@ public class DbHandler
     /// <summary>
     /// Get every api key associated with api user
     /// </summary>
-    /// <param name="apiUserId">The id of the api user</param>
+    /// <param name="userId">The id of the api user</param>
+    /// <param name="apiUser">If the user is an api user or not</param>
     /// <returns></returns>
-    public static IEnumerable<ApiKey> GetApiKeysByUserId(int apiUserId)
+    public static IEnumerable<ApiKey> GetApiKeysByUserId(int userId, bool apiUser = true)
     {
-        if (apiUserId <= 0)
-            throw new ArgumentOutOfRangeException(nameof(apiUserId));
+        if (userId <= 0)
+            throw new ArgumentOutOfRangeException(nameof(userId));
 
-        string query = "SELECT * FROM [api_key] AS a " +
-                       "INNER JOIN[api_key2api_user] AS aia " +
-                       "   ON aia.fk_api_key_id" +
-                       " = a.api_key_id " +
-                       "WHERE aia.fk_api_user_id = @userId";
+        (string table, string fkKey) userStuff = apiUser ? ("api_key2api_user", "fk_api_user_id") : ("user2api_key", "fk_user_id");
+        string query =  "SELECT * FROM [api_key] AS a " +
+                        $"INNER JOIN[{userStuff.table}] AS aia " +
+                        "   ON aia.fk_api_key_id" +
+                        " = a.api_key_id " +
+                        $"WHERE aia.{userStuff.fkKey} = @userId";
 
         using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
 
         DynamicParameters parameters = new();
-        parameters.Add("@userId", apiUserId, DbType.Int32);
+        parameters.Add("@userId", userId, DbType.Int32);
         con.Open();
         IEnumerable<ApiKey> apiKeys = con.Query<dynamic>(query, parameters)
                            .Select(a => new ApiKey()

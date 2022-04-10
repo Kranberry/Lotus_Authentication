@@ -173,7 +173,7 @@
             if (state == SessionState.LoggedIn)
             {
                 CurrentUser = await Session.GetCurrentUser();
-                ApiKeysToUser = DbHandler.GetApiKeysByUserId(CurrentUser.Id).Where(a => a.Key != AppConfig.SkeletonKey).ToList();
+                ApiKeysToUser = DbHandler.GetApiKeysByUserId(CurrentUser.Id, false).Where(a => a.Key != AppConfig.SkeletonKey).ToList();
             }
             else
                 CurrentUser = null;
@@ -190,7 +190,7 @@
         {
             string sha1Pass = SHA1Hash.Hash(Password);
             CurrentUser = DbHandler.GetUser(UserName, Email, sha1Pass);
-            ApiKeysToUser = DbHandler.GetApiKeysByUserId(CurrentUser.Id).Where(a => a.Key != AppConfig.SkeletonKey).ToList();
+            ApiKeysToUser = DbHandler.GetApiKeysByUserId(CurrentUser.Id, false).Where(a => a.Key != AppConfig.SkeletonKey).ToList();
             CurrentUser.SetPassword(sha1Pass);
             await Session.Login(CurrentUser);
         }
@@ -276,6 +276,7 @@
         if (succeeded)
         {
             ApiKeysToUser.Remove(apiKey);
+            InvokeAsync(StateHasChanged);
         }
     }
 

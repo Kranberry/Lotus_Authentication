@@ -289,11 +289,12 @@
             <param name="alias">Text representation for the api key</param>
             <returns></returns>
         </member>
-        <member name="M:Lotus_Authentication.Data.DbHandler.GetApiKeysByUserId(System.Int32)">
+        <member name="M:Lotus_Authentication.Data.DbHandler.GetApiKeysByUserId(System.Int32,System.Boolean)">
             <summary>
             Get every api key associated with api user
             </summary>
-            <param name="apiUserId">The id of the api user</param>
+            <param name="userId">The id of the api user</param>
+            <param name="apiUser">If the user is an api user or not</param>
             <returns></returns>
         </member>
         <member name="M:Lotus_Authentication.Data.DbHandler.GetApiKeyByApiKey(System.String)">
