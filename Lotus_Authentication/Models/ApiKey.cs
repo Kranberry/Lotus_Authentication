@@ -9,8 +9,8 @@ public class ApiKey
     public string Key { get; set; }
     public string? Alias { get; set; }
     public DateTime InsertDate { get; init; }
-    public DateTime? UpdateDate { get; init; }
-    public int RecordStatus { get; init; }
+    public DateTime? UpdateDate { get; set; }
+    public int RecordStatus { get; set; }
 
     private static Regex _ApiRegex = new Regex(@"^[0-9]{4}[A-Fa-f]\-[A-Fa-f0-9]{8}\-[A-Fa-f0-9]{8}\-[A-Fa-f0-9]{8}\-[A-Fa-f0-9]{8}$");
     private static int SkeletonKeyID = int.Parse(AppConfig.SkeletonKeyID);

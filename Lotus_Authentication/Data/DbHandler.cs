@@ -514,6 +514,28 @@ public class DbHandler
         return apiKey;
     }
 
+    public static ApiKey ModifyStatusOfApiKey(ApiKey apiKey)
+    {
+        int newStatus = apiKey.RecordStatus == 0 ? 1 : 0;
+        string query = $"UPDATE api_key SET " +
+                       $"record_status = {newStatus}, " +
+                       $"record_update_date = '{DateTime.UtcNow}' " +
+                       $"WHERE api_key_id = {apiKey.ApiKeyID}";
+
+        using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);
+        con.Open();
+        int rowsAffected = con.Execute(query);
+        con.Close();
+
+        if(rowsAffected > 0)
+        {
+            apiKey.UpdateDate = DateTime.UtcNow;
+            apiKey.RecordStatus = newStatus;
+        }
+
+        return apiKey;
+    }
+
     /// <summary>
     /// Get every api key associated with api user
     /// </summary>

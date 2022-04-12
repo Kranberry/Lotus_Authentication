@@ -9,6 +9,7 @@ public partial class ApiUserManagement : IDisposable
     private string LoginPassword { get; set; } = "";
     private User? CurrentUser { get; set; }
     private List<ApiKey> UserApiKeys { get; set; } = new List<ApiKey>();
+    private List<ApiKey> modifyApiKeys { get; set; } = new List<ApiKey>();
     private string NewApeKeyAlias = "";
 
     private bool DoRegister = false;
@@ -54,6 +55,8 @@ public partial class ApiUserManagement : IDisposable
     {
         if (firstRender)
         {
+            modifyApiKeys = new();
+            UserApiKeys = new();
             CountryOptions = AvailableCountries.Select(c => c.NiceName).ToArray();
             await SetCurrentuser(SessionState.LoggedIn);
             Session.SessionHasChangedEvent += SetCurrentuser;
@@ -167,11 +170,34 @@ public partial class ApiUserManagement : IDisposable
         UserApiKeys.Add(DbHandler.InsertNewApiKey(CurrentUser!.Id, NewApeKeyAlias));
     }
 
+    private void AddModifiedApiKey(int apiKeyId, bool willAdd)
+    {
+        if(willAdd)
+        {
+            modifyApiKeys.Add(UserApiKeys.Single(a => a.ApiKeyID == apiKeyId));
+        }
+        else
+        {
+            modifyApiKeys.RemoveAll(a => a.ApiKeyID == apiKeyId);
+        }
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void ModifyStatusOfApiKeys()
+    {
+        foreach(ApiKey key in modifyApiKeys)
+        {
+            DbHandler.ModifyStatusOfApiKey(key);
+        }
+        InvokeAsync(StateHasChanged);
+        modifyApiKeys.Clear();
+    }
+
     private void OnLoginKeyDown(KeyboardEventArgs e)
     {
         if (e.Key == "Enter" || e.Key == "NumpadEnter")
         {
-            ShowSweetAlert("We have sent you an email", SweetAlertIcons.Success);
+
         }
     }
 
