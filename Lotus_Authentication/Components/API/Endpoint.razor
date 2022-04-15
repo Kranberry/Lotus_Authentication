@@ -1,0 +1,54 @@
+﻿@namespace Lotus_Authentication.Components
+@using Lotus_Authentication.API.ApiDocumentation
+
+<div class="component-base">
+    @if (Method.IsActive)
+    {
+        <h3>@Method.GetControllerName()</h3>
+    }
+    else
+    {
+        <h3>@Method.GetControllerName() : <span class="badge bg-danger">Inactive</span></h3>
+    }
+    <h4>Endpoint: <u>@Method.Route</u></h4>
+    <h6>Method: <span class="@GetMethodClass(Method.RestMethod)">@Method.RestMethod</span></h6>
+    <p>Name: @Method.GetNiceName()</p>
+    <p>Summary: @Method.Summary</p>
+    <p>Returns: @Method.Returns</p>
+    <h3>Headers</h3>
+    @foreach(Parameter param in Method.HeaderParameters)
+    {
+        <p>@(param.Required ? "*" : "") @param.Name : @param.Value</p>
+    }
+
+    @if(Method.QueryParameters.Count() > 0)
+    {
+        <h3>Route parameters</h3>
+        @foreach(Parameter param in Method.QueryParameters)
+        {
+            <p>@(param.Required ? "*" : "") @param.Name : @param.Value</p>
+        }   
+    }
+
+    @if(Method.BodyParameters.Count() > 0)
+    {
+        <h3>Body</h3>
+        @foreach(Parameter param in Method.BodyParameters)
+        {
+            <p>@(param.Required ? "*" : "") @param.Name : @param.Value</p>
+        }   
+    }
+
+    <h3>Status Codes</h3>
+    @foreach(Result result in Method.Results)
+    {
+        <div class="@GetStatusClass(result.StatusCode)">
+            <p>@result.StatusCode ::: @result.Summary</p>
+        </div>
+    }
+    <hr />
+</div>
+
+@code {
+    [Parameter] public Method Method { get; set; }
+}

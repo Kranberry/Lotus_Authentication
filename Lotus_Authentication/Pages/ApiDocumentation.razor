@@ -27,53 +27,7 @@
     <div style="display: flex; flex-direction: column;">
         @foreach(Method method in Doc.Methods.Where(m => m.Name.Contains("API.Controllers")))
         {
-            <div class="">
-                @if (method.IsActive)
-                {
-                    <h3>@method.GetControllerName()</h3>
-                }
-                else
-                {
-                    <h3>@method.GetControllerName() : <span class="badge bg-danger">Inactive</span></h3>
-                }
-                <h4>Endpoint: <u>@method.Route</u></h4>
-                <h6>Method: <span class="@GetMethodClass(method.RestMethod)">@method.RestMethod</span></h6>
-                <p>Name: @method.GetNiceName()</p>
-                <p>Summary: @method.Summary</p>
-                <p>Returns: @method.Returns</p>
-                <h3>Headers</h3>
-                @foreach(Parameter param in method.HeaderParameters)
-                {
-                    <p>@(param.Required ? "*" : "") @param.Name : @param.Value</p>
-                }
-
-                @if(method.QueryParameters.Count() > 0)
-                {
-                    <h3>Route parameters</h3>
-                    @foreach(Parameter param in method.QueryParameters)
-                    {
-                        <p>@(param.Required ? "*" : "") @param.Name : @param.Value</p>
-                    }   
-                }
-
-                @if(method.BodyParameters.Count() > 0)
-                {
-                    <h3>Body</h3>
-                    @foreach(Parameter param in method.BodyParameters)
-                    {
-                        <p>@(param.Required ? "*" : "") @param.Name : @param.Value</p>
-                    }   
-                }
-
-                <h3>Status Codes</h3>
-                @foreach(Result result in method.Results)
-                {
-                    <div class="@GetStatusClass(result.StatusCode)">
-                       <p>@result.StatusCode ::: @result.Summary</p>
-                    </div>
-                }
-                <hr />
-            </div>
+            <Endpoint Method="method"></Endpoint>
         }
     </div>
 </div>
@@ -91,21 +45,4 @@
             Doc = (DocumentationModel)serializer.Deserialize(reader);
         }
     }
-
-    private string GetStatusClass(int statusCode) => statusCode switch
-    {
-        (>= 200 and < 300) => "alert alert-success",
-        (>= 300 and < 400) => "alert alert-warning",
-        (>= 400 and < 500) => "alert alert-danger",
-        _ => "alert alert-info"
-    };
-
-    private string GetMethodClass(string method) => method switch
-    {
-        "POST" => "badge bg-primary",
-        "DELETE" => "badge bg-danger",
-        "GET" => "badge bg-info text-dark",
-        "PUT" => "badge bg-primary",
-        _ => "badge bg-dark",
-    };
 }
