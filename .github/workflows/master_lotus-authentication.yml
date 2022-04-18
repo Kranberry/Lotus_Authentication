@@ -3,6 +3,10 @@
 
 name: Build and deploy ASP.Net Core app to Azure Web App - lotus-authentication
 
+defaults:
+  run:
+    working-directory: Lotus_Authentication
+
 on:
   push:
     branches:
