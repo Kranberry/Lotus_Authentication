@@ -5,38 +5,89 @@
     @if (Method.IsActive)
     {
         <h3>@Method.GetControllerName()</h3>
+        <h4>Endpoint Name: @Method.GetNiceName()</h4>
     }
     else
     {
         <h3>@Method.GetControllerName() : <span class="badge bg-danger">Inactive</span></h3>
     }
-    <h4>Endpoint: <u>@Method.Route</u></h4>
-    <h6>Method: <span class="@GetMethodClass(Method.RestMethod)">@Method.RestMethod</span></h6>
-    <p>Name: @Method.GetNiceName()</p>
+    <div class="endpoint">
+        <span class="col-4 @GetMethodClass(Method.RestMethod)">@Method.RestMethod</span>
+        <h4><b><u>@Method.Route</u></b></h4>
+    </div>
+    <p></p>
     <p>Summary: @Method.Summary</p>
-    <p>Returns: @Method.Returns</p>
-    <h3>Headers</h3>
-    @foreach(Parameter param in Method.HeaderParameters)
-    {
-        <p>@(param.Required ? "*" : "") @param.Name : @param.Value</p>
-    }
+    @*<p>Returns: @Method.Returns</p>*@
+
+    <div>
+        <h3>Headers</h3>
+        <table class="parameters table table-light table-striped table-hover table-bordered border-secondary">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Required</th>
+                    <th scope="col">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(Parameter param in Method.HeaderParameters)
+                {
+                    <tr>
+                        <td class="col-1">@param.Name</td>
+                        <td class="col-1">@(param.Required ? "Required" : "Optional")</td>
+                        <td class="col-1">@param.Value</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 
     @if(Method.QueryParameters.Count() > 0)
     {
         <h3>Route parameters</h3>
-        @foreach(Parameter param in Method.QueryParameters)
-        {
-            <p>@(param.Required ? "*" : "") @param.Name : @param.Value</p>
-        }   
+        <table class="parameters table table-light table-striped table-hover table-bordered border-secondary">
+            <thead>
+                <tr>
+                    <th scope="col">Parameter Name</th>
+                    <th scope="col">Required</th>
+                    <th scope="col">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(Parameter param in Method.QueryParameters)
+                {
+                    <tr>
+                        <td class="col-1">@param.Name</td>
+                        <td class="col-1">@(param.Required ? "Required" : "Optional")</td>
+                        <td class="col-1">@param.Value</td>
+                    </tr>
+                }
+            </tbody>
+        </table>   
     }
 
     @if(Method.BodyParameters.Count() > 0)
     {
         <h3>Body</h3>
-        @foreach(Parameter param in Method.BodyParameters)
-        {
-            <p>@(param.Required ? "*" : "") @param.Name : @param.Value</p>
-        }   
+        <table class="body-properties table table-light table-striped table-hover table-bordered border-secondary">
+            <thead>
+                <tr>
+                    <th scope="col">JSON Property</th>
+                    <th scope="col">Required</th>
+                    <th scope="col">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(Parameter param in Method.BodyParameters)
+                {
+                    <tr>
+                        <td class="col-2">@param.Name</td>
+                        <td class="col-1">@(param.Required ? "Required" : "Optional")</td>
+                        <td class="col-9">@param.Value</td>
+                    </tr>
+                }
+            </tbody>
+        </table>   
     }
 
     <h3>Status Codes</h3>
