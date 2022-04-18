@@ -42,7 +42,7 @@
         XmlSerializer serializer = new(typeof(DocumentationModel));
         using(Stream reader = new FileStream(Env.GetWWWRootPath() + XmlDocumentPath, FileMode.Open))
         {
-            Doc = (DocumentationModel)serializer.Deserialize(reader);
+            Doc = (DocumentationModel)serializer.Deserialize(reader)!;
         }
     }
 }
