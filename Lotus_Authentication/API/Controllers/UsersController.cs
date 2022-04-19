@@ -18,23 +18,23 @@ namespace Lotus_Authentication.API.Controllers
         ///     <param name="apiKey" required="true">Your api key</param>
         /// </header>
         /// <body>
-        ///     <param name="username" required="true">testsson</param>
-        ///     <param name="email" required="true">test@testsson.se</param>
-        ///     <param name="password" required="true">a94a8fe5ccb19ba61c4c0873d391e987982fbbd3</param>
-        ///     <param name="country_iso2" required="true">SE</param>
-        ///     <param name="first_name">Test</param>
-        ///     <param name="last_name">Testsson</param>
-        ///     <param name="gender">1</param>
+        ///     <param name="username" required="true" sample="testsson">The username of the user</param>
+        ///     <param name="email" required="true" sample="test@testsson.se">The email of the user</param>
+        ///     <param name="password" required="true" sample="a94a8fe5ccb19ba61c4c0873d391e987982fbbd3">The SHA1 encrypted password</param>
+        ///     <param name="country_iso2" required="true" sample="SE">The 2 character ISO2 of the country the user is from</param>
+        ///     <param name="first_name" sample="Test">The users firstname</param>
+        ///     <param name="last_name" sample="Testsson">The users lastname</param>
+        ///     <param name="gender" sample="1">0 = 'Other' | 1 = 'Male' | 2 = 'Female'</param>
         /// </body>
 		/// <returns>A user object containing the users ID, email, Gender and Country ISO2</returns>
         /// <results>
-        ///     <result status="200">Everything passed</result>
-        ///     <result status="400">Any of the mandatory properties are null or empty</result>
-        ///     <result status="400">The email is invalid</result>
-        ///     <result status="400">The password is not a valid SHA1 checksum</result>
-        ///     <result status="400">The username is invalid</result>
-        ///     <result status="400">The username or email address already exists</result>
-        ///     <result status="403">Unautorized</result>
+        ///     <result status="200" reason="Everything passed"></result>
+        ///     <result status="400" reason="Any of the mandatory properties are null or empty"></result>
+        ///     <result status="400" reason="The email is invalid"></result>
+        ///     <result status="400" reason="The password is not a valid SHA1 checksum"></result>
+        ///     <result status="400" reason="The username is invalid"></result>
+        ///     <result status="400" reason="The username or email address already exists"></result>
+        ///     <result status="403" reason="Unautorized"></result>
         /// </results>
         [HttpPost, Route("api/users/newUser")]
         public async Task<ActionResult<dynamic>> AddNewUser([FromHeader] string apiKey, [FromBody] ApiUserModel body) // HttpRequest body
@@ -136,9 +136,9 @@ namespace Lotus_Authentication.API.Controllers
         /// </query>
         /// <returns>OK result if user was deleted successfully</returns>
         /// <results>
-        ///     <result status="200">Everything passed</result>
-        ///     <result status="400">User with this id could not be found</result>
-        ///     <result status="403">Unauthorized</result>
+        ///     <result status="200" reason="Everything passed"></result>
+        ///     <result status="400" reason="User with this id could not be found"></result>
+        ///     <result status="403" reason="Unauthorized"></result>
         /// </results>
         [HttpDelete("api/users/user/permanent-delete/{userId}")]
         public async Task<ActionResult> DeleteUser([FromHeader] string apiKey, int userId)
@@ -185,9 +185,9 @@ namespace Lotus_Authentication.API.Controllers
         /// </query>
         /// <returns>OK result if the connection was successfully removed</returns>
         /// <results>
-        ///     <result status="200">connection was successfully removed</result>
-        ///     <result status="400">User with this id could not be found</result>
-        ///     <result status="403">Unauthorized</result>
+        ///     <result status="200" reason="connection was successfully removed"></result>
+        ///     <result status="400" reason="User with this id could not be found"></result>
+        ///     <result status="403" reason="Unauthorized"></result>
         /// </results>
         [HttpDelete("api/users/user/remove/{userId}")]
         public ActionResult DeleteUserApiReference([FromHeader] string apiKey, int userId)

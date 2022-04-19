@@ -18,16 +18,29 @@
     
 }
 
+pre{
+    background-color: #efeff1;
+    color: black;
+    width: 40%;
+}
+
 @media only screen and (max-width: 600px) {
     .endpoint {
         flex-direction: column;
     }
+        .endpoint span {
+            width: 100%;
+        }
 
     .parameters {
         width: 100%;
     }
 
     .body-properties {
+        width: 100%;
+    }
+
+    pre {
         width: 100%;
     }
 }
@@ -50,6 +63,10 @@
     .body-properties {
         width: 100%;
     }
+
+    pre {
+        width: 100%;
+    }
 }
 
 /* Medium devices (landscape tablets, 768px and up) */
@@ -59,6 +76,10 @@
 
 /* Large devices (laptops/desktops, 992px and up) */
 @media only screen and (min-width: 992px) {
+    .endpoint span {
+        width: 5%;
+    }
+    
     .parameters {
         width: 80%;
     }
@@ -66,11 +87,19 @@
     .body-properties {
         width: 80%;
     }
+
+    pre {
+        width: 70%;
+    }
 }
 
 /* Extra large devices (large laptops and desktops, 1200px and up) */
 @media only screen and (min-width: 1200px) {
     .parameters {
         width: 30%;
+    }
+
+    pre {
+        width: 40%;
     }
 } 

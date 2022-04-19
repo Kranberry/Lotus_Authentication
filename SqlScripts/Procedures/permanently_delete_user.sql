@@ -1,4 +1,8 @@
-CREATE PROCEDURE [permanently_delete_user]
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE [dbo].[permanently_delete_user]
 (
     @user_id INT
 )
@@ -11,6 +15,9 @@ BEGIN
     END
 
     DELETE FROM [user2api_key] WHERE
+    fk_user_id = @user_id;
+
+    DELETE FROM [api_key_user_ban] WHERE
     fk_user_id = @user_id;
 
     DELETE FROM [user] WHERE [user_id] = @user_id;

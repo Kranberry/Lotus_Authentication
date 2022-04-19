@@ -27,7 +27,10 @@
     <div style="display: flex; flex-direction: column;">
         @foreach(Method method in Doc.Methods.Where(m => m.Name.Contains("API.Controllers")))
         {
-            <Endpoint Method="method"></Endpoint>
+            @if (method.IsActive)
+            {
+                <Endpoint Method="method"></Endpoint>       
+            }
         }
     </div>
 </div>

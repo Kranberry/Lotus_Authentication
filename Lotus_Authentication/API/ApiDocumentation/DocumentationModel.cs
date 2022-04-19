@@ -64,6 +64,9 @@ public class Parameter
     [XmlAttribute("name")]
     public string Name { get; set; }
 
+    [XmlAttribute("sample")]
+    public string Sample { get; set; }
+
     [XmlAttribute("required")]
     public bool Required { get; set; }
 
@@ -75,6 +78,14 @@ public class Result
 {
     [XmlAttribute("status")]
     public int StatusCode { get; set; }
+
+    [XmlAttribute("reason")]
+    public string Reason { get; set; }
+
     [XmlText]
     public string Summary { get; set; }
+
+    [XmlElement("param")]
+    public Parameter[] Parameters { get; init; } = Array.Empty<Parameter>();
+
 }
