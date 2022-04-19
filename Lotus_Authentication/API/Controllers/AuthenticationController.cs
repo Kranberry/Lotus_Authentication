@@ -24,10 +24,13 @@ namespace Lotus_Authentication.API.Controllers
 		/// <returns>A user object containing the users ID, email, Gender and Country ISO2, and Ban status of the user to your api key</returns>
 		/// <results>
 		///     <result status="200" reason="Authentication passed">
-		///			<param name="id" sample="1234">The id of the user</param>
-		///			<param name="email" sample="test@testsson.se">The users email address</param>
-		///			<param name="gender" sample="Male">The users Gender</param>
-		///			<param name="SE" sample="SE">The ISO2 code of the users country</param>
+		///			<param name="id" sample="1234">The users ID</param>
+		///			<param name="email" sample="test@testsson.se">The users email</param>
+		///			<param name="gender" sample="Male">The users gender</param>
+		///			<param name="country" sample="SE">The ISO2 code of the users country</param>
+		///			<param name="banStatus" sample="null">true/false if previouslu been banned, null if never</param>
+		///			<param name="banLiftDate" sample="null">The DateTime of the ban lift date</param>
+		///			<param name="banReason" sample="null">The reason of the ban</param>
 		///		</result>
 		///     <result status="400" reason="username and email cannot be left empty"></result>
 		///     <result status="400" reason="password cannot be left empty"></result>

@@ -105,7 +105,7 @@ public class DbHandler
             storedSalt = GetUserByUserName(userName!).Salt!;
         else
             storedSalt = GetUser(email!, userType).Salt!;
-        string hashedPass = SHA256Hash.HashString(password, storedSalt);
+        string hashedPass = SHA256Hash.HashString(password.ToUpper(), storedSalt);
         parameters.Add("@password", hashedPass, DbType.String);
 
         using IDbConnection con = new SqlConnection(AppConfig.ActiveDatabaseCS);

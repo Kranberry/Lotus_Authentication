@@ -104,7 +104,7 @@
         <div class="b-shadow">
             <p class="@GetStatusClass(result.StatusCode)">@result.StatusCode ::: @result.Reason</p>
             
-            @if(result.StatusCode >= 200 && result.StatusCode < 300)
+            @if(result.StatusCode >= 200 && result.StatusCode < 300 && result.Parameters?.Length > 0)
             {
                 <pre>
                     <code>

@@ -12,7 +12,7 @@ namespace Lotus_Authentication.API.Controllers
         /// Add a new user to our database
         /// </summary>
         /// <isActive>true</isActive>
-		/// <method>POST</method>
+        /// <method>POST</method>
         /// <route>api/Users/newUser</route>
         /// <header>
         ///     <param name="apiKey" required="true">Your api key</param>
@@ -26,9 +26,14 @@ namespace Lotus_Authentication.API.Controllers
         ///     <param name="last_name" sample="Testsson">The users lastname</param>
         ///     <param name="gender" sample="1">0 = 'Other' | 1 = 'Male' | 2 = 'Female'</param>
         /// </body>
-		/// <returns>A user object containing the users ID, email, Gender and Country ISO2</returns>
+        /// <returns>A user object containing the users ID, email, Gender and Country ISO2</returns>
         /// <results>
-        ///     <result status="200" reason="Everything passed"></result>
+        ///     <result status="200" reason="Everything passed">
+        ///			<param name="id" sample="1234">The id of the user</param>
+        ///			<param name="email" sample="test@testsson.se">The users email address</param>
+        ///			<param name="gender" sample="Male">The users Gender</param>
+        ///			<param name="SE" sample="SE">The ISO2 code of the users country</param>
+        ///     </result>
         ///     <result status="400" reason="Any of the mandatory properties are null or empty"></result>
         ///     <result status="400" reason="The email is invalid"></result>
         ///     <result status="400" reason="The password is not a valid SHA1 checksum"></result>
@@ -36,7 +41,7 @@ namespace Lotus_Authentication.API.Controllers
         ///     <result status="400" reason="The username or email address already exists"></result>
         ///     <result status="403" reason="Unautorized"></result>
         /// </results>
-        [HttpPost, Route("api/users/newUser")]
+    [HttpPost, Route("api/users/newUser")]
         public async Task<ActionResult<dynamic>> AddNewUser([FromHeader] string apiKey, [FromBody] ApiUserModel body) // HttpRequest body
         {
             string[] mandatoryKeys = new string[] { nameof(body.Email), nameof(body.UserName), nameof(body.Password), nameof(body.CountryISO2) };
@@ -195,7 +200,7 @@ namespace Lotus_Authentication.API.Controllers
             if (string.IsNullOrWhiteSpace(apiKey) || !ApiKey.IsValidApiKey(apiKey))
                 return StatusCode(403);
             if (userId > 0)
-                return new BadRequestObjectResult("Ivalid userId");
+                return new BadRequestObjectResult("Invalid userId");
 
             User user;
             try
