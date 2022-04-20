@@ -43,6 +43,10 @@ pre{
     pre {
         width: 100%;
     }
+
+    hr {
+        margin-bottom: 16%;
+    }
 }
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
@@ -67,6 +71,10 @@ pre{
     pre {
         width: 100%;
     }
+
+    hr {
+        margin-bottom: 8%;
+    }
 }
 
 /* Medium devices (landscape tablets, 768px and up) */
@@ -90,6 +98,10 @@ pre{
 
     pre {
         width: 70%;
+    }
+
+    hr {
+        margin-bottom: 4%;
     }
 }
 
