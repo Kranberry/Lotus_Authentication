@@ -15,7 +15,7 @@ public partial class ApiUserManagement : IDisposable
     private bool DoRegister = false;
 
     private bool SweetAlertHidden { get; set; } = true;
-    private string SweetAlertText { get; set; } = "We have sent you an email";
+    private string SweetAlertText { get; set; } = "Your account is ready for you!";
     private SweetAlertIcons SweetAlertIcon { get; set; } = SweetAlertIcons.Success;
 
     private Gender SelectedGender = Gender.Other;
@@ -127,7 +127,7 @@ public partial class ApiUserManagement : IDisposable
                 foreach (KeyValuePair<string, InputValidThing> kvp in InputFields)
                     kvp.Value.Value = "";
 
-                ShowSweetAlert("We have sent you and email", SweetAlertIcons.Success);
+                ShowSweetAlert("Your account is ready for you!", SweetAlertIcons.Success);
             }
             catch (UserAlreadyExistsException)
             {
