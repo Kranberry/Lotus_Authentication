@@ -1,0 +1,16 @@
+﻿<div @onclick="ToggleToolTip" class="@SomeClass tooltip-wrapper">
+    <span>@Text</span>
+    @ChildContent
+</div>
+
+@namespace Lotus_Authentication.Components
+@code {
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public string Text { get; set; }
+
+    private string SomeClass = "";
+    private void ToggleToolTip()
+    {
+        SomeClass = SomeClass.Length > 0 ? "" : "toggled";
+    }
+}
