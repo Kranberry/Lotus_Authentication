@@ -23,6 +23,10 @@
     form ::deep input{
         width: 100%;
     }
+
+    ::deep .test {
+        margin-bottom: 0;
+    }
 }
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
