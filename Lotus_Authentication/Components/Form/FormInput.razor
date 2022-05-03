@@ -3,11 +3,11 @@
     {
         @if(MaxValueLength > 0)
         {
-            <input maxlength="@MaxValueLength" type="@InputType" value="@_Value" @oninput="UpdateValueChanged" class="inputField @Class" placeholder="@PlaceHolder" id="@ID" />
+            <input maxlength="@MaxValueLength" type="@InputType" value="@_Value" @onchange="UpdateValueChanged" class="inputField @Class" placeholder="@PlaceHolder" id="@ID" />
         }
         else
         {
-            <input type="@InputType" value="@_Value" @oninput="UpdateValueChanged" class="inputField @Class" placeholder="@PlaceHolder" id="@ID" />
+            <input type="@InputType" value="@_Value" @onchange="UpdateValueChanged" class="inputField @Class" placeholder="@PlaceHolder" id="@ID" />
         }
         @if (IncludeClearButton)
         {
